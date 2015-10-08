@@ -1,0 +1,183 @@
+import org.apache.tools.ant.filters.*
+
+apply plugin: 'java'
+apply plugin: 'war'
+
+
+// Gradle Tool Window in IntelliJ IDEA:
+// https://www.jetbrains.com/idea/help/manipulating-the-tool-windows.html
+
+repositories {
+    mavenCentral()
+}
+
+def webappRootDir = "src/main/webapp"
+ext.libDir = file("$webappRootDir/WEB-INF/lib")
+sourceSets.main.output.classesDir =  file("$webappRootDir/WEB-INF/classes")
+sourceSets.main.output.resourcesDir =  file("$webappRootDir/WEB-INF/classes")
+
+def springVersion = "4.1.0.RELEASE"
+def jspVersion = "2.1"
+def jstlVersion = "1.1.2"
+def servletVersion = "2.5"
+def hibernateVersion = "4.3.5.Final"
+def c3p0Version = "0.9.1.2"
+def tilesVersion = "3.0.0"
+def mysqlVersion = "5.1.27"
+def jacksonVersion = "2.3.0"
+def junitVersion = "4.11"
+def commonsCodecVersion = "1.8"
+def commonsIoVersion = "2.4"
+def cglibVersion = "2.1_3"
+def log4jVersion = "2.1"
+def slf4jVersion = "1.7.7"
+def springSecurityVersion = "3.2.0.RELEASE"
+def conf = "local"
+
+List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
+                "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
+]
+
+List spring = [ "org.springframework:spring-webmvc:$springVersion",
+                "org.springframework:spring-tx:$springVersion",
+                "org.springframework:spring-orm:$springVersion",
+                "org.springframework:spring-core:$springVersion",
+                "org.springframework:spring-test:$springVersion",
+                "org.springframework:spring-test:$springVersion"]
+
+List springSecurity = ["org.springframework.security:spring-security-core:${springSecurityVersion}",
+                       "org.springframework.security:spring-security-web:${springSecurityVersion}",
+                       "org.springframework.security:spring-security-config:${springSecurityVersion}",
+                       "org.springframework.security:spring-security-taglibs:${springSecurityVersion}"]
+
+
+List log4j = [
+        "org.apache.logging.log4j:log4j-1.2-api:$log4jVersion",
+        "org.apache.logging.log4j:log4j-core:$log4jVersion",
+        "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion",
+        "org.apache.logging.log4j:log4j-api:$log4jVersion"
+]
+
+List slf4j = [
+        "org.slf4j:slf4j-api:$slf4jVersion",
+        "org.slf4j:slf4j-ext:$slf4jVersion"
+]
+
+dependencies {
+
+   compile "javax.servlet.jsp:jsp-api:$jspVersion",
+           "javax.servlet:jstl:$jstlVersion",
+           "taglibs:standard:$jstlVersion",
+           "c3p0:c3p0:$c3p0Version",
+           "mysql:mysql-connector-java:$mysqlVersion",
+           "org.hibernate:hibernate-core:$hibernateVersion"
+
+   compile ("org.apache.tiles:tiles-core:$tilesVersion") {
+          exclude module: "jcl-over-slf4j"
+   }
+
+   compile "org.apache.tiles:tiles-jsp:$tilesVersion"
+
+   compile ("org.slf4j:jcl-over-slf4j:$slf4jVersion") {
+       exclude module: "slf4j-api"
+   }
+
+    // Logging
+    slf4j.each { artifact ->
+        compile artifact, {
+            exclude group: 'ch.qos.cal10n'
+        }
+    }
+
+//    }
+//    log4jArtifacts.each { artifact ->
+//        compile "org.apache.logging.log4j:$artifact:$log4jVersion"
+//    }
+
+   compile "commons-io:commons-io:$commonsIoVersion"
+
+   compile spring, springSecurity, jackson, log4j
+
+    providedCompile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
+    providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
+
+}
+
+loadConfiguration()
+
+processResources {
+    filter(ReplaceTokens, tokens: config)
+}
+
+def loadConfiguration() {
+    // This can be passed from the command line like -Penv=value
+    def conf = hasProperty('env') ? env : 'david'
+    ext.conf = conf
+    println "Environment is set to $conf"
+    def configFile = file('conf/config.groovy')
+    def config = new ConfigSlurper("$conf").parse(configFile.toURL())
+
+    // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
+    // which are the files under 'src/main/resources'
+    ext.config = config
+}
+
+ext.baseDir = "$rootProject.projectDir"
+def tomcatBin = "deploy/tomcat7/bin"
+def tomcatStart = "$tomcatBin/startup.sh"
+def tomcatStop = "$tomcatBin/shutdown.sh"
+def tomcatWebappsDir = "deploy/tomcat7/webapps"
+
+
+/*
+echo "CATALINA_OPTS=\"-XX:MaxPermSize=128m -Xmx512m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Dfile.encoding=UTF-8\"" > /opt/tomcat/bin/setenv.sh
+echo "CLASSPATH=\"/vagrant/deploy/external-configuration/\"" >> /opt/tomcat/bin/setenv.sh
+chmod a+rwx /opt/tomcat/bin/setenv.sh
+ */
+
+task clean (type: Delete, overwrite: true) {
+
+    doFirst {
+        println "Cleaning files..."
+    }
+
+    delete file("$buildDir")
+    delete file("$webappRootDir/WEB-INF/classes")
+}
+
+task copyDependenciesToLib(type: Sync) {
+    from configurations.runtime
+    into "$libDir"
+}
+
+task explodedWar(type:Copy) {
+    // Reuses the copy specification of the war task to mimic its behaviour into the desired destination
+    into "$tomcatWebappsDir/ROOT"
+    with war
+}
+
+task stopTomcat(type:Exec) {
+    workingDir 'deploy/tomcat7/bin'
+    commandLine './shutdown.sh'
+    ignoreExitValue = true
+}
+
+task startTomcat(type:Exec) {
+   dependsOn processResources, compileJava, copyDependenciesToLib
+   workingDir 'deploy/tomcat7/bin'
+   commandLine './startup.sh'
+   //ignoreExitValue = true
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+task restartTomcat() {
+    dependsOn stopTomcat, startTomcat
+    startTomcat.mustRunAfter stopTomcat
+    doFirst {
+        Thread.sleep(5000)
+    }
+}
+
