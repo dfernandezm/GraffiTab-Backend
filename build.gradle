@@ -181,3 +181,12 @@ task restartTomcat() {
     }
 }
 
+task stage() {
+ 
+  doFirst {
+     println "Running Stage Task"
+  }
+
+}
+
+
