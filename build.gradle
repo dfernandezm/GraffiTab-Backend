@@ -1,3 +1,15 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.liquibase:liquibase-gradle-plugin:1.1.1"
+        classpath "mysql:mysql-connector-java:5.1.27"
+    }
+}
+
+apply plugin: 'liquibase'
+
 import org.apache.tools.ant.filters.*
 
 apply plugin: 'java'
@@ -98,12 +110,32 @@ dependencies {
 
    compile spring, springSecurity, jackson, log4j
 
-    providedCompile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
-    providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
+   providedCompile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
+   providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
+   
+   runtime "mysql:mysql-connector-java:$mysqlVersion"
 
 }
 
+// == Liquibase ==
+
 loadConfiguration()
+
+liquibase { 
+  activities { 
+    main {
+      changeLogFile 'src/main/resources/database-update/database-changelog.xml'
+      url "$jdbcUrl"
+      username "$dbUser"
+      password "$dbPassword"
+    }
+  }
+
+  // runList = project.ext.runList
+  // runList = 'main'
+  runList = 'main'
+}
+
 
 processResources {
     filter(ReplaceTokens, tokens: config)
@@ -120,6 +152,9 @@ def loadConfiguration() {
     // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
     // which are the files under 'src/main/resources'
     ext.config = config
+    ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
+    ext.dbUser = "$config.databaseUsername"
+    ext.dbPassword = "$config.databasePassword"
 }
 
 ext.baseDir = "$rootProject.projectDir"
