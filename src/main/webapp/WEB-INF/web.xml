@@ -15,7 +15,7 @@
 -->
 
     <servlet>
-        <servlet-name>dutils-service</servlet-name>
+        <servlet-name>graffitab</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
