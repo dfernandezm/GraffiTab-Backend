@@ -26,3 +26,9 @@ proguard/
 .gradle/
 build/
 bin/
+src/main/webapp/WEB-INF/classes/
+src/main/webapp/WEB-INF/lib/
+deploy/tomcat7/logs/*.log
+deploy/tomcat7/logs/*.out
+deploy/tomcat7/logs/*.txt
+deploy/tomcat7/work/*

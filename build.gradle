@@ -44,7 +44,7 @@ def cglibVersion = "2.1_3"
 def log4jVersion = "2.1"
 def slf4jVersion = "1.7.7"
 def springSecurityVersion = "3.2.0.RELEASE"
-def conf = "local"
+
 
 List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
                 "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
@@ -101,18 +101,13 @@ dependencies {
         }
     }
 
-//    }
-//    log4jArtifacts.each { artifact ->
-//        compile "org.apache.logging.log4j:$artifact:$log4jVersion"
-//    }
-
    compile "commons-io:commons-io:$commonsIoVersion"
 
    compile spring, springSecurity, jackson, log4j
 
    providedCompile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
    providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
-   
+
    runtime "mysql:mysql-connector-java:$mysqlVersion"
 
 }
@@ -121,8 +116,8 @@ dependencies {
 
 loadConfiguration()
 
-liquibase { 
-  activities { 
+liquibase {
+  activities {
     main {
       changeLogFile 'src/main/resources/database-update/database-changelog.xml'
       url "$jdbcUrl"
@@ -143,8 +138,8 @@ processResources {
 
 def loadConfiguration() {
     // This can be passed from the command line like -Penv=value
-    def conf = hasProperty('env') ? env : 'david'
-    ext.conf = conf
+    def conf = hasProperty('env') ? env : 'local'
+    project.ext.conf = conf
     println "Environment is set to $conf"
     def configFile = file('conf/config.groovy')
     def config = new ConfigSlurper("$conf").parse(configFile.toURL())
@@ -162,13 +157,6 @@ def tomcatBin = "deploy/tomcat7/bin"
 def tomcatStart = "$tomcatBin/startup.sh"
 def tomcatStop = "$tomcatBin/shutdown.sh"
 def tomcatWebappsDir = "deploy/tomcat7/webapps"
-
-
-/*
-echo "CATALINA_OPTS=\"-XX:MaxPermSize=128m -Xmx512m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000 -Dfile.encoding=UTF-8\"" > /opt/tomcat/bin/setenv.sh
-echo "CLASSPATH=\"/vagrant/deploy/external-configuration/\"" >> /opt/tomcat/bin/setenv.sh
-chmod a+rwx /opt/tomcat/bin/setenv.sh
- */
 
 task clean (type: Delete, overwrite: true) {
 
@@ -198,7 +186,7 @@ task stopTomcat(type:Exec) {
 }
 
 task startTomcat(type:Exec) {
-   dependsOn processResources, compileJava, copyDependenciesToLib
+   // dependsOn processResources, compileJava, copyDependenciesToLib
    workingDir 'deploy/tomcat7/bin'
    commandLine './startup.sh'
    //ignoreExitValue = true
@@ -217,11 +205,34 @@ task restartTomcat() {
 }
 
 task stage() {
- 
+
   doFirst {
      println "Running Stage Task"
   }
 
 }
 
+task updateDb() {
+  dependsOn update
+  doFirst {
+      println "Migrations for environment - $project.conf"
+  }
+}
 
+task devBuild() {
+  dependsOn processResources, compileJava, copyDependenciesToLib
+  doFirst {
+     println "Task devBuild successfully ran"
+  }
+}
+
+task localTomcat {
+    dependsOn stopTomcat, devBuild, updateDb, startTomcat
+    devBuild.mustRunAfter stopTomcat
+    updateDb.mustRunAfter devBuild
+    startTomcat.mustRunAfter updateDb
+
+    doLast {
+       println "Local Tomcat should be running on port 8090"
+    }
+}
