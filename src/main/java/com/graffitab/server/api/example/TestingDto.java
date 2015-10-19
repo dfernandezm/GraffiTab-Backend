@@ -1,4 +1,4 @@
-package com.graffitab.server.api;
+package com.graffitab.server.api.example;
 
 /**
  * Created by david on 16/05/15.

@@ -21,18 +21,22 @@
         <property name="mappingResources" ref="hibernateMappings"/>
     </bean>
 
+    <!--  Hibernate Mapping files -->
     <bean id="hibernateMappings" class="org.springframework.beans.factory.config.ListFactoryBean">
         <property name="sourceList">
             <list>
-                <value>hibernate-mappings/Person.hbm.xml</value>
+                <value>hibernate-mappings/User.hbm.xml</value>
+                <value>hibernate-mappings/Cover.hbm.xml</value>
+                <value>hibernate-mappings/Avatar.hbm.xml</value>
             </list>
         </property>
     </bean>
 
     <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
     
-    <bean id="personDao" class="com.graffitab.server.persistence.dao.HibernateDaoImpl">
-        <property name="entityClass" value="com.graffitab.server.persistence.model.Person"/>
+    <!-- DAOs -->
+    <bean id="userDao" class="com.graffitab.server.persistence.dao.HibernateDaoImpl">
+        <property name="entityClass" value="com.graffitab.server.persistence.model.User"/>
     </bean>
 
 </beans>

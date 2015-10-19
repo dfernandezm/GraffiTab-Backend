@@ -13,12 +13,7 @@ public interface HibernateDao<E extends Identifiable<K>, K extends Serializable>
 	public static final String ROOT_OBJECT_ALIAS = "root";
 
 	/**
-	 * Evict the given entity from the hibernate session.
-	 */
-	public void evict(E entity);
-
-	/**
-	 * Create a Hibernate query.
+	 * Create a Hibernate name query.
 	 * 
 	 * @param query
 	 *            the query to create.
@@ -27,7 +22,7 @@ public interface HibernateDao<E extends Identifiable<K>, K extends Serializable>
 	public Query createNamedQuery(String query);
 
 	/**
-	 * Create a Hibernate named query.
+	 * Create a Hibernate HQL query.
 	 * 
 	 * @param query
 	 *            the query to create.

@@ -1,4 +1,4 @@
-package com.graffitab.server.api;
+package com.graffitab.server.api.example;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.logging.log4j.LogManager;
@@ -25,8 +25,11 @@ public class ExampleController {
 
         FileTestDto fileDto = new FileTestDto();
         fileDto.setName("Something");
-        fileDto.setValue("Something else");
-        LOG.info("This file is a test");
+        fileDto.setValue("Something else that is actually a test");
+       
+        LOG.info("This is a test - hot deployment");
+        
+        
         return fileDto;
     }
 

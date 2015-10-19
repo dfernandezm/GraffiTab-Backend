@@ -34,13 +34,6 @@ public class HibernateDaoImpl<E extends Identifiable<K>, K extends Serializable>
 	@Resource
 	private SessionFactory sessionFactory;
 
-	/**
-	 * Evict the given entity from the hibernate session.
-	 */
-	@Override
-	public void evict(E entity) {
-		getSession().evict(entity);
-	}
 
 	/**
 	 * Create a Hibernate named query.

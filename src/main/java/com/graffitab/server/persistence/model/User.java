@@ -5,20 +5,22 @@ import com.graffitab.server.persistence.dao.Identifiable;
 /**
  * Created by david.
  */
-public class Person implements Identifiable<Long> {
+public class User implements Identifiable<Long> {
 	
 	private static final long serialVersionUID = 1L;
 	private Long id;
-	public String externalId;
-	public String username;
-	public String firstName;
-	public String lastName;
-	public String password;
-	public String email;
-	public String website;
-	public String about;
+	private String externalId;
+	private String username;
+	private String firstName;
+	private String lastName;
+	private String password;
+	private String email;
+	private String website;
+	private String about;
+	private Avatar avatar;
+	private Cover cover;
 	
-    public Person() {
+    public User() {
 
     }
 
@@ -94,5 +96,25 @@ public class Person implements Identifiable<Long> {
 
 	public void setAbout(String about) {
 		this.about = about;
+	}
+
+	public Avatar getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(Avatar avatar) {
+		this.avatar = avatar;
+	}
+
+	public Cover getCover() {
+		return cover;
+	}
+
+	public void setCover(Cover cover) {
+		this.cover = cover;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 }

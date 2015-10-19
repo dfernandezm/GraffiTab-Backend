@@ -31,7 +31,7 @@ sourceSets.main.output.resourcesDir =  file("$webappRootDir/WEB-INF/classes")
 def springVersion = "4.1.0.RELEASE"
 def jspVersion = "2.1"
 def jstlVersion = "1.1.2"
-def servletVersion = "2.5"
+def servletVersion = "3.0"
 def hibernateVersion = "4.3.5.Final"
 def c3p0Version = "0.9.1.2"
 def tilesVersion = "3.0.0"
@@ -105,8 +105,8 @@ dependencies {
 
    compile spring, springSecurity, jackson, log4j
 
-   providedCompile group: 'javax.servlet', name: 'servlet-api', version:'2.5'
-   providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version:'2.1'
+   providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
+   providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
 
    runtime "mysql:mysql-connector-java:$mysqlVersion"
 
@@ -227,7 +227,7 @@ task devBuild() {
 }
 
 task localTomcat {
-    dependsOn stopTomcat, devBuild, updateDb, startTomcat
+    dependsOn stopTomcat, devBuild, startTomcat
     devBuild.mustRunAfter stopTomcat
     updateDb.mustRunAfter devBuild
     startTomcat.mustRunAfter updateDb

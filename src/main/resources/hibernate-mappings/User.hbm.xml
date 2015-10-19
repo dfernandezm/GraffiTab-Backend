@@ -2,18 +2,29 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-    <class name="com.graffitab.server.persistence.model.Person" table="person">
+    <class name="com.graffitab.server.persistence.model.User" table="gt_user">
         <id name="id" type="java.lang.Long">
             <column name="id" />
             <generator class="native" />
         </id>
-        <property name="externalId" column="externalId" not-null="false"/>
+        <property name="externalId" column="external_id" not-null="false"/>
         <property name="username" column="username" not-null="true" />
         <property name="password" column="password" not-null="true"/>
         <property name="firstName" column="firstname" not-null="true"/>
         <property name="lastName" column="lastname" not-null="true"/>
         <property name="email" column="email" not-null="true"/>
         <property name="website" column="website" not-null="false"/>
-        <property name="about" column="about" not-null="false"/>     
+        <property name="about" column="about" not-null="false"/>
+        
+        <many-to-one class="com.graffitab.server.persistence.model.Avatar" column="avatar_id" name="avatar" cascade="all"/>
+        <many-to-one class="com.graffitab.server.persistence.model.Cover" column="cover_id" name="cover" cascade="all"/>
+             
      </class>
+     
+     <query name="User.findAll">
+       select u
+       from User u
+     </query>
+     
+     
 </hibernate-mapping>
