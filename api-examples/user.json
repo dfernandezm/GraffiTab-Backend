@@ -1,0 +1,10 @@
+{
+    "user":{
+        "externalId": "abc",
+        "username": "juanito",
+        "firstName": "Juanito",
+        "lastName": "Rodríguez",
+        "password": "pass",
+        "email": "pepe@pepe.com"
+    }
+}
