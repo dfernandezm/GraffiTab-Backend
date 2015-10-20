@@ -7,9 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
@@ -37,7 +37,17 @@ public class UserApiController extends BaseApiController {
 	}
 	
 	//TODO: createUser, updateUser, deleteUser
-	
+	@RequestMapping(value = {"","/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
+	public User createUser(@JsonProperty("user") User user) {
+		
+		if (user.getFirstName() != null && user.getEmail() != null) {
+			if (user.getId() == null) {
+				userService.persist(user);
+			}
+		}
+		
+		return user;
+	}
 	
 	
 }
