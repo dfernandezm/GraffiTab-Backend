@@ -1,16 +1,25 @@
 package com.graffitab.server.api.user;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
+import com.graffitab.server.api.dto.user.CreateUserResult;
+import com.graffitab.server.api.dto.user.DeleteUserResult;
+import com.graffitab.server.api.dto.user.GetUserResult;
+import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
@@ -24,29 +33,56 @@ public class UserApiController extends BaseApiController {
 	private UserService userService;
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public User getUser(@PathVariable("id") Long id) {
+	public GetUserResult getUser(@PathVariable("id") Long id) {
+		
+		GetUserResult getUserResult = new GetUserResult();
 		User user = userService.getUserById(id);
 		
 		LOG.info("Returning user with id " + id);
 		
 		if (user == null) {
-			return new User();
+			getUserResult.setUser(new User());
+			return getUserResult;
 		}
 		
-		return user;
+		return getUserResult;
 	}
 	
-	//TODO: createUser, updateUser, deleteUser
+	
 	@RequestMapping(value = {"","/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
-	public User createUser(@JsonProperty("user") User user) {
+	@ResponseStatus(HttpStatus.CREATED)
+	public CreateUserResult createUser(@JsonProperty("user") User user) {
 		
+		CreateUserResult createUserResult = new CreateUserResult();
+		
+		//TODO: Separate validation
 		if (user.getFirstName() != null && user.getEmail() != null) {
 			if (user.getId() == null) {
 				userService.persist(user);
 			}
 		}
 		
-		return user;
+		LOG.info("Created user with ID " + user.getId());
+		createUserResult.setUser(user);
+		return createUserResult;
+	}
+	
+	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
+	public ListUsersResult listUsers() {
+		ListUsersResult listUsersResult = new ListUsersResult();
+		List<User> users = new ArrayList<>(); 
+		listUsersResult.setUsers(users);
+		
+		//TODO: listUsers
+		return listUsersResult;
+	}
+	
+	@RequestMapping(value = {"/{id}"}, method = RequestMethod.DELETE, produces={"application/json"})
+	public DeleteUserResult deleteUser(@PathVariable("id") Long userId) {
+		DeleteUserResult deleteUserResult = new DeleteUserResult();
+		
+		//TODO: deleteUser
+		return deleteUserResult;
 	}
 	
 	
