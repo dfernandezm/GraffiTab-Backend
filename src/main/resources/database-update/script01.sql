@@ -16,3 +16,9 @@ ALTER TABLE gt_user CHANGE coverId cover_id bigint(20) DEFAULT NULL;
 --changeset david:v100cs04
 ALTER TABLE avatar CHANGE image image varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL;
 ALTER TABLE cover CHANGE image image varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL;
+
+--changeset lucia:v100cs05
+ALTER TABLE avatar DROP FOREIGN KEY del_avatar_on_person;
+ALTER TABLE avatar DROP COLUMN userId;
+ALTER TABLE cover DROP FOREIGN KEY del_cover_on_person;
+ALTER TABLE cover DROP COLUMN userId;
