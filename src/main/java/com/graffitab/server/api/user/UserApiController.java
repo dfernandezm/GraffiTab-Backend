@@ -45,7 +45,7 @@ public class UserApiController extends BaseApiController {
 	}
 	
 	
-	@RequestMapping(value = {"","/{id}","/{register}"}, method = RequestMethod.POST, consumes={"application/json"})
+	@RequestMapping(value = {"","/{id}","/register"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
 	public CreateOrUpdateUserResult createUser(@JsonProperty("user") User user) {
 		
