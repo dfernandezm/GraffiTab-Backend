@@ -139,11 +139,14 @@ processResources {
 def loadConfiguration() {
     // This can be passed from the command line like -Penv=value
     def conf = hasProperty('env') ? env : 'local'
+    def configDir = "conf"
     project.ext.conf = conf
+    
     println "Environment is set to $conf"
-    def configFile = file('conf/config.groovy')
+    
+    def configFile = file("$configDir/config.groovy")
     def config = new ConfigSlurper("$conf").parse(configFile.toURL())
-
+    
     // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
     // which are the files under 'src/main/resources'
     ext.config = config
@@ -161,7 +164,7 @@ def tomcatWebappsDir = "deploy/tomcat7/webapps"
 task clean (type: Delete, overwrite: true) {
 
     doFirst {
-        println "Cleaning files..."
+        println "Cleaning files: $buildDir, $webappRootDir/WEB-INF/classes"
     }
 
     delete file("$buildDir")
