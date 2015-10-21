@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
-import com.graffitab.server.api.dto.user.CreateUserResult;
+import com.graffitab.server.api.dto.user.CreateOrUpdateUserResult;
 import com.graffitab.server.api.dto.user.DeleteUserResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
@@ -49,11 +49,11 @@ public class UserApiController extends BaseApiController {
 	}
 	
 	
-	@RequestMapping(value = {"","/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
+	@RequestMapping(value = {"","/{id}","/{register}"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
-	public CreateUserResult createUser(@JsonProperty("user") User user) {
+	public CreateOrUpdateUserResult createUser(@JsonProperty("user") User user) {
 		
-		CreateUserResult createUserResult = new CreateUserResult();
+		CreateOrUpdateUserResult createUserResult = new CreateOrUpdateUserResult();
 		
 		//TODO: Separate validation
 		if (user.getFirstName() != null && user.getEmail() != null) {
@@ -84,6 +84,5 @@ public class UserApiController extends BaseApiController {
 		//TODO: deleteUser
 		return deleteUserResult;
 	}
-	
 	
 }

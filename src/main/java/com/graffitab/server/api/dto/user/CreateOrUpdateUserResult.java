@@ -2,7 +2,7 @@ package com.graffitab.server.api.dto.user;
 
 import com.graffitab.server.persistence.model.User;
 
-public class CreateUserResult {
+public class CreateOrUpdateUserResult {
 	
 	private User user;
 
