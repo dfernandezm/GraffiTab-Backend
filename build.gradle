@@ -28,7 +28,7 @@ ext.libDir = file("$webappRootDir/WEB-INF/lib")
 sourceSets.main.output.classesDir =  file("$webappRootDir/WEB-INF/classes")
 sourceSets.main.output.resourcesDir =  file("$webappRootDir/WEB-INF/classes")
 
-def springVersion = "4.1.0.RELEASE"
+def springVersion = "4.2.2.RELEASE"
 def jspVersion = "2.1"
 def jstlVersion = "1.1.2"
 def servletVersion = "3.0"

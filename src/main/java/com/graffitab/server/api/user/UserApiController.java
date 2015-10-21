@@ -2,6 +2,7 @@ package com.graffitab.server.api.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -44,15 +45,15 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 	
-	
+	//TODO: separate this in two methods -- one "/,/register" (Create) and another "/{id}" (Update)
 	@RequestMapping(value = {"","/{id}","/register"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
-	public CreateOrUpdateUserResult createUser(@PathVariable(value="id") Long id, @JsonProperty("user") User user) {
+	public CreateOrUpdateUserResult createUser(@PathVariable Map<String, String> pathVariables, @JsonProperty("user") User user) {
 		
 		CreateOrUpdateUserResult createUserResult = new CreateOrUpdateUserResult();
 		
 		//TODO: validate here
-		if (id == null) {
+		if (pathVariables.get("id") == null) {
 			userService.persist(user);
 		} else {
 			//TODO: update
