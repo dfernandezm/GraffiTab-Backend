@@ -47,17 +47,18 @@ public class UserApiController extends BaseApiController {
 	
 	@RequestMapping(value = {"","/{id}","/register"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
-	public CreateOrUpdateUserResult createUser(@JsonProperty("user") User user) {
+	public CreateOrUpdateUserResult createUser(@PathVariable(value="id") Long id, @JsonProperty("user") User user) {
 		
 		CreateOrUpdateUserResult createUserResult = new CreateOrUpdateUserResult();
 		
-		//TODO: Separate validation
-		if (user.getFirstName() != null && user.getEmail() != null) {
-			if (user.getId() == null) {
-				userService.persist(user);
-			}
+		//TODO: validate here
+		if (id == null) {
+			userService.persist(user);
+		} else {
+			//TODO: update
 		}
 		
+		// Set the result
 		LOG.info("Created user with ID " + user.getId());
 		createUserResult.setUser(user);
 		return createUserResult;
