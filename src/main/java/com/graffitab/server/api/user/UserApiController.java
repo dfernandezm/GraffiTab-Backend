@@ -81,4 +81,17 @@ public class UserApiController extends BaseApiController {
 		return deleteUserResult;
 	}
 	
+	
+	private Boolean validateUser(User user) {
+		//TODO
+		return null;
+	}
+	
+	private Boolean isUsernameTaken(String username) {
+		//TODO:
+		return null;
+	}
+	
+	
+	
 }

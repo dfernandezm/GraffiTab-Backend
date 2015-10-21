@@ -47,4 +47,17 @@ public class UserService {
 	 return (List<User>)query.list();
  }
  
+ @Transactional(readOnly=true)
+ public User findByUsername(String username) {
+	 //TODO:
+	 return null;
+ }
+ 
+ @Transactional(readOnly=true)
+ public User findByEmail(String email) {
+	 //TODO:
+	 return null;
+ }
+ 
+ 
 }
