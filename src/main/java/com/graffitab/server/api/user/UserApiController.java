@@ -40,11 +40,7 @@ public class UserApiController extends BaseApiController {
 		
 		LOG.info("Returning user with id " + id);
 		
-		if (user == null) {
-			getUserResult.setUser(new User());
-			return getUserResult;
-		}
-		
+		getUserResult.setUser(user);
 		return getUserResult;
 	}
 	
