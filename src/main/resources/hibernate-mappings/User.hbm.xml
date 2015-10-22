@@ -26,5 +26,19 @@
        from User u
      </query>
      
+     <query name="User.findUsersWithEmail">
+       select u
+       from User u
+       where u.email = :email 
+       and u.id != :userId
+     </query>
+     
+     <query name="User.findUsersWithUsername">
+       select u
+       from User u
+       where u.username = :username 
+       and u.id != :userId
+     </query>
+     
      
 </hibernate-mapping>

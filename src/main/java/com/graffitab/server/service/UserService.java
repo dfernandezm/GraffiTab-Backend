@@ -48,15 +48,31 @@ public class UserService {
  }
  
  @Transactional(readOnly=true)
- public User findByUsername(String username) {
-	 //TODO:
-	 return null;
+ public List<User> findByUsername(String username) {
+	 return userDao.findByField("username", username);
  }
  
  @Transactional(readOnly=true)
- public User findByEmail(String email) {
-	 //TODO:
-	 return null;
+ public List<User> findByEmail(String email) {
+	 return userDao.findByField("email", email);
+ }
+ 
+ @SuppressWarnings("unchecked")
+ @Transactional(readOnly=true)
+ public List<User> findUsersWithUsername(String username, Long userId) {
+	 Query query = userDao.createNamedQuery("User.findUsersWithUsername");
+	 query.setParameter("username", username);
+	 query.setParameter("userId", userId);
+	 return query.list();
+ }
+ 
+ @SuppressWarnings("unchecked")
+ @Transactional(readOnly=true)
+ public List<User> findUsersWithEmail(String email, Long userId) {
+	 Query query = userDao.createNamedQuery("User.findUsersWithEmail");
+	 query.setParameter("email", email);
+	 query.setParameter("userId", userId);
+	 return query.list();
  }
  
  
