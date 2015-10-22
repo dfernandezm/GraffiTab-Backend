@@ -22,3 +22,7 @@ ALTER TABLE avatar DROP FOREIGN KEY del_avatar_on_person;
 ALTER TABLE avatar DROP COLUMN userId;
 ALTER TABLE cover DROP FOREIGN KEY del_cover_on_person;
 ALTER TABLE cover DROP COLUMN userId;
+
+--changeset lucia:v100cs06
+ALTER TABLE graffiti DROP FOREIGN KEY del_graffiti_on_tag;
+ALTER TABLE graffiti DROP COLUMN tagId;
