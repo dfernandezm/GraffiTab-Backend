@@ -44,6 +44,9 @@ def cglibVersion = "2.1_3"
 def log4jVersion = "2.1"
 def slf4jVersion = "1.7.7"
 def springSecurityVersion = "3.2.0.RELEASE"
+def jUnitVersion = "4.9"
+def mockitoVersion = "1.9.5"
+def jsonPathVersion = "2.0.0"
 
 
 List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
@@ -109,7 +112,12 @@ dependencies {
    providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
 
    runtime "mysql:mysql-connector-java:$mysqlVersion"
-
+   
+   testCompile "junit:junit:$jUnitVersion"
+   testCompile "org.mockito:mockito-core:$mockitoVersion"
+   testCompile "com.jayway.jsonpath:json-path:$jsonPathVersion"
+   
+   
 }
 
 // == Liquibase ==
