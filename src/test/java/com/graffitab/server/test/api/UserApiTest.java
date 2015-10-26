@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import javax.annotation.Resource;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.graffitab.server.api.user.UserApiController;
+import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.service.UserService;
 
 @ContextConfiguration({"classpath:spring-context-test.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -30,21 +33,48 @@ public class UserApiTest {
 	
 	    @Resource
 	    private WebApplicationContext ctx;
+	    
+	    @Resource
+	    private UserService userService;
+	    
+	    private static User testUser;
 	 
 	    private MockMvc mockMvc;
 	 
 	    @Before
 	    public void setUp() {
 	        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
+	        createUser();
+	    }
+	    
+	    @After
+	    public void clear() {
+	    	deleteUser();
 	    }
 	 
 	    @Test
 	    public void getUserByIdTest() throws Exception {
-	        Integer id = 1;
-	        mockMvc.perform(get("/api/users/{id}",id).accept(MediaType.APPLICATION_JSON))
+	        mockMvc.perform(get("/api/users/{id}",testUser.getId()).accept(MediaType.APPLICATION_JSON))
 	                .andExpect(status().isOk())
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
-	                .andExpect(jsonPath("$.user.id").value(id));
+	                .andExpect(jsonPath("$.user.id").value(testUser.getId().intValue()));
+	    }
+	    
+	    private User createUser() {
+	    	testUser = new User();
+	    	testUser.setFirstName("a");
+	    	testUser.setLastName("b");
+	    	testUser.setEmail("a@a.com");
+	    	testUser.setUsername("ab");
+	    	testUser.setPassword("pass");
+	    	userService.persist(testUser);
+	    	return testUser;
+	    }
+	    
+	    private void deleteUser() {
+	    	if (testUser != null) {
+	    		userService.remove(testUser.getId());
+	    	}
 	    }
 	 
 	    @Configuration

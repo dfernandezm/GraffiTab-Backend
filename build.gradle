@@ -47,6 +47,7 @@ def springSecurityVersion = "3.2.0.RELEASE"
 def jUnitVersion = "4.9"
 def mockitoVersion = "1.9.5"
 def jsonPathVersion = "2.0.0"
+def hsqldbVersion = "2.2.8"
 
 
 List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
@@ -116,8 +117,7 @@ dependencies {
    testCompile "junit:junit:$jUnitVersion"
    testCompile "org.mockito:mockito-core:$mockitoVersion"
    testCompile "com.jayway.jsonpath:json-path:$jsonPathVersion"
-   
-   
+   testCompile "org.hsqldb:hsqldb:$hsqldbVersion"
 }
 
 // == Liquibase ==

@@ -5,10 +5,10 @@
 
     <bean id="targetDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
         <property name="driverClass">
-            <value>com.mysql.jdbc.Driver</value>
+            <value>org.hsqldb.jdbc.JDBCDriver</value>
         </property>
         <property name="jdbcUrl">
-            <value>jdbc:mysql://localhost:3307/graffitab?useUnicode=true&amp;characterEncoding=UTF-8</value>
+            <value>jdbc:hsqldb:mem:test-db</value>
         </property>
         <property name="properties">
             <props>
@@ -17,7 +17,7 @@
                 <prop key="c3p0.timeout">7200</prop>
                 <prop key="c3p0.idle_test_period">3600</prop>
                 <prop key="c3p0.max_statements">50</prop>
-                <prop key="user">root</prop>
+                <prop key="user">SA</prop>
                 <prop key="password"></prop>
             </props>
         </property>
@@ -28,13 +28,12 @@
         <property name="targetDataSource" ref="targetDataSource"/>
     </bean>
 
-    <bean id="hibernateProperties"
-         class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <bean id="hibernateProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
       <property name="properties">
         <props>
-            <prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop>
+			<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
             <prop key="hibernate.show_sql">false</prop>
-			<prop key="hibernate.hbm2ddl.auto">validate</prop>
+			<prop key="hibernate.hbm2ddl.auto">create</prop>
         </props>
       </property>
     </bean>
