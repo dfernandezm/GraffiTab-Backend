@@ -159,7 +159,7 @@ def loadConfiguration() {
     def dbUser = System.getenv("DB_USERNAME")
     def dbPassword = System.getenv("DB_PASSWORD")
     
-    def configFile = file("$configDir/config.groovy")
+    def configFile = file("$configDir/environments.groovy")
     
     if (dbHost?.trim()) { // If the variable is not empty, assume Heroku
       
