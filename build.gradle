@@ -147,6 +147,9 @@ processResources {
 def loadConfiguration() {
     // This can be passed from the command line like -Penv=value
     def conf = hasProperty('env') ? env : 'local'
+    
+    conf = 'herokuDev'
+    
     def configDir = "conf"
     project.ext.conf = conf
     
@@ -157,19 +160,61 @@ def loadConfiguration() {
     println "Env from CircleCI " + System.getenv("DB_USERNAME")
     println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
     
-    def configFile = file("$configDir/config.groovy")
-    def config = new ConfigSlurper("$conf").parse(configFile.toURL())
+    if (conf.equals('local') {
+    	
+      def configFile = file("$configDir/config.groovy")
+      def config = new ConfigSlurper("$conf").parse(configFile.toURL())
     
-    // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
-    // which are the files under 'src/main/resources'
-    ext.config = config
+      // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
+      // which are the files under 'src/main/resources'
+      ext.config = config
+       
+    } else {
+    
+      def dbHost = System.getenv("DB_HOST";
+      def dbName = System.getenv("DB_NAME")
+      def dbUser = System.getenv("DB_USERNAME")
+      def dbPassword = System.getenv("DB_PASSWORD")
+    
+     
+      def config = {
+      		
+      		environments {
+    		
+	    		herokuDev {
+	        		databaseDomainAndName = "$dbHost:3306/$dbName"
+	        		databaseUsername = "$dbUser"
+	        		databasePassword = "$dbPassword"
+	        		loggingLogPath = '/tmp/graffitab.log'
+	        		loggingEmailTo = 'dummy@gmail.com'
+	        		loggingEmailFrom = 'dummy@gmail.com'
+	        		smtpHost = 'smtp.gmail.com'
+	        		loggingDefaultLogLevel = 'debug'
+	   			 }
+			}
+	   }
+     
+     def env = 'herokuDev'
+     def config = new ConfigSlurper(env).parse(new ClosureScript(closure: config))
+    
+    }
+    
     ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
     ext.dbUser = "$config.databaseUsername"
     ext.dbPassword = "$config.databasePassword"
     
-    
-    
 }
+
+class ClosureScript extends Script {
+    Closure closure
+    def run() {
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = this
+        closure.call()
+    }
+}
+
+
 
 ext.baseDir = "$rootProject.projectDir"
 def tomcatBin = "deploy/tomcat7/bin"
