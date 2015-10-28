@@ -1,3 +1,7 @@
+test:
+  override:
+    - touch test.yml
+
 deployment:
   staging:
     branch: master
