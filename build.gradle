@@ -219,7 +219,13 @@ task stage() {
 
   doFirst {
      println "Running Stage Task"
+     
   }
+
+  println "Env from CircleCI " + System.getenv("DB_HOST")
+  println "Env from CircleCI " + System.getenv("DB_NAME")
+  println "Env from CircleCI " + System.getenv("DB_USERNAME")
+  println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
 
 }
 
