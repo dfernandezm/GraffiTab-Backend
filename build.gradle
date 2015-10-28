@@ -196,7 +196,8 @@ def loadConfiguration() {
      
      def env = 'herokuDev'
      def config = new ConfigSlurper(env).parse(new ClosureScript(closure: config))
-    
+     ext.config = config
+     
     }
     
     ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
