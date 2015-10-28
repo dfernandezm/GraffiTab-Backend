@@ -147,75 +147,56 @@ processResources {
 def loadConfiguration() {
     // This can be passed from the command line like -Penv=value
     def conf = hasProperty('env') ? env : 'local'
-    
-    conf = 'herokuDev'
-    
     def configDir = "conf"
-    project.ext.conf = conf
-    
-    println "Environment is set to $conf"
     
     println "Env from CircleCI " + System.getenv("DB_HOST")
     println "Env from CircleCI " + System.getenv("DB_NAME")
     println "Env from CircleCI " + System.getenv("DB_USERNAME")
     println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
     
-    if (conf.equals('local')) {
-    	
-      def configFile = file("$configDir/config.groovy")
+    def dbHost = System.getenv("DB_HOST")
+    def dbName = System.getenv("DB_NAME")
+    def dbUser = System.getenv("DB_USERNAME")
+    def dbPassword = System.getenv("DB_PASSWORD")
+    
+    def configFile = file("$configDir/config.groovy")
+    
+    if (dbHost?.trim()) { // If the variable is not empty, assume Heroku
+      
+      println "Environment is Heroku"
+      conf = 'herokuDev'
+	  
+      def config = new ConfigSlurper("$conf").parse(configFile.toURL())
+      
+      config.databaseDomainAndName = "$dbHost:3306/$dbName"
+      config.databaseUsername = "$dbUser"
+      config.databasePassword = "$dbPassword" 
+      
+      ext.config = config
+     
+    } else {
+      
+      println "Environment is local"
+      conf = 'local'
+      
       def config = new ConfigSlurper("$conf").parse(configFile.toURL())
     
+      config.databaseDomainAndName = "jiji:3306/jaja"
       // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
       // which are the files under 'src/main/resources'
       ext.config = config
        
-    } else {
-    
-      def dbHost = System.getenv("DB_HOST";
-      def dbName = System.getenv("DB_NAME")
-      def dbUser = System.getenv("DB_USERNAME")
-      def dbPassword = System.getenv("DB_PASSWORD")
-    
-     
-      def config = {
-      		
-      		environments {
-    		
-	    		herokuDev {
-	        		databaseDomainAndName = "$dbHost:3306/$dbName"
-	        		databaseUsername = "$dbUser"
-	        		databasePassword = "$dbPassword"
-	        		loggingLogPath = '/tmp/graffitab.log'
-	        		loggingEmailTo = 'dummy@gmail.com'
-	        		loggingEmailFrom = 'dummy@gmail.com'
-	        		smtpHost = 'smtp.gmail.com'
-	        		loggingDefaultLogLevel = 'debug'
-	   			 }
-			}
-	   }
-     
-     def env = 'herokuDev'
-     def config = new ConfigSlurper(env).parse(new ClosureScript(closure: config))
-     ext.config = config
-     
     }
     
+    project.ext.conf = conf 	
+  
     ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
     ext.dbUser = "$config.databaseUsername"
     ext.dbPassword = "$config.databasePassword"
     
+    println "JDBC Url: " + ext.jdbcUrl
+    
 }
-
-class ClosureScript extends Script {
-    Closure closure
-    def run() {
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = this
-        closure.call()
-    }
-}
-
-
 
 ext.baseDir = "$rootProject.projectDir"
 def tomcatBin = "deploy/tomcat7/bin"
