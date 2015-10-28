@@ -161,6 +161,12 @@ def loadConfiguration() {
     ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
     ext.dbUser = "$config.databaseUsername"
     ext.dbPassword = "$config.databasePassword"
+    
+    println "Env from CircleCI " + System.getenv("DB_HOST")
+    println "Env from CircleCI " + System.getenv("DB_NAME")
+    println "Env from CircleCI " + System.getenv("DB_USERNAME")
+    println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
+    
 }
 
 ext.baseDir = "$rootProject.projectDir"
@@ -221,11 +227,6 @@ task stage() {
      println "Running Stage Task"
      
   }
-
-  println "Env from CircleCI " + System.getenv("DB_HOST")
-  println "Env from CircleCI " + System.getenv("DB_NAME")
-  println "Env from CircleCI " + System.getenv("DB_USERNAME")
-  println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
 
 }
 
