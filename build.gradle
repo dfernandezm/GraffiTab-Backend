@@ -160,7 +160,7 @@ def loadConfiguration() {
     println "Env from CircleCI " + System.getenv("DB_USERNAME")
     println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
     
-    if (conf.equals('local') {
+    if (conf.equals('local')) {
     	
       def configFile = file("$configDir/config.groovy")
       def config = new ConfigSlurper("$conf").parse(configFile.toURL())
