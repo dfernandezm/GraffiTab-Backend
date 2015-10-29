@@ -144,52 +144,38 @@ processResources {
     filter(ReplaceTokens, tokens: config)
 }
 
+war {
+  archiveName = "graffitab.war"  
+}
+
 def loadConfiguration() {
     // This can be passed from the command line like -Penv=value
     def conf = hasProperty('env') ? env : 'local'
     def configDir = "conf"
+    project.ext.conf = conf
     
-    println "Env from CircleCI " + System.getenv("DB_HOST")
-    println "Env from CircleCI " + System.getenv("DB_NAME")
-    println "Env from CircleCI " + System.getenv("DB_USERNAME")
-    println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
+    println "=== Environment is $conf ==="
+    
+    def configFile = file("$configDir/environments.groovy")
+    def config = new ConfigSlurper("$conf").parse(configFile.toURL())
     
     def dbHost = System.getenv("DB_HOST")
     def dbName = System.getenv("DB_NAME")
     def dbUser = System.getenv("DB_USERNAME")
     def dbPassword = System.getenv("DB_PASSWORD")
     
-    def configFile = file("$configDir/environments.groovy")
+    if (dbHost?.trim()) { 
     
-    if (dbHost?.trim()) { // If the variable is not empty, assume Heroku
+      // If the variable is not empty (CircleCI), read from them
+      config.databaseDomainAndName = "$dbHost:3306/$dbName".toString()
+      config.databaseUsername = "$dbUser".toString()
+      config.databasePassword = "$dbPassword".toString() 
       
-      println "Environment is Heroku"
-      conf = 'herokuDev'
-	  
-      def config = new ConfigSlurper("$conf").parse(configFile.toURL())
-      
-      config.databaseDomainAndName = "$dbHost:3306/$dbName"
-      config.databaseUsername = "$dbUser"
-      config.databasePassword = "$dbPassword" 
-      
-      ext.config = config
-     
-    } else {
-      
-      println "Environment is local"
-      conf = 'local'
-      
-      def config = new ConfigSlurper("$conf").parse(configFile.toURL())
-    
-      config.databaseDomainAndName = "jiji:3306/jaja"
-      // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
-      // which are the files under 'src/main/resources'
-      ext.config = config
-       
     }
     
-    project.ext.conf = conf 	
-  
+    // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
+    // which are the files under 'src/main/resources'
+    ext.config = config
     ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
     ext.dbUser = "$config.databaseUsername"
     ext.dbPassword = "$config.databasePassword"
@@ -251,10 +237,9 @@ task restartTomcat() {
 }
 
 task stage() {
-
+  dependsOn war
   doFirst {
      println "Running Stage Task"
-     
   }
 
 }
