@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -71,27 +72,33 @@ public class UserApiController extends BaseApiController {
 	
 	@RequestMapping(value = {"/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.OK)
+	@Transactional
 	public UpdateUserResult updateUser(@PathVariable Map<String, String> pathVariables, @JsonProperty("user") User user) {
 		
 		UpdateUserResult updateUserResult = new UpdateUserResult();
 		
-		if (validateUser(user) ){
-			if (pathVariables.get("id") != null) {
+		if (pathVariables.get("id") != null) {
+			
+			Long id = Long.parseLong(pathVariables.get("id"));
+			user.setId(id);
+			
+			if (validateUser(user) ){
 				
-				Long id = Long.parseLong(pathVariables.get("id"));
-				user.setId(id);
+				
 				
 				userService.merge(user);
 			}
 			
-			// Set the result
-			LOG.info("Updated user with ID " + user.getId());
-			updateUserResult.setUser(user);
-			return updateUserResult;
-		} else {
-			//TODO: send 400 error with a error message.
-			return updateUserResult;
-		}
+	
+		
+		// Set the result
+		LOG.info("Updated user with ID " + user.getId());
+		updateUserResult.setUser(user);
+		return updateUserResult;
+	} else {
+		//TODO: send 400 error with a error message.
+		return updateUserResult;
+	}
 
 	}
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
