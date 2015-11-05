@@ -156,9 +156,6 @@ def loadConfiguration() {
     
     println "=== Environment is $conf ==="
     
-    def configFile = file("$configDir/environments.groovy")
-    def config = new ConfigSlurper("$conf").parse(configFile.toURL())
-    
     println "Env from CircleCI " + System.getenv("DB_HOST")
     println "Env from CircleCI " + System.getenv("DB_NAME")
     println "Env from CircleCI " + System.getenv("DB_USERNAME")
@@ -169,13 +166,23 @@ def loadConfiguration() {
     def dbUser = System.getenv("DB_USERNAME")
     def dbPassword = System.getenv("DB_PASSWORD")
     
-    if (dbHost?.trim()) { 
+    def config = new Object()
     
+    if (dbHost?.trim()) { 
+      
+      def configFile = file("$configDir/environments.groovy")
+      config = new ConfigSlurper("$conf").parse(configFile.toURL())
+      	
       // If the variable is not empty (CircleCI), read from them
       config.databaseDomainAndName = "$dbHost:3306/$dbName".toString()
       config.databaseUsername = "$dbUser".toString()
       config.databasePassword = "$dbPassword".toString() 
       
+    } else {
+    
+      def configFile = file("$configDir/config.groovy")
+      config = new ConfigSlurper("$conf").parse(configFile.toURL())		
+	  println "It goes here!"
     }
     
     // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
