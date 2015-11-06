@@ -1,3 +1,7 @@
+dependencies:
+  override:
+    - ./gradlew dependencies -Penv=herokuDev
+
 database:
   override:
     - ./gradlew updateDb -Penv=herokuDev
