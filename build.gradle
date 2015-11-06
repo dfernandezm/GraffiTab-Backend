@@ -23,7 +23,12 @@ repositories {
     mavenCentral()
 }
 
+// Some global properties
+
 def webappRootDir = "src/main/webapp"
+ext.configDir = "conf"
+ext.localConfigFileName = "config.groovy"
+ext.remotesConfigFileName = "environments.groovy"
 ext.libDir = file("$webappRootDir/WEB-INF/lib")
 sourceSets.main.output.classesDir =  file("$webappRootDir/WEB-INF/classes")
 sourceSets.main.output.resourcesDir =  file("$webappRootDir/WEB-INF/classes")
@@ -151,42 +156,35 @@ war {
   archiveName = "graffitab.war"  
 }
 
+
+/**
+ This can be passed from the command line like -Penv=value
+*/
 def loadConfiguration() {
-    // This can be passed from the command line like -Penv=value
-    def conf = hasProperty('env') ? env : 'local'
-    def configDir = "conf"
-    project.ext.conf = conf
+
+    def env = hasProperty('env') ? env : 'local'
+    project.ext.env = env
     
-    println "=== Environment is $conf ==="
-    
-    println "Env from CircleCI " + System.getenv("DB_HOST")
-    println "Env from CircleCI " + System.getenv("DB_NAME")
-    println "Env from CircleCI " + System.getenv("DB_USERNAME")
-    println "Env from CircleCI " + System.getenv("DB_PASSWORD")	
-    
+    println "=== Environment is $env ==="
+        
     def dbHost = System.getenv("DB_HOST")
     def dbName = System.getenv("DB_NAME")
     def dbUser = System.getenv("DB_USERNAME")
     def dbPassword = System.getenv("DB_PASSWORD")
     
-    def config = new Object()
+    def config = readConfigFile("$configDir/$localConfigFileName", env)
     
     if (dbHost?.trim()) { 
       
-      def configFile = file("$configDir/environments.groovy")
-      config = new ConfigSlurper("$conf").parse(configFile.toURL())
-      	
+      println "=== Reading config for remote deployment -- $env ==="	
+      config = readConfigFile("$configDir/$remotesConfigFileName", env)	
+     
       // If the variable is not empty (CircleCI), read from them
       config.databaseDomainAndName = "$dbHost:3306/$dbName".toString()
       config.databaseUsername = "$dbUser".toString()
       config.databasePassword = "$dbPassword".toString() 
       
-    } else {
-    
-      def configFile = file("$configDir/config.groovy")
-      config = new ConfigSlurper("$conf").parse(configFile.toURL())		
-	  println "It goes here!"
-    }
+    } 
     
     // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
     // which are the files under 'src/main/resources'
@@ -199,10 +197,13 @@ def loadConfiguration() {
     
 }
 
+def readConfigFile(configFilePath, environment) {
+  def configFile = file("$configFilePath")
+  def config = new ConfigSlurper("$environment").parse(configFile.toURL())
+  return config		
+}
+
 ext.baseDir = "$rootProject.projectDir"
-def tomcatBin = "deploy/tomcat7/bin"
-def tomcatStart = "$tomcatBin/startup.sh"
-def tomcatStop = "$tomcatBin/shutdown.sh"
 def tomcatWebappsDir = "deploy/tomcat7/webapps"
 
 task clean (type: Delete, overwrite: true) {
