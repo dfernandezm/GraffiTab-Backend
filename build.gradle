@@ -268,7 +268,7 @@ task stage() {
 task updateDb() {
   dependsOn update
   doFirst {
-      println "Migrations for environment - $project.conf"
+      println "Migrations for environment - $project.env"
   }
 }
 
