@@ -128,9 +128,10 @@ dependencies {
    testCompile "org.hsqldb:hsqldb:$hsqldbVersion"
 }
 
-// == Liquibase ==
 
 loadConfiguration()
+
+// == Liquibase ==
 
 liquibase {
   activities {
@@ -161,8 +162,14 @@ war {
  This can be passed from the command line like -Penv=value
 */
 def loadConfiguration() {
-
-    def env = hasProperty('env') ? env : 'local'
+	
+	def localConfigFilePath = "$configDir/$localConfigFileName"
+    def localConfigExists = file(localConfigFilePath).exists()
+    
+    // Temporarily assume heroku if not local file present -- need to setup more env variables in CircleCI / Heroku to detect this
+    // and not hardcode it
+    def env = hasProperty('env') ? env : ( (localConfigExists) ? 'local' : 'herokuDev')
+    
     project.ext.env = env
     
     println "=== Environment is $env ==="
@@ -174,12 +181,13 @@ def loadConfiguration() {
     
     def config = null
     
-    if (dbHost?.trim()) { 
+    if (dbHost?.trim() || !localConfigExists) { 
       
+      // If the variable is not empty (CircleCI) or the local config file does not exist, assume remote deployment
+      // Read from env variables     
       println "=== Reading config for remote deployment for $env ==="	
       config = readConfigFile("$configDir/$remotesConfigFileName", env)	
-     
-      // If the variable is not empty (CircleCI), read from them
+  
       config.databaseDomainAndName = "$dbHost:3306/$dbName".toString()
       config.databaseUsername = "$dbUser".toString()
       config.databasePassword = "$dbPassword".toString() 
@@ -187,7 +195,7 @@ def loadConfiguration() {
     } else {
     
       println "=== Reading local deployment config for $env ==="	
-      config = readConfigFile("$configDir/$localConfigFileName", env)
+      config = readConfigFile(localConfigFilePath, env)
     
     }
     
