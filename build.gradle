@@ -48,6 +48,7 @@ def jUnitVersion = "4.9"
 def mockitoVersion = "1.9.5"
 def jsonPathVersion = "2.0.0"
 def hsqldbVersion = "2.2.8"
+def orikaVersion = "1.4.6"
 
 
 List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
@@ -108,6 +109,8 @@ dependencies {
    compile "commons-io:commons-io:$commonsIoVersion"
 
    compile spring, springSecurity, jackson, log4j
+   
+   compile "ma.glasnost.orika:orika-core:$orikaVersion"
 
    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
    providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'

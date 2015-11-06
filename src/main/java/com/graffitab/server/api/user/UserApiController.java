@@ -24,6 +24,8 @@ import com.graffitab.server.api.dto.user.DeleteUserResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UpdateUserResult;
+import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.mapper.MapperConfiguration;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
@@ -35,6 +37,9 @@ public class UserApiController extends BaseApiController {
 	
 	@Resource
 	private UserService userService;
+	
+	@Resource
+	private MapperConfiguration mapper;
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public GetUserResult getUser(@PathVariable("id") Long id) {
@@ -73,27 +78,28 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
-	public UpdateUserResult updateUser(@PathVariable Map<String, String> pathVariables, @JsonProperty("user") User user) {
+	public UpdateUserResult updateUser(@PathVariable Map<String, String> pathVariables, @JsonProperty("user") UserDto userDto) {
 		
 		UpdateUserResult updateUserResult = new UpdateUserResult();
-		
+		//TODO: validate
 		if (pathVariables.get("id") != null) {
-			
 			Long id = Long.parseLong(pathVariables.get("id"));
-			user.setId(id);
+			User user = userService.getUserById(id);
 			
-			if (validateUser(user) ){
-				
-				
-				
-				userService.merge(user);
-			}
+			mapper.mapUser(userDto, user);
 			
-	
+			// 0. Validate UserDto
+			// 1. Find user by id -- returns User entity
+			// 2. Map UserDto onto User entity -- that does all the updates
+			// 3. Map back to return the updated entity
+			
+			//if (validateUser(user) ){	
+				
+			//}
 		
 		// Set the result
 		LOG.info("Updated user with ID " + user.getId());
-		updateUserResult.setUser(user);
+		updateUserResult.setUser(userDto);
 		return updateUserResult;
 	} else {
 		//TODO: send 400 error with a error message.
