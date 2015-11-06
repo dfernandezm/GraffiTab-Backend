@@ -172,11 +172,11 @@ def loadConfiguration() {
     def dbUser = System.getenv("DB_USERNAME")
     def dbPassword = System.getenv("DB_PASSWORD")
     
-    def config = readConfigFile("$configDir/$localConfigFileName", env)
+    def config = null
     
     if (dbHost?.trim()) { 
       
-      println "=== Reading config for remote deployment -- $env ==="	
+      println "=== Reading config for remote deployment for $env ==="	
       config = readConfigFile("$configDir/$remotesConfigFileName", env)	
      
       // If the variable is not empty (CircleCI), read from them
@@ -184,7 +184,12 @@ def loadConfiguration() {
       config.databaseUsername = "$dbUser".toString()
       config.databasePassword = "$dbPassword".toString() 
       
-    } 
+    } else {
+    
+      println "=== Reading local deployment config for $env ==="	
+      config = readConfigFile("$configDir/$localConfigFileName", env)
+    
+    }
     
     // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
     // which are the files under 'src/main/resources'
