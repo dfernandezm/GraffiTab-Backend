@@ -22,9 +22,9 @@ public class OrikaMapper {
 	
 		if (mapperFactory == null) {
 			mapperFactory = new DefaultMapperFactory.Builder().build();
+			registerMappings();
 		}
 		
-		registerMappings();
 		return mapperFactory;
 	}
 	
