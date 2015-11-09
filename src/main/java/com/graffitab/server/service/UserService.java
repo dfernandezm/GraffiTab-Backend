@@ -21,7 +21,7 @@ public class UserService {
  private HibernateDaoImpl<User, Long> userDao;
 
  @Transactional(readOnly=true)
- public User getUserById(Long id) {
+ public User findUserById(Long id) {
 	 return userDao.find(id);
  }
  

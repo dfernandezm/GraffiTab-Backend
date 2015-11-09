@@ -1,16 +1,14 @@
 package com.graffitab.server.api.dto.user;
 
-import com.graffitab.server.persistence.model.User;
-
 public class GetUserResult {
 
-	private User user;
+	private UserDto user;
 
-	public User getUser() {
+	public UserDto getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(UserDto user) {
 		this.user = user;
 	}
 	

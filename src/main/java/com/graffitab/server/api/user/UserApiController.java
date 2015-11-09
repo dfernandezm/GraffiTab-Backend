@@ -2,7 +2,6 @@ package com.graffitab.server.api.user;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -25,7 +24,7 @@ import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UpdateUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
-import com.graffitab.server.api.mapper.MapperConfiguration;
+import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
@@ -39,74 +38,82 @@ public class UserApiController extends BaseApiController {
 	private UserService userService;
 	
 	@Resource
-	private MapperConfiguration mapper;
+	private OrikaMapper mapper;
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
+	@Transactional(readOnly = true)
 	public GetUserResult getUser(@PathVariable("id") Long id) {
 		
 		GetUserResult getUserResult = new GetUserResult();
-		User user = userService.getUserById(id);
+		User user = userService.findUserById(id);
 		
-		LOG.info("Returning user with id " + id);
+		if (user != null) {		
+			LOG.info("Returning user with id " + id);
+			getUserResult.setUser(mapper.map(user, UserDto.class));
+		} else {		
+			//TODO: Error handling - 404 not found
+		}
 		
-		getUserResult.setUser(user);
 		return getUserResult;
 	}
 	
 	@RequestMapping(value = {"","/register"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
-	public CreateUserResult createUser(@PathVariable Map<String, String> pathVariables, @JsonProperty("user") User user) {
+	@Transactional
+	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
 		
 		CreateUserResult createUserResult = new CreateUserResult();
 		
-		if (validateUser(user)){
+		if (validateUser(userDto)){
 			
-			if (pathVariables.get("id") == null) {
+			if (userDto.getId() == null) {
+				
+				User user = mapper.map(userDto, User.class);		
 				userService.persist(user);
+				
+				LOG.info("Created user with ID " + user.getId());
+				createUserResult.setUser(mapper.map(user, UserDto.class));
+				
+			} else {
+				//TODO: Handle Error, this is not allowed
 			}
-			
-			LOG.info("Created user with ID " + user.getId());
-			createUserResult.setUser(user);
-			return createUserResult;
 			
 		} else {
 			//TODO: send 400 error with a error message.
-			return createUserResult;
 		}
+		
+		return createUserResult;
 	}
 	
 	@RequestMapping(value = {"/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
-	public UpdateUserResult updateUser(@PathVariable Map<String, String> pathVariables, @JsonProperty("user") UserDto userDto) {
+	public UpdateUserResult updateUser(@PathVariable("id") Long id, @JsonProperty("user") UserDto userDto) {
+		
+		// 0. Validate UserDto
+	    // 1. Find user by id -- returns User entity
+		// 2. Map UserDto onto User entity -- that does all the updates
+		// 3. Map back to return the updated entity
 		
 		UpdateUserResult updateUserResult = new UpdateUserResult();
-		//TODO: validate
-		if (pathVariables.get("id") != null) {
-			Long id = Long.parseLong(pathVariables.get("id"));
-			User user = userService.getUserById(id);
-			
-			mapper.mapUser(userDto, user);
-			
-			// 0. Validate UserDto
-			// 1. Find user by id -- returns User entity
-			// 2. Map UserDto onto User entity -- that does all the updates
-			// 3. Map back to return the updated entity
-			
-			//if (validateUser(user) ){	
-				
-			//}
 		
-		// Set the result
-		LOG.info("Updated user with ID " + user.getId());
-		updateUserResult.setUser(userDto);
-		return updateUserResult;
-	} else {
-		//TODO: send 400 error with a error message.
-		return updateUserResult;
+		if (validateUser(userDto)) {
+			
+			User user = userService.findUserById(id);
+			mapper.map(userDto, user);
+			
+			LOG.info("Updated user with ID " + user.getId());
+			updateUserResult.setUser(mapper.map(user, UserDto.class));
+			return updateUserResult;
+			
+		} else {
+			//TODO: send 400 error with a error message.
+			return updateUserResult;
+		}
+		
 	}
-
-	}
+	
+	
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
 	public ListUsersResult listUsers() {
 		ListUsersResult listUsersResult = new ListUsersResult();
@@ -114,6 +121,7 @@ public class UserApiController extends BaseApiController {
 		listUsersResult.setUsers(users);
 		
 		//TODO: listUsers
+		
 		return listUsersResult;
 	}
 	
@@ -125,18 +133,19 @@ public class UserApiController extends BaseApiController {
 		return deleteUserResult;
 	}
 	
-	private Boolean validateUser(User user) {
+	private Boolean validateUser(UserDto userDto) {
+		
 		boolean validationResult = false;
-		//TODO
-		if ( StringUtils.isEmpty(user.getUsername()) || StringUtils.isEmpty(user.getEmail()) ||
-			 StringUtils.isEmpty(user.getFirstName()) || StringUtils.isEmpty(user.getLastName()) ||
-			 StringUtils.isEmpty(user.getPassword())) {
+		
+		if ( StringUtils.isEmpty(userDto.getUsername()) || StringUtils.isEmpty(userDto.getEmail()) ||
+			 StringUtils.isEmpty(userDto.getFirstName()) || StringUtils.isEmpty(userDto.getLastName()) ||
+			 StringUtils.isEmpty(userDto.getPassword())) {
 			validationResult = false;
 			
 		} else {
 			
-			if (isUsernameTaken(user.getUsername(),user.getId()) || isEmailTaken(user.getEmail(),user.getId()) ){
-				validationResult=false;
+			if (isUsernameTaken(userDto.getUsername(),userDto.getId()) || isEmailTaken(userDto.getEmail(),userDto.getId()) ){
+				validationResult = false;
 			} else {
 				validationResult = true;
 			}
