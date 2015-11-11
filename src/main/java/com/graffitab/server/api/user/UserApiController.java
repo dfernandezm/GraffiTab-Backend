@@ -24,6 +24,10 @@ import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UpdateUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.errors.EntityNotFoundException;
+import com.graffitab.server.api.errors.RestApiException;
+import com.graffitab.server.api.errors.ResultCode;
+import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
@@ -50,8 +54,8 @@ public class UserApiController extends BaseApiController {
 		if (user != null) {		
 			LOG.info("Returning user with id " + id);
 			getUserResult.setUser(mapper.map(user, UserDto.class));
-		} else {		
-			//TODO: Error handling - 404 not found
+		} else {
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with id " + id);
 		}
 		
 		return getUserResult;
@@ -75,11 +79,13 @@ public class UserApiController extends BaseApiController {
 				createUserResult.setUser(mapper.map(user, UserDto.class));
 				
 			} else {
-				//TODO: Handle Error, this is not allowed
+				
+				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
 			}
 			
 		} else {
-			//TODO: send 400 error with a error message.
+			
+			throw new ValidationErrorException("Validation error creating user");
 		}
 		
 		return createUserResult;
