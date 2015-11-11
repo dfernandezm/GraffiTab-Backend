@@ -1,6 +1,8 @@
 package com.graffitab.server.api.errors;
 
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,8 @@ import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice(annotations = RestController.class)
 public class GeneralErrorHandlingAdvice {
+	
+	private static Logger LOG = LogManager.getLogger();
 
 	@ExceptionHandler(value = RestApiException.class)
     @ResponseBody
@@ -34,6 +38,9 @@ public class GeneralErrorHandlingAdvice {
     	RestApiResult errorResult = new RestApiResult();
     	errorResult.setResultCode(ResultCode.GENERAL_ERROR);
     	errorResult.setResultMessage(throwable.getMessage());
+    	
+    	LOG.error("Unexpected error occurred", throwable);
+    	
     	return errorResult;
     }
 }

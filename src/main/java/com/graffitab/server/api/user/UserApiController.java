@@ -55,7 +55,7 @@ public class UserApiController extends BaseApiController {
 			LOG.info("Returning user with id " + id);
 			getUserResult.setUser(mapper.map(user, UserDto.class));
 		} else {
-			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with id " + id);
+			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user with id " + id);
 		}
 		
 		return getUserResult;
