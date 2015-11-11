@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
@@ -31,6 +32,7 @@ import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
+import com.graffitab.server.api.util.UploadUtils;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
@@ -45,6 +47,9 @@ public class UserApiController extends BaseApiController {
 	
 	@Resource
 	private OrikaMapper mapper;
+	
+	@Resource
+	private UploadUtils uploadUtils;
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
@@ -161,6 +166,25 @@ public class UserApiController extends BaseApiController {
 		return userProfileResult;
 	}
 	
+	@RequestMapping(value = {"/{id}/avatar"}, method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public GetUserProfileResult addAvatarForUser(@PathVariable("id") Long userId) {
+		
+		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+		
+		MultipartFile avatarImageFile = uploadUtils.getFirstMultipartFileForCurrentRequest();
+		
+		if (avatarImageFile != null) {
+			
+		} else {
+			throw new RestApiException(ResultCode.BAD_REQUEST, "Avatar file is empty");
+		}
+		
+		return userProfileResult;
+		
+	}
+	
 	private Boolean validateUser(UserDto userDto) {
 		
 		boolean validationResult = false;
@@ -198,6 +222,36 @@ public class UserApiController extends BaseApiController {
 		}
 	}
 	
+
+	/*
+	 * @RequestMapping(value="/rest/incidencias", method=RequestMethod.POST, headers = { "Content-Type=multipart/mixed, multipart/form-data"} )
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Object> guardarIncidencia(
+             @RequestPart("incidencia") IncidenciaMovilDTO incidencia,
+             @RequestPart(value="imagen",required=false) MultipartFile imagen,
+             Locale locale,
+             HttpServletRequest request
+             ) throws RestException, InstanceNotFoundException, UploadException, URISyntaxException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        HttpHeaders headers = new HttpHeaders();
+
+        if(auth == null || auth.getPrincipal() == null) {
+
+            headers.add("WWW-Authenticate",  "Basic realm=\"" + "riveiraatlantica2015.es"+ "\"");
+            return new ResponseEntity<Object>("",headers,HttpStatus.UNAUTHORIZED);
+        }
+
+        String ip = ControllerUtils.getIp(request);
+        restHelper.guardarIncidencia(incidencia,imagen,locale,ip);
+
+        URI location = ControllerUtils.getLocation(request, "/rest/incidencias/"+incidencia.getId());
+        headers.setLocation(location);
+        ResponseEntity<Object> resp = new ResponseEntity<Object>("",headers,HttpStatus.CREATED);
+
+        return resp;
+    }
+	 */
 	
 	
 }
