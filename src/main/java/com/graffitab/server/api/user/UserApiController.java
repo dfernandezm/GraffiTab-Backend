@@ -20,10 +20,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
 import com.graffitab.server.api.dto.user.CreateUserResult;
 import com.graffitab.server.api.dto.user.DeleteUserResult;
+import com.graffitab.server.api.dto.user.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UpdateUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.dto.user.UserProfileDto;
 import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
@@ -137,6 +139,26 @@ public class UserApiController extends BaseApiController {
 		
 		//TODO: deleteUser
 		return deleteUserResult;
+	}
+	
+	
+	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET, consumes={"application/json"})
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public GetUserProfileResult getUserProfile(@PathVariable("id") Long id) {
+		
+		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+		
+		User user = userService.findUserById(id);
+		
+		if (user != null) {		
+			LOG.info("Returning user profile " + id);
+			userProfileResult.setUser(mapper.map(user, UserProfileDto.class));
+		} else {
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with id " + id);
+		}
+		
+		return userProfileResult;
 	}
 	
 	private Boolean validateUser(UserDto userDto) {

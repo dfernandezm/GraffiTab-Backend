@@ -15,8 +15,28 @@ public class UserDto {
 	private String email;
 	private String website;
 	private String about;
+	private Boolean followedByCurrentUser;
+	private String avatarUrl;
+	private String coverUrl;
 	
-	
+	public String getAvatarUrl() {
+		return avatarUrl;
+	}
+	public void setAvatarUrl(String avatarUrl) {
+		this.avatarUrl = avatarUrl;
+	}
+	public String getCoverUrl() {
+		return coverUrl;
+	}
+	public void setCoverUrl(String coverUrl) {
+		this.coverUrl = coverUrl;
+	}
+	public Boolean getFollowedByCurrentUser() {
+		return followedByCurrentUser;
+	}
+	public void setFollowedByCurrentUser(Boolean followedByCurrentUser) {
+		this.followedByCurrentUser = followedByCurrentUser;
+	}
 	public Long getId() {
 		return id;
 	}
