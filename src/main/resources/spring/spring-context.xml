@@ -14,28 +14,15 @@
 	
     <context:component-scan base-package="com.graffitab.server" />
 
-    <bean id="multipartResolver"
-    class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-    </bean>
-    
-    <bean id="messageSource"
-      class="org.springframework.context.support.ResourceBundleMessageSource">
-  		<property name="basenames">
-		    <list>
-		      <value>messages</value>
-		    </list>
-  		</property>
-	</bean>
-
      <!--  Async and scheduling -->
-    <task:annotation-driven />
+<!--     <task:annotation-driven /> -->
       
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
-    <bean id="jacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+<!--     <bean id="jacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> -->
     
     <import resource="classpath:jdbc.xml"/>
     <import resource="classpath:configurable-context.xml"/>
-    <import resource="classpath:spring/persistence.xml"/>
+<!--     <import resource="classpath:spring/persistence.xml"/> -->
 <!--     <import resource="classpath:spring/security.xml"/> -->
 
 </beans>

@@ -17,6 +17,19 @@
     <servlet>
         <servlet-name>graffitab</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        
+        <init-param>
+        	<param-name>contextClass</param-name>
+        	<param-value>
+            	org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+        	</param-value>
+    	</init-param>
+   	    <init-param>
+          <param-name>contextConfigLocation</param-name>
+          <param-value>
+            com.graffitab.server.config.web.WebConfig
+          </param-value>
+        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
