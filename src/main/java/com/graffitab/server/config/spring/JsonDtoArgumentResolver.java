@@ -1,6 +1,7 @@
 package com.graffitab.server.config.spring;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -8,20 +9,25 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by david on 16/05/15.
  */
 public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
 
-    @Autowired
-    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
+//   @Autowired
+//    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
-    private RequestResponseBodyMethodProcessor delegateRequestResponseBodyMethodProcessor = null;
+	@Autowired
+	private List<HttpMessageConverter<?>> converters;
+	
+	@Autowired
+	private CustomMappingJackson2HttpMessageConverter jacksonConverter;
+	
+    private RequestResponseBodyMethodProcessor delegateRequestResponseBodyMethodProcessor = null;  
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -31,7 +37,7 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
     private RequestResponseBodyMethodProcessor getDelegateRequestResponseBodyMethodProcessor() {
 
         if (delegateRequestResponseBodyMethodProcessor == null) {
-            List<HttpMessageConverter<?>> messageConverters = requestMappingHandlerAdapter.getMessageConverters();
+            List<HttpMessageConverter<?>> messageConverters = converters;
 
             for (HttpMessageConverter<?> messageConverter : messageConverters) {
                 if (messageConverter instanceof RequestResponseBodyMethodProcessor) {
@@ -40,6 +46,8 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
             }
 
             if (delegateRequestResponseBodyMethodProcessor == null) {
+            	messageConverters.clear();
+            	messageConverters.add(jacksonConverter);
                 delegateRequestResponseBodyMethodProcessor = new RequestResponseBodyMethodProcessor(messageConverters);
             }
         }
@@ -49,7 +57,7 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
 
     private void provideCustomPropertyToExtractToJacksonCustomHttpMessageConverter(String propertyToExtract) {
 
-        List<HttpMessageConverter<?>> messageConverters =  requestMappingHandlerAdapter.getMessageConverters();
+        List<HttpMessageConverter<?>> messageConverters =  converters;
 
         for (HttpMessageConverter<?> messageConverter : messageConverters) {
 

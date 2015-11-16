@@ -3,8 +3,6 @@ package com.graffitab.server.config.web;
 import java.util.List;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,12 +20,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import com.graffitab.server.config.spring.CustomMappingJackson2HttpMessageConverter;
+import com.graffitab.server.config.spring.JsonDtoArgumentResolver;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Configuration
@@ -41,10 +42,17 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
   }
 )
 @ImportResource("classpath:spring/spring-context.xml")
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfig extends WebMvcConfigurationSupport {
 	
 	@Autowired
 	private ComboPooledDataSource targetDataSource;
+	
+	@Bean
+	public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
+		RequestMappingHandlerAdapter requestMappingHandlerAdapter = super.requestMappingHandlerAdapter();
+		return requestMappingHandlerAdapter;
+	}
+	
 	
 	@Bean
 	public CommonsMultipartResolver commonsMultipartResolver() {
@@ -74,10 +82,16 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		return new CustomMappingJackson2HttpMessageConverter();
 	}
 	
-//	@Bean
-//	public JsonDtoArgumentResolver jsonDtoArgumentResolver() {
-//		return new JsonDtoArgumentResolver();
-//	}
+	@Bean
+	public JsonDtoArgumentResolver jsonDtoArgumentResolver() {
+		JsonDtoArgumentResolver resolver = new JsonDtoArgumentResolver();
+		return resolver;
+	}
+	
+	@Bean
+	public List<HttpMessageConverter<?>> converters() {
+		return requestMappingHandlerAdapter().getMessageConverters();
+	}
 	
 	@Override
 	public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -85,10 +99,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 		converters.add(jacksonHttpMessageConverter());
 	}
 	
-//	@Override
-//	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-//		argumentResolvers.add(jsonDtoArgumentResolver());
-//	}
+	@Override
+	protected void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+		argumentResolvers.add(jsonDtoArgumentResolver());
+	}
 	
 	@Bean
 	public HibernateTransactionManager transactionManager() {
@@ -127,7 +141,4 @@ public class WebConfig extends WebMvcConfigurerAdapter {
             }
         };
     }
-
-
-	
 }
