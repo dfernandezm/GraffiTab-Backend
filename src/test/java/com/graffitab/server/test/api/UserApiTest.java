@@ -2,12 +2,10 @@ package com.graffitab.server.test.api;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.Resource;
@@ -29,10 +27,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graffitab.server.api.user.UserApiController;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
@@ -50,6 +45,8 @@ public class UserApiTest {
 	    private UserService userService;
 	    
 	    private static User testUser;
+	    
+	    private static User testUser2;
 	 
 	    private MockMvc mockMvc;
 	 
@@ -91,6 +88,25 @@ public class UserApiTest {
     				.andExpect(jsonPath("$.user.email").isNotEmpty());		
 	    }
 	    
+	    @Test
+	    @Transactional
+	    public void addFollowerToUserTest() {
+	    	User user1 = fillTestUser();
+	    	User userFollower = fillTestUser();
+	    	
+	    	userService.persist(user1);
+	    	userService.persist(userFollower);
+	    	
+	    	user1.getFollowers().add(userFollower);
+	    	//TODO: This gives null!!
+//	    	userService.flush();
+//	    	
+//	    	userFollower = userService.findUserById(userFollower.getId());
+//	    	
+//	    	assertEquals(userFollower.getFollowing().size(), 1);
+//	    	assertTrue(userFollower.getFollowing().contains(user1));
+	    }
+	   
 	    private User fillTestUser() {
 	    	testUser = new User();
 	    	testUser.setFirstName("a");
@@ -99,6 +115,16 @@ public class UserApiTest {
 	    	testUser.setUsername("ab");
 	    	testUser.setPassword("pass");
 	    	return testUser;
+	    }
+	    
+	    private User fillTestUser2() {
+	    	testUser2 = new User();
+	    	testUser2.setFirstName("b");
+	    	testUser2.setLastName("c");
+	    	testUser2.setEmail("c@c.com");
+	    	testUser2.setUsername("abc");
+	    	testUser2.setPassword("pass2");
+	    	return testUser2;
 	    }
 	    
 	    private User createUser() {

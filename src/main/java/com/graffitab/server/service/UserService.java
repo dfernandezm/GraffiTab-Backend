@@ -75,5 +75,17 @@ public class UserService {
 	 return query.list();
  }
  
+ //Temporary method
+ @Transactional
+ public void addFollowerToUser(Long currentUserId, Long followerId) {
+	 User current = findUserById(currentUserId);
+	 User follower = findUserById(followerId);
+	 current.getFollowers().add(follower);
+ }
+ 
+ @Transactional
+ public void flush() {
+	 userDao.flush();
+ }
  
 }

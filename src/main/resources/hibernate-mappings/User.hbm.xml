@@ -16,6 +16,20 @@
         <property name="website" column="website" not-null="false"/>
         <property name="about" column="about" not-null="false"/>
         
+        <set name="followers" cascade="all" table="following">
+            <key column="followingId" not-null="true" />
+        	<many-to-many class="com.graffitab.server.persistence.model.User">
+        		<column name="userId" not-null="true" />
+        	</many-to-many>
+        </set>
+        
+        <set name="following" cascade="all" table="following">
+            <key column="userId" not-null="true" />
+        	<many-to-many class="com.graffitab.server.persistence.model.User">
+        	   <column name="followingId" not-null="true" /> 
+        	</many-to-many>
+        </set>
+        
         <many-to-one class="com.graffitab.server.persistence.model.Avatar" column="avatar_id" name="avatar" cascade="all"/>
         <many-to-one class="com.graffitab.server.persistence.model.Cover" column="cover_id" name="cover" cascade="all"/>
              

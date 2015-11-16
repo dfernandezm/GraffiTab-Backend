@@ -102,12 +102,7 @@ public class UserApiController extends BaseApiController {
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public UpdateUserResult updateUser(@PathVariable("id") Long id, @JsonProperty("user") UserDto userDto) {
-		
-		// 0. Validate UserDto
-	    // 1. Find user by id -- returns User entity
-		// 2. Map UserDto onto User entity -- that does all the updates
-		// 3. Map back to return the updated entity
-		
+				
 		UpdateUserResult updateUserResult = new UpdateUserResult();
 		
 		if (validateUser(userDto)) {
@@ -120,8 +115,7 @@ public class UserApiController extends BaseApiController {
 			return updateUserResult;
 			
 		} else {
-			//TODO: send 400 error with a error message.
-			return updateUserResult;
+			throw new ValidationErrorException("Validation error updating user");
 		}
 		
 	}
@@ -176,12 +170,73 @@ public class UserApiController extends BaseApiController {
 		MultipartFile avatarImageFile = uploadUtils.getFirstMultipartFileForCurrentRequest();
 		
 		if (avatarImageFile != null) {
-			
+			//TODO: transfer the file -- store in disk, save metadata in database
 		} else {
 			throw new RestApiException(ResultCode.BAD_REQUEST, "Avatar file is empty");
 		}
 		
 		return userProfileResult;
+		
+	}
+	
+	@RequestMapping(value = {"/{id}/cover"}, method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public GetUserProfileResult addCoverForUser(@PathVariable("id") Long userId) {
+		
+		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+		
+		MultipartFile coverImageFile = uploadUtils.getFirstMultipartFileForCurrentRequest();
+		
+		if (coverImageFile != null) {
+			//TODO: transfer the file -- store in disk, save metadata in database
+		} else {
+			throw new RestApiException(ResultCode.BAD_REQUEST, "Cover file is empty");
+		}
+		
+		return userProfileResult;
+		
+	}
+	
+	
+	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public GetUserProfileResult getUserFollowers(@PathVariable("id") Long userId) {
+		//TODO: getCurrentUser()
+		User user1 = userService.findUserById(2L);
+		User user2 = userService.findUserById(userId);
+		
+		user1.getFollowers().add(user2);
+		
+		return null;
+		
+	}
+	
+	@RequestMapping(value = {"/{id}/unfollow"}, method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public GetUserProfileResult unFollow(@PathVariable("id") Long userId) {
+		
+		//TODO: getCurrentUser()
+		User currentUser = userService.findUserById(1L);
+		User userToUnfollow = userService.findUserById(userId);
+		
+		currentUser.getFollowers().remove(userToUnfollow);
+		
+		return null;
+		
+	}
+	
+	
+	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public GetUserProfileResult getUsersFollowing(@PathVariable("id") Long userId) {
+		
+		//TODO: Get the followers of the logged in user
+		
+		return null;
 		
 	}
 	
@@ -192,6 +247,7 @@ public class UserApiController extends BaseApiController {
 		if ( StringUtils.isEmpty(userDto.getUsername()) || StringUtils.isEmpty(userDto.getEmail()) ||
 			 StringUtils.isEmpty(userDto.getFirstName()) || StringUtils.isEmpty(userDto.getLastName()) ||
 			 StringUtils.isEmpty(userDto.getPassword())) {
+			
 			validationResult = false;
 			
 		} else {
@@ -221,37 +277,4 @@ public class UserApiController extends BaseApiController {
 			return  !userService.findByEmail(email).isEmpty();
 		}
 	}
-	
-
-	/*
-	 * @RequestMapping(value="/rest/incidencias", method=RequestMethod.POST, headers = { "Content-Type=multipart/mixed, multipart/form-data"} )
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Object> guardarIncidencia(
-             @RequestPart("incidencia") IncidenciaMovilDTO incidencia,
-             @RequestPart(value="imagen",required=false) MultipartFile imagen,
-             Locale locale,
-             HttpServletRequest request
-             ) throws RestException, InstanceNotFoundException, UploadException, URISyntaxException {
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        HttpHeaders headers = new HttpHeaders();
-
-        if(auth == null || auth.getPrincipal() == null) {
-
-            headers.add("WWW-Authenticate",  "Basic realm=\"" + "riveiraatlantica2015.es"+ "\"");
-            return new ResponseEntity<Object>("",headers,HttpStatus.UNAUTHORIZED);
-        }
-
-        String ip = ControllerUtils.getIp(request);
-        restHelper.guardarIncidencia(incidencia,imagen,locale,ip);
-
-        URI location = ControllerUtils.getLocation(request, "/rest/incidencias/"+incidencia.getId());
-        headers.setLocation(location);
-        ResponseEntity<Object> resp = new ResponseEntity<Object>("",headers,HttpStatus.CREATED);
-
-        return resp;
-    }
-	 */
-	
-	
 }

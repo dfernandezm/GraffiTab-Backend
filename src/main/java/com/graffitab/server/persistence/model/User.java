@@ -1,5 +1,8 @@
 package com.graffitab.server.persistence.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.graffitab.server.persistence.dao.Identifiable;
 
 /**
@@ -19,8 +22,26 @@ public class User implements Identifiable<Long> {
 	private String about;
 	private Avatar avatar;
 	private Cover cover;
+	private Set<User> followers = new HashSet<>();
+	private Set<User> following = new HashSet<>();
 	
-    public User() {
+	public Set<User> getFollowers() {
+		return followers;
+	}
+
+	public void setFollowers(Set<User> followers) {
+		this.followers = followers;
+	}
+
+	public Set<User> getFollowing() {
+		return following;
+	}
+
+	public void setFollowing(Set<User> following) {
+		this.following = following;
+	}
+
+	public User() {
 
     }
 
@@ -117,4 +138,31 @@ public class User implements Identifiable<Long> {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
+	
+	
 }
