@@ -48,13 +48,14 @@ def commonsIoVersion = "2.4"
 def cglibVersion = "2.1_3"
 def log4jVersion = "2.1"
 def slf4jVersion = "1.7.7"
-def springSecurityVersion = "3.2.0.RELEASE"
 def jUnitVersion = "4.9"
 def mockitoVersion = "1.9.5"
 def jsonPathVersion = "2.0.0"
 def hsqldbVersion = "2.2.8"
 def orikaVersion = "1.4.6"
-def commonsFileuploadVersion = "1.3.1" 
+def commonsFileuploadVersion = "1.3.1"
+//http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
+def springSecurityVersion = "4.0.3.RELEASE" 
 
 
 List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",

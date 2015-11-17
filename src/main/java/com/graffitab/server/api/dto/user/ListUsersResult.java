@@ -6,13 +6,13 @@ import com.graffitab.server.persistence.model.User;
 
 public class ListUsersResult {
 	
-	private List<User> users;
+	private List<UserDto> users;
 
-	public List<User> getUsers() {
+	public List<UserDto> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<User> users) {
+	public void setUsers(List<UserDto> users) {
 		this.users = users;
 	}
 

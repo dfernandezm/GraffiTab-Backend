@@ -122,13 +122,14 @@ public class UserApiController extends BaseApiController {
 	
 	
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
+	@Transactional
 	public ListUsersResult listUsers() {
 		ListUsersResult listUsersResult = new ListUsersResult();
-		List<User> users = new ArrayList<>(); 
-		listUsersResult.setUsers(users);
-		
-		//TODO: listUsers
-		
+ 
+		List<User> users = userService.findAll();
+		List<UserDto> userDtos = mapper.mapList(users, UserDto.class);
+		listUsersResult.setUsers(userDtos);
+				
 		return listUsersResult;
 	}
 	
