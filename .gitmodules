@@ -1,0 +1,3 @@
+[submodule "GraffiTab-Frontend"]
+	path = GraffiTab-Frontend
+	url = https://github.com/GraffiTab/GraffiTab-Frontend.git
