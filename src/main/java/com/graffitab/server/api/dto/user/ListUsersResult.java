@@ -1,18 +1,17 @@
 package com.graffitab.server.api.dto.user;
 
-import java.util.List;
-
+import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 
 public class ListUsersResult {
 	
-	private List<UserDto> users;
+	private PagedList<User> users;
 
-	public List<UserDto> getUsers() {
+	public PagedList<User> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<UserDto> users) {
+	public void setUsers(PagedList<User> users) {
 		this.users = users;
 	}
 

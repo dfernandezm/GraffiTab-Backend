@@ -4,11 +4,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
+import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 
 /**
@@ -19,6 +21,9 @@ public class UserService {
 
  @Resource
  private HibernateDaoImpl<User, Long> userDao;
+ 
+ @Resource
+ private PagingService pagingService;
 
  @Transactional(readOnly=true)
  public User findUserById(Long id) {
@@ -75,6 +80,7 @@ public class UserService {
 	 return query.list();
  }
  
+
  //Temporary method
  @Transactional
  public void addFollowerToUser(Long currentUserId, Long followerId) {
@@ -88,4 +94,24 @@ public class UserService {
 	 userDao.flush();
  }
  
+
+ @Transactional
+ @SuppressWarnings("unchecked")
+ public PagedList<User> findAllUsersPaged(Integer offset) {
+	 
+	 Criteria countCriteria = userDao.getCriteria();
+	 Criteria mainCriteria = userDao.getCriteria();
+	 
+	 pagingService.getCountQuery(countCriteria);
+	 Integer total = ((Long) countCriteria.uniqueResult()).intValue();
+	 
+	 pagingService.getMainQuery(mainCriteria, offset, PagingService.PAGE_SIZE_DEFAULT_VALUE);
+	
+	 List<User> results = (List<User>) mainCriteria.list();
+	 
+	 PagedList<User> listUsers = new PagedList<>(results, total, offset);
+	 
+	 return listUsers;
+ } 
+
 }

@@ -5,13 +5,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.graffitab.server.api.dto.StatusDto;
 
-@RestController
+//TODO: handle properly CSS and favicon.ico errors!
+@Controller
 public class DefaultController {
 
 	private static Logger LOG = LogManager.getLogger();

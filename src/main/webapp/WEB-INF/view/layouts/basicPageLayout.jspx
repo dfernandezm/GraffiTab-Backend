@@ -13,7 +13,7 @@
 	<link rel="stylesheet" type="text/css" media="screen" href="${pageContext.request.contextPath}/client/css/bootstrap.css" />
 	<link rel="stylesheet" type="text/css" media="screen" href="${pageContext.request.contextPath}/client/css/main.css" />
 	
-	<title>Trucks Management - Main</title>
+	<title>Graffitab - Main</title>
 	</head>
 	
 	<body>

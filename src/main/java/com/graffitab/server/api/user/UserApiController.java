@@ -1,8 +1,5 @@
 package com.graffitab.server.api.user;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +30,7 @@ import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.api.util.UploadUtils;
+import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
@@ -125,11 +123,10 @@ public class UserApiController extends BaseApiController {
 	@Transactional
 	public ListUsersResult listUsers() {
 		ListUsersResult listUsersResult = new ListUsersResult();
- 
-		List<User> users = userService.findAll();
-		List<UserDto> userDtos = mapper.mapList(users, UserDto.class);
-		listUsersResult.setUsers(userDtos);
-				
+
+		PagedList<User> users =  userService.findAllUsersPaged(0);
+		listUsersResult.setUsers(users);
+		
 		return listUsersResult;
 	}
 	

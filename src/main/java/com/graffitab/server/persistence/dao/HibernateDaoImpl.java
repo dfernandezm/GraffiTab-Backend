@@ -1,16 +1,18 @@
 package com.graffitab.server.persistence.dao;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
-
-import javax.annotation.Resource;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Implementation of a generic read write data access object.
@@ -193,6 +195,10 @@ public class HibernateDaoImpl<E extends Identifiable<K>, K extends Serializable>
 	     .uniqueResult();
 	
 	   return entity;
+	}
+	
+	public Criteria getCriteria() {
+		return getSession().createCriteria(entityClass);
 	}
 
 }
