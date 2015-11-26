@@ -1,5 +1,7 @@
 package com.graffitab.server.api.user;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +12,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +35,7 @@ import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.api.util.UploadUtils;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.UserService;
 
 @RestController
@@ -42,6 +46,9 @@ public class UserApiController extends BaseApiController {
 	
 	@Resource
 	private UserService userService;
+	
+	@Resource
+	private PagingService<User> pagingService;
 	
 	@Resource
 	private OrikaMapper mapper;
@@ -121,12 +128,19 @@ public class UserApiController extends BaseApiController {
 	
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
 	@Transactional
-	public ListUsersResult listUsers() {
+	public ListUsersResult listUsers(@RequestParam(value="offset", required = false) Integer offset, 
+									 @RequestParam(value="count", required = false) Integer count) {
+		
 		ListUsersResult listUsersResult = new ListUsersResult();
 
-		PagedList<User> users =  userService.findAllUsersPaged(0);
-		listUsersResult.setUsers(users);
+		PagedList<User> users =  pagingService.findAllPaged(offset, count);
 		
+		List<UserDto> userDtos = mapper.mapList(users, UserDto.class);	
+		listUsersResult.setUsers(userDtos);
+		listUsersResult.setTotal(users.getTotal());
+		listUsersResult.setPageSize(users.getCount());
+		listUsersResult.setOffset(users.getOffset());
+
 		return listUsersResult;
 	}
 	

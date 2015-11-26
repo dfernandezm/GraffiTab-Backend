@@ -23,7 +23,7 @@ public class UserService {
  private HibernateDaoImpl<User, Long> userDao;
  
  @Resource
- private PagingService pagingService;
+ private PagingService<User> pagingService;
 
  @Transactional(readOnly=true)
  public User findUserById(Long id) {
@@ -113,5 +113,6 @@ public class UserService {
 	 
 	 return listUsers;
  } 
+
 
 }
