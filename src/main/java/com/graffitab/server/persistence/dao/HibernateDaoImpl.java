@@ -12,7 +12,11 @@ import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+
+import com.graffitab.server.persistence.model.PagedList;
+import com.graffitab.server.service.PagingService;
 
 /**
  * Implementation of a generic read write data access object.
@@ -197,8 +201,56 @@ public class HibernateDaoImpl<E extends Identifiable<K>, K extends Serializable>
 	   return entity;
 	}
 	
-	public Criteria getCriteria() {
+	public Criteria getBaseCriteria() {
 		return getSession().createCriteria(entityClass);
 	}
+	
+	private void getCountQuery(Criteria currentCriteria) {
+		currentCriteria.setProjection(Projections.rowCount());
+	}
+	
+	private void getMainQuery(Criteria currentCriteria, Integer offset, Integer count) {
+		currentCriteria.setFirstResult(offset).setMaxResults(count);
+	}
+	
+	// -- For any query --
+	@SuppressWarnings("unchecked")
+	public <T> PagedList<T> findPaged(Criteria countCriteria, Criteria mainCriteria, Integer offset, Integer count) {
+		
+		 offset = (offset == null) ? 0 : offset;
+		 count = (count == null) ? PagingService.PAGE_SIZE_DEFAULT_VALUE : count;
+		 
+		 getCountQuery(countCriteria);
+		 Integer total = ((Long) countCriteria.uniqueResult()).intValue();
+		 
+		 getMainQuery(mainCriteria, offset, count);
+		 List<T> results = (List<T>) mainCriteria.list();
+		 
+		 PagedList<T> list = new PagedList<>(results, total, offset, count);
+		 
+		 return list;
+	}
 
+	
+	// -- For queries involving a specific entity --
+	@SuppressWarnings("unchecked")
+	public PagedList<E> findAllPaged(Integer offset, Integer count) {
+		
+	 offset = (offset == null) ? 0 : offset;
+	 count = (count == null) ? PagingService.PAGE_SIZE_DEFAULT_VALUE : count;
+	 
+	 Criteria countCriteria = getBaseCriteria();
+	 Criteria mainCriteria = getBaseCriteria();
+	 
+	 getCountQuery(countCriteria);
+	 Integer total = ((Long) countCriteria.uniqueResult()).intValue();
+	 
+	 getMainQuery(mainCriteria, offset, count);
+	 List<E> results = (List<E>) mainCriteria.list();
+	 
+	 PagedList<E> listUsers = new PagedList<>(results, total, offset, count);
+	 
+	 return listUsers;
+	 
+   }
 }
