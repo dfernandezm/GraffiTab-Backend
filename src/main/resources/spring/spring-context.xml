@@ -10,9 +10,14 @@
             			http://www.springframework.org/schema/task
             			http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
-    <context:annotation-config/>
-    
-    <context:component-scan base-package="com.graffitab.server" />
+<!--      <context:annotation-config/> -->
+	
+<!--      <context:component-scan base-package="com.graffitab.server" use-default-filters="false"> -->
+<!--          <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController" /> -->
+<!--      </context:component-scan> -->
+     
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" />
 
      <!--  Async and scheduling -->
 <!--     <task:annotation-driven /> -->

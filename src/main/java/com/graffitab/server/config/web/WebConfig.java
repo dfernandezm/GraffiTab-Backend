@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -35,13 +36,10 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableWebMvc
 @EnableTransactionManagement
 @ComponentScan(
-  basePackages={"com.graffitab.server.api"}, useDefaultFilters = false, 
-  includeFilters = { 
-		      @Filter(type = FilterType.ANNOTATION, classes = {Controller.class}),
-		      @Filter(type = FilterType.ANNOTATION, classes = {Component.class})
-  }
+  basePackages={"com.graffitab.server"}, useDefaultFilters = true 
 )
 @ImportResource("classpath:spring/spring-context.xml")
+@Order(2)
 public class WebConfig extends WebMvcConfigurationSupport {
 	
 	@Autowired
