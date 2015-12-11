@@ -27,7 +27,7 @@ import com.graffitab.server.config.spring.JsonDtoArgumentResolver;
 @EnableWebMvc
 @EnableTransactionManagement
 @ComponentScan(
-  basePackages={"com.graffitab.server.api"}, useDefaultFilters = false, 
+  basePackages={"com.graffitab.server"}, useDefaultFilters = false, 
   includeFilters = { 
 	      @Filter(type = FilterType.ANNOTATION, classes = {Controller.class}),
 	      @Filter(type = FilterType.ANNOTATION, classes = {Component.class})
