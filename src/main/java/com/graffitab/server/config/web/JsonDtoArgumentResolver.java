@@ -1,4 +1,4 @@
-package com.graffitab.server.config.spring;
+package com.graffitab.server.config.web;
 
 import java.util.List;
 

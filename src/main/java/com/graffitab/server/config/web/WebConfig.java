@@ -22,9 +22,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import com.graffitab.server.config.spring.CustomMappingJackson2HttpMessageConverter;
-import com.graffitab.server.config.spring.GraffitabSecurityConfig;
-import com.graffitab.server.config.spring.JsonDtoArgumentResolver;
+import com.graffitab.server.config.spring.security.GraffitabSecurityConfig;
 
 @Configuration
 @EnableWebMvc
@@ -101,7 +99,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
 	public InternalResourceViewResolver getInternalResourceViewResolver() {
 	    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
 	    resolver.setPrefix("/WEB-INF/jsp/");
-	    resolver.setSuffix(".jsp");
+	    resolver.setSuffix(".jspx");
 	    return resolver;
 	}
 	

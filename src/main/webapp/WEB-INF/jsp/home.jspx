@@ -1,0 +1,32 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
+          xmlns:tiles="http://tiles.apache.org/tags-tiles" version="2.0">
+
+<html id="ng-app">
+	<jsp:output doctype-root-element="HTML"
+		doctype-system="about:legacy-compat" />
+	<jsp:directive.page contentType="text/html;charset=UTF-8" />
+
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="${pageContext.request.contextPath}/client/css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="${pageContext.request.contextPath}/client/css/main.css" />
+	
+	<title>Graffitab - Main</title>
+	</head>
+	
+	<body>
+        <div class="container content">
+           
+			<div style="width: 430px; margin: 0 auto;">
+		
+				<h1>Initial page - Test</h1>
+		
+			</div>
+        </div>
+	</body>
+
+</html>
+
+</jsp:root>

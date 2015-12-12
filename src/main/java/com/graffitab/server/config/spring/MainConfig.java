@@ -9,6 +9,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.graffitab.server.config.spring.security.GraffitabSecurityConfig;
+
 @Configuration
 @EnableTransactionManagement
 @ComponentScan(
