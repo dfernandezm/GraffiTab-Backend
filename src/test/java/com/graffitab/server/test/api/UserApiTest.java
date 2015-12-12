@@ -16,11 +16,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -28,16 +26,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.graffitab.server.api.user.UserApiController;
+import com.graffitab.server.config.MainConfig;
+import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
-@ContextConfiguration({"classpath:spring-context-test.xml"})
-@RunWith(SpringJUnit4ClassRunner.class)
-@Rollback(value = true)
+//@ContextConfiguration({"classpath:spring-context-test.xml"})
+
 @WebAppConfiguration
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes={MainConfig.class, TestDatabaseConfig.class, WebConfig.class})
+@Rollback(value = true)
+@ActiveProfiles("unit-test")
 public class UserApiTest {
-	
+	   
 	    @Resource
 	    private WebApplicationContext ctx;
 	    
@@ -131,21 +133,6 @@ public class UserApiTest {
 	    	fillTestUser();
 	    	userService.persist(testUser);
 	    	return testUser;
-	    }
-	 
-	    
-	    
-	 
-	    
-	    @Configuration
-	    @ImportResource("classpath:graffitab-servlet-test.xml")
-	    public static class TestConfiguration {
-	 
-	        @Bean
-	        public UserApiController userApiController() {
-	            return new UserApiController();
-	        }
-	 
 	    }
 	
 }

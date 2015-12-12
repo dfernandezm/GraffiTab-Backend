@@ -131,6 +131,8 @@ dependencies {
    testCompile "org.mockito:mockito-core:$mockitoVersion"
    testCompile "com.jayway.jsonpath:json-path:$jsonPathVersion"
    testCompile "org.hsqldb:hsqldb:$hsqldbVersion"
+   testCompile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
+   
 }
 
 
