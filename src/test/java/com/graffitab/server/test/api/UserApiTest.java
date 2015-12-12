@@ -26,7 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.graffitab.server.config.MainConfig;
+import com.graffitab.server.config.spring.MainConfig;
 import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;

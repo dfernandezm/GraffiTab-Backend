@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -19,8 +20,10 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import com.graffitab.server.config.spring.CustomMappingJackson2HttpMessageConverter;
+import com.graffitab.server.config.spring.GraffitabSecurityConfig;
 import com.graffitab.server.config.spring.JsonDtoArgumentResolver;
 
 @Configuration
@@ -33,6 +36,7 @@ import com.graffitab.server.config.spring.JsonDtoArgumentResolver;
 	      @Filter(type = FilterType.ANNOTATION, classes = {Component.class})
   }
 )
+@Import(GraffitabSecurityConfig.class)
 @Order(2)
 public class WebConfig extends WebMvcConfigurationSupport {
 	
@@ -93,5 +97,12 @@ public class WebConfig extends WebMvcConfigurationSupport {
 		argumentResolvers.add(jsonDtoArgumentResolver());
 	}
 	
+	@Bean
+	public InternalResourceViewResolver getInternalResourceViewResolver() {
+	    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+	    resolver.setPrefix("/WEB-INF/jsp/");
+	    resolver.setSuffix(".jsp");
+	    return resolver;
+	}
 	
 }

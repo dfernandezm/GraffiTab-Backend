@@ -20,7 +20,7 @@
          fully-qualified @Configuration classes -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>com.graffitab.server.config.MainConfig</param-value>
+        <param-value>com.graffitab.server.config.spring.MainConfig</param-value>
     </context-param>
 
     <!-- Bootstrap the root application context as usual using ContextLoaderListener -->
@@ -47,19 +47,6 @@
         <load-on-startup>2</load-on-startup>
     </servlet>
 
- 
-
-
-    <!-- ContextLoader declaration -->
-<!--     <listener> -->
-<!--         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class> -->
-<!--     </listener> -->
-
-<!--     <context-param> -->
-<!--         <param-name>contextConfigLocation</param-name> -->
-<!--         <param-value>classpath:spring/spring-context.xml</param-value> -->
-<!--     </context-param> -->
-
     <!-- Filter to force encoding to UTF 8 -->
     <filter>
 	    <filter-name>charsetFilter</filter-name>
@@ -80,15 +67,15 @@
     </filter-mapping>
 
 	<!-- Spring Security -->
-<!-- 	<filter> -->
-<!-- 		<filter-name>springSecurityFilterChain</filter-name> -->
-<!-- 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class> -->
-<!-- 	</filter> -->
- 
-<!-- 	<filter-mapping> -->
-<!-- 		<filter-name>springSecurityFilterChain</filter-name> -->
-<!-- 		<url-pattern>/*</url-pattern> -->
-<!-- 	</filter-mapping> -->
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 	<!-- Default servlet -->
     <servlet-mapping>
@@ -98,15 +85,10 @@
 
     <!-- Basic error page -->
     <error-page>
-        <error-code>404</error-code>
-        <location>/errors/notFound</location>
+        <error-code>403</error-code>
+        <location>/403</location>
     </error-page>
-
-    <error-page>
-        <error-code>500</error-code>
-        <location>/errors/general</location>
-    </error-page>
-
+    
     <session-config>
         <session-timeout>180</session-timeout>
     </session-config>
