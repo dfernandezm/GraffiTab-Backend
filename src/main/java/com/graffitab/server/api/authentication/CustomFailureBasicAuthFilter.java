@@ -2,35 +2,37 @@ package com.graffitab.server.api.authentication;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomFailureBasicAuthFilter extends BasicAuthenticationFilter {
 
-	@Override
-	public void commence(HttpServletRequest request,
-			HttpServletResponse response, AuthenticationException authException)
-			throws IOException, ServletException {
+	public CustomFailureBasicAuthFilter(
+			AuthenticationManager authenticationManager) {
+		super(authenticationManager);
+	}
+
+
+	protected void onUnsuccessfulAuthentication(HttpServletRequest request,
+			HttpServletResponse response, AuthenticationException failed)
+			throws IOException {
 		
 		JSONObject json = new JSONObject();
 		json.put("resultCode", HttpStatus.UNAUTHORIZED.value());
 		
 		String message = "";
-		if (authException instanceof BadCredentialsException) {
+		if (failed instanceof BadCredentialsException) {
 			message = "Invalid username/password provided";
-		} else if (authException instanceof AuthenticationCredentialsNotFoundException){
-			message = "Not authenticated";
 		} else {
-			message = authException.getMessage();
+			message = failed.getMessage();
 		}
 		
 		json.put("resultMessage", message);
@@ -39,6 +41,7 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint 
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		IOUtils.write(json.toString(), response.getOutputStream());
 		response.flushBuffer();
-	} 
-
+		
+	}
+	
 }

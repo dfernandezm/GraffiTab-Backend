@@ -131,7 +131,7 @@ public class UserApiController extends BaseApiController {
 	@Transactional
 	public ListUsersResult listUsers(@RequestParam(value="offset", required = false) Integer offset, 
 									 @RequestParam(value="count", required = false) Integer count,
-									 @AuthenticationPrincipal Object user) {
+									 @AuthenticationPrincipal String user) {
 		
 		ListUsersResult listUsersResult = new ListUsersResult();
 

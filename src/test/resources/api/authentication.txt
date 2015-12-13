@@ -2,5 +2,8 @@
 
 Provide cookie
 --------------
-curl -i -H "Content-Type: application/json" --cookie "JSESSIONID=C75F209D72DBA92237DC1BE58C1C8A13" http://localhost:8090/api/users
+curl -i -H "Content-Type: application/json" --cookie " JSESSIONID=325C44797BAEAED7F603ECC41BC4B9ED;" http://localhost:8090/api/users
 
+curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user","password":"password"}' http://localhost:8090/api/login
+
+curl -i -u username:password http://localhost:8090/api/users
