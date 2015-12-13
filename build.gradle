@@ -122,6 +122,11 @@ dependencies {
    
    compile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
    
+   // for OAuth 2.0
+   compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
+   compile 'org.json:json:20151123'
+   
+   
    providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
    providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
 

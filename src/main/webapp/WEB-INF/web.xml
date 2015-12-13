@@ -84,10 +84,10 @@
     </servlet-mapping>
 
     <!-- Basic error page -->
-    <error-page>
-        <error-code>403</error-code>
-        <location>/403</location>
-    </error-page>
+<!--     <error-page> -->
+<!--         <error-code>403</error-code> -->
+<!--         <location>/403</location> -->
+<!--     </error-page> -->
     
     <session-config>
         <session-timeout>180</session-timeout>

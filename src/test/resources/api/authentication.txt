@@ -1,0 +1,6 @@
+
+
+Provide cookie
+--------------
+curl -i -H "Content-Type: application/json" --cookie "JSESSIONID=C75F209D72DBA92237DC1BE58C1C8A13" http://localhost:8090/api/users
+

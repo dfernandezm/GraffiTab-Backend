@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -129,7 +130,8 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
 	@Transactional
 	public ListUsersResult listUsers(@RequestParam(value="offset", required = false) Integer offset, 
-									 @RequestParam(value="count", required = false) Integer count) {
+									 @RequestParam(value="count", required = false) Integer count,
+									 @AuthenticationPrincipal Object user) {
 		
 		ListUsersResult listUsersResult = new ListUsersResult();
 
