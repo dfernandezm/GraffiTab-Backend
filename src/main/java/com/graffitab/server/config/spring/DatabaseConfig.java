@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
@@ -13,7 +14,8 @@ import org.springframework.transaction.TransactionDefinition;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-@Configuration
+//@Configuration
+//@ImportResource({"classpath:jdbc-filled.xml"})
 public class DatabaseConfig {
 
 	@Autowired

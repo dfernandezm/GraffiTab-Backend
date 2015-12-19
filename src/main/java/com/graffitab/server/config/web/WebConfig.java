@@ -34,8 +34,8 @@ import com.graffitab.server.config.spring.security.GraffitabSecurityConfig;
 	      @Filter(type = FilterType.ANNOTATION, classes = {Component.class})
   }
 )
-@Import(GraffitabSecurityConfig.class)
-@Order(2)
+//@Import(GraffitabSecurityConfig.class)
+//@Order(2)
 public class WebConfig extends WebMvcConfigurationSupport {
 	
 	@Bean

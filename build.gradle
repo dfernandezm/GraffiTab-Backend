@@ -1,27 +1,41 @@
 buildscript {
+   
+    ext {
+        springBootVersion = '1.3.0.RELEASE'
+    }
+     
     repositories {
         mavenCentral()
     }
+    
     dependencies {
         classpath "org.liquibase:liquibase-gradle-plugin:1.1.1"
         classpath "mysql:mysql-connector-java:5.1.27"
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
     }
 }
 
-apply plugin: 'liquibase'
-
 import org.apache.tools.ant.filters.*
-
+apply plugin: 'liquibase'
 apply plugin: 'java'
 apply plugin: 'war'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'graffitab'
+    version = '0.1'
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+} 
 
 
 // Gradle Tool Window in IntelliJ IDEA:
 // https://www.jetbrains.com/idea/help/manipulating-the-tool-windows.html
-
-repositories {
-    mavenCentral()
-}
 
 // Some global properties
 
@@ -33,7 +47,7 @@ ext.libDir = file("$webappRootDir/WEB-INF/lib")
 sourceSets.main.output.classesDir =  file("$webappRootDir/WEB-INF/classes")
 sourceSets.main.output.resourcesDir =  file("$webappRootDir/WEB-INF/classes")
 
-def springVersion = "4.2.2.RELEASE"
+def springVersion = "4.2.3.RELEASE"
 def jspVersion = "2.1"
 def jstlVersion = "1.1.2"
 def servletVersion = "3.0"
@@ -63,11 +77,10 @@ List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
                 "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
 ]
 
-List spring = [ "org.springframework:spring-webmvc:$springVersion",
-                "org.springframework:spring-tx:$springVersion",
+// "org.springframework:spring-webmvc:$springVersion"
+// "org.springframework:spring-core:$springVersion"
+List spring = [ "org.springframework:spring-tx:$springVersion",
                 "org.springframework:spring-orm:$springVersion",
-                "org.springframework:spring-core:$springVersion",
-                "org.springframework:spring-test:$springVersion",
                 "org.springframework:spring-test:$springVersion"]
 
 List springSecurity = ["org.springframework.security:spring-security-core:${springSecurityVersion}",
@@ -88,10 +101,16 @@ List slf4j = [
         "org.slf4j:slf4j-ext:$slf4jVersion"
 ]
 
+configurations {
+
+    all.collect { configuration ->
+        configuration.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
 dependencies {
 
-   compile "javax.servlet.jsp:jsp-api:$jspVersion",
-           "javax.servlet:jstl:$jstlVersion",
+   compile "javax.servlet:jstl:$jstlVersion",
            "taglibs:standard:$jstlVersion",
            "c3p0:c3p0:$c3p0Version",
            "mysql:mysql-connector-java:$mysqlVersion",
@@ -106,6 +125,8 @@ dependencies {
    compile ("org.slf4j:jcl-over-slf4j:$slf4jVersion") {
        exclude module: "slf4j-api"
    }
+   
+   compile("org.apache.tomcat.embed:tomcat-embed-jasper")
 
     // Logging
     slf4j.each { artifact ->
@@ -116,7 +137,9 @@ dependencies {
 
    compile "commons-io:commons-io:$commonsIoVersion"
 
-   compile spring, springSecurity, jackson, log4j
+   compile spring, jackson, log4j
+   
+   //springSecurity, jackson, log4j
    
    compile "ma.glasnost.orika:orika-core:$orikaVersion"
    
@@ -126,9 +149,15 @@ dependencies {
    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
    compile 'org.json:json:20151123'
    
+   // Spring Boot
+   compile 'org.springframework.boot:spring-boot-starter'
+   compile 'org.springframework.boot:spring-boot-starter-web'
+   compile 'org.springframework.boot:spring-boot-starter-security'
+   testCompile 'org.springframework.boot:spring-boot-starter-test'
    
-   providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
-   providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
+   // For tomcat server, not for embedded
+   // providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
+   // providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
 
    runtime "mysql:mysql-connector-java:$mysqlVersion"
    

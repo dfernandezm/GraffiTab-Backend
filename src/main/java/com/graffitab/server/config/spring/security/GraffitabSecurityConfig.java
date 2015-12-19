@@ -7,6 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -24,6 +25,7 @@ import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
 
 @Configuration
 @EnableWebSecurity
+//@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
@@ -32,6 +34,13 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 			.withUser("user").password("password").roles("USER").and()
 			.withUser("admin").password("password").roles("USER", "ADMIN");		
 	}
+	
+	@Override
+    public void configure(WebSecurity web) throws Exception {
+      web
+        .ignoring()
+           .antMatchers("/favicon.ico","/resources/**", "/client/**");
+    }
 
 	@Configuration
     @Order(1)
@@ -41,6 +50,8 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             http.csrf().disable()
                     .anonymous().disable()
                     .antMatcher("/api/login")
+                    .antMatcher("/api/users/register")
+                    .antMatcher("/api/users")
                     .authorizeRequests()
                        .antMatchers(HttpMethod.POST)
                        .permitAll()
@@ -81,6 +92,8 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
                     .authorizeRequests()
                         .anyRequest().hasAnyRole("ADMIN", "USER")
                     .and()
+                    .authorizeRequests().anyRequest().permitAll()
+                    .and()
                     .logout()
                        .deleteCookies("JSESSIONID").invalidateHttpSession(true)
  				       .logoutUrl("/api/logout").logoutSuccessHandler(new OkResponseLogoutHandler());
@@ -109,6 +122,17 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             authFilter.setUsernameParameter("username");
             authFilter.setPasswordParameter("password");
             return authFilter;
+        }
+	}
+	
+	@Configuration
+    @Order(3)
+    public static class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.csrf().disable()
+                    .antMatcher("/**")
+                    .authorizeRequests().anyRequest().permitAll();       
         }
 	}
 }

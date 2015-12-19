@@ -3,6 +3,7 @@ package com.graffitab.server.api.user;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,7 +60,7 @@ public class UserApiController extends BaseApiController {
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
-	public GetUserResult getUser(@PathVariable("id") Long id) {
+	public GetUserResult getUser(@PathVariable("id") Long id, HttpServletRequest request) {
 		
 		GetUserResult getUserResult = new GetUserResult();
 		User user = userService.findUserById(id);
