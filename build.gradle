@@ -18,12 +18,16 @@ buildscript {
 import org.apache.tools.ant.filters.*
 apply plugin: 'liquibase'
 apply plugin: 'java'
-apply plugin: 'war'
+//apply plugin: 'war'
 apply plugin: 'spring-boot'
 
 jar {
     baseName = 'graffitab'
     version = '0.1'
+    
+    manifest {
+        attributes 'Main-Class': 'com.graffitab.server.GraffitabApplication'
+    }
 }
 
 sourceCompatibility = 1.7
@@ -158,6 +162,9 @@ dependencies {
    // For tomcat server, not for embedded
    // providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
    // providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
+   
+   // For an executable and deployable WAR, add this
+   // providedCompile "org.springframework.boot:spring-boot-starter-tomcat"
 
    runtime "mysql:mysql-connector-java:$mysqlVersion"
    
@@ -194,9 +201,9 @@ processResources {
     filter(ReplaceTokens, tokens: config)
 }
 
-war {
-  archiveName = "graffitab.war"  
-}
+//war {
+//  archiveName = "graffitab.war"  
+//}
 
 
 /**
@@ -275,11 +282,11 @@ task copyDependenciesToLib(type: Sync) {
     into "$libDir"
 }
 
-task explodedWar(type:Copy) {
+//task explodedWar(type:Copy) {
     // Reuses the copy specification of the war task to mimic its behaviour into the desired destination
-    into "$tomcatWebappsDir/ROOT"
-    with war
-}
+//    into "$tomcatWebappsDir/ROOT"
+ //   with war
+//}
 
 task stopTomcat(type:Exec) {
     workingDir 'deploy/tomcat7/bin'
@@ -307,7 +314,6 @@ task restartTomcat() {
 }
 
 task stage() {
-  dependsOn war
   doFirst {
      println "Running Stage Task"
   }

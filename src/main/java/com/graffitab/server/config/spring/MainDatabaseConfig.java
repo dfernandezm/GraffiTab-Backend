@@ -1,12 +1,13 @@
 package com.graffitab.server.config.spring;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
@@ -40,7 +41,15 @@ public class MainDatabaseConfig {
 		
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(targetDataSource);
-        sessionFactory.setMappingDirectoryLocations(new ClassPathResource("hibernate-mappings"));
+        
+        List<String> mappingFiles = new ArrayList<>();
+        mappingFiles.add("hibernate-mappings/User.hbm.xml");
+        mappingFiles.add("hibernate-mappings/Avatar.hbm.xml");
+        mappingFiles.add("hibernate-mappings/Cover.hbm.xml");
+        
+        String[] mappingArray = new String[mappingFiles.size()];
+       
+        sessionFactory.setMappingResources(mappingFiles.toArray(mappingArray)); 
         sessionFactory.setHibernateProperties(hibernateProperties());
         return sessionFactory;
     }
@@ -55,5 +64,5 @@ public class MainDatabaseConfig {
                 setProperty("hibernate.hbm2ddl.auto", "validate");
             }
         };
-    }
+	}
 }
