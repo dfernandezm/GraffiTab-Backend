@@ -8,7 +8,7 @@
             <value>com.mysql.jdbc.Driver</value>
         </property>
         <property name="jdbcUrl">
-            <value>jdbc:mysql://localhost:3307/graffitab?useUnicode=true&amp;characterEncoding=UTF-8</value>
+            <value>jdbc:mysql://@databaseDomainAndName@?useUnicode=true&amp;characterEncoding=UTF-8</value>
         </property>
         <property name="properties">
             <props>
@@ -17,8 +17,8 @@
                 <prop key="c3p0.timeout">7200</prop>
                 <prop key="c3p0.idle_test_period">3600</prop>
                 <prop key="c3p0.max_statements">50</prop>
-                <prop key="user">root</prop>
-                <prop key="password"></prop>
+                <prop key="user">@databaseUsername@</prop>
+                <prop key="password">@databasePassword@</prop>
             </props>
         </property>
     </bean>

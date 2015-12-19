@@ -226,10 +226,26 @@ def loadConfiguration() {
     def dbName = System.getenv("DB_NAME")
     def dbUser = System.getenv("DB_USERNAME")
     def dbPassword = System.getenv("DB_PASSWORD")
-    
+    def dbUrl = System.getenv("DATABASE_URL")
+        
     def config = null
     
-    if (dbHost?.trim() || !localConfigExists) { 
+    if (dbUrl?.trim()) {
+    
+       URI dbUri = new URI(System.getenv("DATABASE_URL"));
+       String username = dbUri.getUserInfo().split(":")[0];
+       String password = dbUri.getUserInfo().split(":")[1];
+       String dbJdbcUrl = "jdbc:mysql://" + dbUri.getHost() + dbUri.getPath();
+       println "DATABASE URL " + dbJdbcUrl
+       
+       println "=== Reading config for remote deployment for $env ==="	
+       config = readConfigFile("$configDir/$remotesConfigFileName", env)	
+       config.databaseDomainAndName =  dbUri.getHost() + dbUri.getPath()
+       config.databaseUsername = username
+       config.databasePassword = password
+  
+    }
+    else if (dbHost?.trim() || !localConfigExists) { 
       
       // If the variable is not empty (CircleCI) or the local config file does not exist, assume remote deployment
       // Read from env variables     
@@ -313,12 +329,15 @@ task restartTomcat() {
     }
 }
 
-task stage() {
-  doFirst {
-     println "Running Stage Task"
-  }
-
+task stage(type:Copy) {
+    dependsOn clean, assemble
+    from jar.archivePath
+    into project.rootDir 
+    rename {
+        'graffitab.jar'
+    }
 }
+stage.mustRunAfter(clean)
 
 task updateDb() {
   dependsOn update
