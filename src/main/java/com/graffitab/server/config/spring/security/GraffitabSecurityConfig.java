@@ -49,12 +49,12 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable()
                     .anonymous().disable()
-                    .antMatcher("/api/login")
-                    .antMatcher("/api/users/register")
-                    .antMatcher("/api/users")
+                    .requestMatchers()
+                    .antMatchers(HttpMethod.POST, "/api/login", "/api/users","api/users/register")
+                    .and()
                     .authorizeRequests()
-                       .antMatchers(HttpMethod.POST)
-                       .permitAll()
+                    .anyRequest()
+                    .permitAll()
                     .and()
             	    .sessionManagement()
             	    	.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
