@@ -62,6 +62,7 @@ public class MainDatabaseConfig {
                 setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect");
                 setProperty("hibernate.show_sql", "false");
                 setProperty("hibernate.hbm2ddl.auto", "validate");
+                setProperty("hibernate.c3p0.validate", "true");
             }
         };
 	}
