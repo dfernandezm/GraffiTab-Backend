@@ -25,6 +25,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import com.graffitab.server.config.spring.MainConfig;
+import com.graffitab.server.config.spring.MainDatabaseConfig;
 
 @SpringBootApplication
 //@Import(MainConfig.class)
@@ -37,7 +38,7 @@ public class GraffitabApplication extends SpringBootServletInitializer {
     
     @Override 
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application ) {
-        return application.sources(GraffitabApplication.class, MainConfig.class);
+        return application.sources(GraffitabApplication.class, MainConfig.class, MainDatabaseConfig.class);
     }
 
     @Override public void onStartup( ServletContext servletContext ) throws ServletException {
