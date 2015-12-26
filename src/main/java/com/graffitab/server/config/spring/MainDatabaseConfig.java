@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
@@ -16,6 +17,7 @@ import org.springframework.transaction.TransactionDefinition;
 
 @Configuration
 @ImportResource({"classpath:jdbc-dbcp.xml", "classpath:configurable-context.xml"})
+@Profile("main")
 public class MainDatabaseConfig {
 	
 	@Autowired

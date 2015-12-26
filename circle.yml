@@ -12,12 +12,12 @@ database:
 
 test:
   override:
-    - /bin/true
+    - ./gradlew test -Penv=herokuDev
 
 deployment:
   staging:
     branch: spring-boot
     commands:
       - "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
-      - git push git@heroku.com:graffitab.git $CIRCLE_SHA1:master -f
+      - git push git@heroku.com:graffitab.git $CIRCLE_SHA1:master
       - ./gradlew stage -Penv=herokuDev 

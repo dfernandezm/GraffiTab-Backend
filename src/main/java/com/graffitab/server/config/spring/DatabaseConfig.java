@@ -14,10 +14,9 @@ import org.springframework.transaction.TransactionDefinition;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-//@Configuration
-//@ImportResource({"classpath:jdbc-filled.xml"})
 public class DatabaseConfig {
 
+	// Read from XML
 	@Autowired
 	private ComboPooledDataSource targetDataSource;
 	
@@ -28,8 +27,6 @@ public class DatabaseConfig {
 		return transactionManager;
 	}
 	
-	
-	@Bean
 	public IsolationLevelDataSourceAdapter dataSource() {
 		IsolationLevelDataSourceAdapter dataSource = new IsolationLevelDataSourceAdapter();
 		dataSource.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);

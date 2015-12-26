@@ -31,8 +31,6 @@ import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
-//@ContextConfiguration({"classpath:spring-context-test.xml"})
-
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={MainConfig.class, TestDatabaseConfig.class, WebConfig.class})
@@ -119,7 +117,8 @@ public class UserApiTest {
 	    	return testUser;
 	    }
 	    
-	    private User fillTestUser2() {
+	    @SuppressWarnings("unused")
+		private User fillTestUser2() {
 	    	testUser2 = new User();
 	    	testUser2.setFirstName("b");
 	    	testUser2.setLastName("c");
