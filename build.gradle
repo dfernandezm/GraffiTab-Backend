@@ -152,6 +152,7 @@ dependencies {
    // for OAuth 2.0
    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
    compile 'org.json:json:20151123'
+   compile 'org.apache.commons:commons-dbcp2:2.1.1'
    
    // Spring Boot
    compile 'org.springframework.boot:spring-boot-starter'

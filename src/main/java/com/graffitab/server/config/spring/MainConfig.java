@@ -9,7 +9,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.graffitab.server.config.spring.security.GraffitabSecurityConfig;
 import com.graffitab.server.config.web.WebConfig;
 
 @Configuration
@@ -22,6 +21,6 @@ import com.graffitab.server.config.web.WebConfig;
 		  
 		)
 // Need to import the Security Configuration here, in the main context, otherwise the filterChain in web.xml fails
-@Import(value={MainDatabaseConfig.class, WebConfig.class})
+@Import(value={CommonsDbcpConfig.class, WebConfig.class})
 @Order(1)
 public class MainConfig { }

@@ -13,11 +13,11 @@ import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-@Configuration
+//@Configuration
 @ImportResource({"classpath:jdbc.xml", "classpath:configurable-context.xml"})
 public class MainDatabaseConfig {
 	
-	@Autowired
+	//@Autowired
 	private ComboPooledDataSource targetDataSource;
 	
 	@Bean
