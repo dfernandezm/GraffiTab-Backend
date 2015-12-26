@@ -4,21 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
+import org.springframework.transaction.TransactionDefinition;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
-//@Configuration
-@ImportResource({"classpath:jdbc.xml", "classpath:configurable-context.xml"})
+@Configuration
+@ImportResource({"classpath:jdbc-dbcp.xml", "classpath:configurable-context.xml"})
 public class MainDatabaseConfig {
 	
-	//@Autowired
-	private ComboPooledDataSource targetDataSource;
+	@Autowired
+	private BasicDataSource targetDataSource;
 	
 	@Bean
 	public HibernateTransactionManager transactionManager() {
@@ -27,20 +28,18 @@ public class MainDatabaseConfig {
 		return transactionManager;
 	}
 	
-	
-//	@Bean
-//	public IsolationLevelDataSourceAdapter dataSource() {
-//		IsolationLevelDataSourceAdapter dataSource = new IsolationLevelDataSourceAdapter();
-//		dataSource.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-//		dataSource.setTargetDataSource(targetDataSource);
-//		return dataSource;
-//	}
+	public IsolationLevelDataSourceAdapter dataSource() {
+		IsolationLevelDataSourceAdapter dataSource = new IsolationLevelDataSourceAdapter();
+		dataSource.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+		dataSource.setTargetDataSource(targetDataSource);
+		return dataSource;
+	}
 	
 	@Bean
     public LocalSessionFactoryBean sessionFactory() {
 		
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(targetDataSource);
+        sessionFactory.setDataSource(dataSource());
         
         List<String> mappingFiles = new ArrayList<>();
         mappingFiles.add("hibernate-mappings/User.hbm.xml");
@@ -62,7 +61,6 @@ public class MainDatabaseConfig {
                 setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect");
                 setProperty("hibernate.show_sql", "false");
                 setProperty("hibernate.hbm2ddl.auto", "validate");
-                setProperty("hibernate.c3p0.validate", "true");
             }
         };
 	}

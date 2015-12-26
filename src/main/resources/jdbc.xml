@@ -10,12 +10,6 @@
         <property name="jdbcUrl">
             <value>jdbc:mysql://@databaseDomainAndName@?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8</value>
         </property>
-        <property name="preferredTestQuery">
-          <value>SELECT 1</value>
-        </property>
-        <property name="testConnectionOnCheckin">
-          <value>true</value>
-        </property>
         <property name="properties">
             <props>
                 <prop key="min_size">1</prop>
