@@ -4,8 +4,6 @@ import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;

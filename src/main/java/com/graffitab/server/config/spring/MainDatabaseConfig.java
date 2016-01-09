@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
@@ -14,11 +17,28 @@ import org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.util.StringUtils;
 
 @Configuration
 @ImportResource({"classpath:jdbc-dbcp.xml", "classpath:configurable-context.xml"})
 @Profile("main")
 public class MainDatabaseConfig {
+	
+	private static Logger LOG = LogManager.getLogger();
+	
+	@Value("${db.jdbcUrl:}")
+	private String jdbcUrl;
+	
+	@Value("${db.username:}")
+	private String dbUsername;
+	
+	@Value("${db.password:}")
+	private String dbPassword;
+	
+	// Example: try to create a environment variable called
+	// PROPERTY_SEVEN and see this populated!
+	@Value("${property.seven:}")
+	private String seven;
 	
 	@Autowired
 	private BasicDataSource targetDataSource;
@@ -33,8 +53,22 @@ public class MainDatabaseConfig {
 	public IsolationLevelDataSourceAdapter dataSource() {
 		IsolationLevelDataSourceAdapter dataSource = new IsolationLevelDataSourceAdapter();
 		dataSource.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
+		changeTargetDataSourceIfNecessary();
 		dataSource.setTargetDataSource(targetDataSource);
 		return dataSource;
+	}
+	
+	private void changeTargetDataSourceIfNecessary() {
+		if (!StringUtils.isEmpty(jdbcUrl)) {
+			LOG.info("Overriding database configuration with application properties: jbcUrl -> " + 
+					  jdbcUrl +", user -> " + dbUsername);
+			
+			LOG.info(">>>>>>>>>>>>> THE SEVEN: " + seven);
+			
+			targetDataSource.setUrl(jdbcUrl);
+			targetDataSource.setUsername(dbUsername);
+			targetDataSource.setPassword(dbPassword);
+		}
 	}
 	
 	@Bean
@@ -52,6 +86,7 @@ public class MainDatabaseConfig {
        
         sessionFactory.setMappingResources(mappingFiles.toArray(mappingArray)); 
         sessionFactory.setHibernateProperties(hibernateProperties());
+        
         return sessionFactory;
     }
 	
