@@ -71,6 +71,7 @@ def mockitoVersion = "1.9.5"
 def jsonPathVersion = "2.0.0"
 def hsqldbVersion = "2.2.8"
 def orikaVersion = "1.4.6"
+def awsVersion = "1.10.44"
 
 def commonsFileuploadVersion = "1.3.1"
 //http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
@@ -148,6 +149,8 @@ dependencies {
    compile "ma.glasnost.orika:orika-core:$orikaVersion"
    
    compile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
+
+   compile "com.amazonaws:aws-java-sdk-s3:$awsVersion"
    
    // for OAuth 2.0
    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
@@ -364,3 +367,8 @@ task localTomcat {
        println "Local Tomcat should be running on port 8090"
     }
 }
+
+// Spring Boot
+
+bootRun.dependsOn processResources
+

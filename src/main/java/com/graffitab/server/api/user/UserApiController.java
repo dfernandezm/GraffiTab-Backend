@@ -186,6 +186,7 @@ public class UserApiController extends BaseApiController {
 		
 		if (avatarImageFile != null) {
 			//TODO: transfer the file -- store in disk, save metadata in database
+			
 		} else {
 			throw new RestApiException(ResultCode.BAD_REQUEST, "Avatar file is empty");
 		}
