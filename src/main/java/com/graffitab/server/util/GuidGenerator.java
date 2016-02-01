@@ -11,7 +11,8 @@ public class GuidGenerator {
 		StringBuffer guid = new StringBuffer();
 		Random r = new Random();
 		for (int i = 0; i<13; i++) {
-			int pos = r.nextInt() % chars.length;
+			int pos = Math.abs(r.nextInt() % chars.length);
+			System.out.println("NextInt " + pos);
 			guid.append(chars[pos]);
 		}
 		return guid.toString();
