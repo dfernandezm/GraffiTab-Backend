@@ -29,3 +29,5 @@ deploy/tomcat7/work/*
 conf/config.groovy
 .DS_Store
 conf/application.properties
+.classpath
+graffitab.jar
