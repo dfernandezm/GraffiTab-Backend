@@ -110,7 +110,7 @@ public class AmazonS3DatastoreService implements DatastoreService {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void testAmazon(String[] args) {
 		BasicAWSCredentials awsCreds = new BasicAWSCredentials("AccessKey", "SecreID");
 		
 		String usersRoot = "users";
