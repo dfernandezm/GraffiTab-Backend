@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -19,10 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
+import com.graffitab.server.api.dto.asset.AddAssetResult;
+import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.user.CreateUserResult;
 import com.graffitab.server.api.dto.user.DeleteUserResult;
 import com.graffitab.server.api.dto.user.GetUserProfileResult;
@@ -37,12 +39,12 @@ import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.api.util.UploadUtils;
+import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.UserService;
-import com.graffitab.server.util.GuidGenerator;
 
 @RestController
 @RequestMapping("/api/users")
@@ -197,47 +199,34 @@ public class UserApiController extends BaseApiController {
 		return userProfileResult;
 	}
 
-	@RequestMapping(value = {"/{id}/avatar"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
-	@Transactional
-	public GetUserProfileResult addAvatarForUser(@PathVariable("id") Long userId, HttpServletRequest request) {
+	public AddAssetResult addAvatarForUser(HttpServletRequest request) {
+		return addAssetToLoggedInUser(request, AssetType.AVATAR);
+	}
 
-		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
+	@ResponseStatus(HttpStatus.OK)
+	public AddAssetResult addCoverForUser(HttpServletRequest request) {
+		return addAssetToLoggedInUser(request, AssetType.COVER);
+	}
 
-		//TODO: transfer the file -- store in disk, save metadata in database
+	private AddAssetResult addAssetToLoggedInUser(HttpServletRequest request, AssetType assetType) {
+		AddAssetResult result = new AddAssetResult();
 		try {
-			String userGuid = GuidGenerator.generate();
-			long contentLength = request.getContentLengthLong();
 
-			//TODO: return the new assetGuid in the result
-			userService.addAssetToUser(request.getInputStream(), AssetType.AVATAR, userGuid, contentLength);
+			long contentLength = request.getContentLengthLong();
+			User loggedInUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			Asset asset = userService.addAssetToUser(loggedInUser, request.getInputStream(), assetType, contentLength);
+			AssetDto assetDto = mapper.map(asset, AssetDto.class);
+			result.setAsset(assetDto);
 		} catch (IOException e) {
 			String msg = "Error reading InputStream";
 			LOG.error(msg, e);
 			throw new RestApiException(msg);
 		}
 
-		return userProfileResult;
-
-	}
-
-	@RequestMapping(value = {"/{id}/cover"}, method = RequestMethod.POST)
-	@ResponseStatus(HttpStatus.OK)
-	@Transactional
-	public GetUserProfileResult addCoverForUser(@PathVariable("id") Long userId) {
-
-		GetUserProfileResult userProfileResult = new GetUserProfileResult();
-
-		MultipartFile coverImageFile = uploadUtils.getFirstMultipartFileForCurrentRequest();
-
-		if (coverImageFile != null) {
-			//TODO: transfer the file -- store in disk, save metadata in database
-		} else {
-			throw new RestApiException(ResultCode.BAD_REQUEST, "Cover file is empty");
-		}
-
-		return userProfileResult;
-
+		return result;
 	}
 
 

@@ -1,8 +1,12 @@
 package com.graffitab.server.service;
 
+import java.util.concurrent.Callable;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -11,15 +15,17 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
-public class TransactionUtilsService {
-	
+public class TransactionUtils {
+
+	private static Logger LOG = LogManager.getLogger();
+
 	@Resource
     private PlatformTransactionManager transactionManager;
-	
+
     private TransactionTemplate requiresNewTransactionTemplate;
-    
+
     private TransactionTemplate transactionTemplate;
-    
+
 	@PostConstruct
     public void init() throws Exception {
         requiresNewTransactionTemplate = new TransactionTemplate(transactionManager);
@@ -35,7 +41,18 @@ public class TransactionUtilsService {
 	        }
 	    });
 	}
-	
+
+	public <T> T executeInTransactionWithResult(Callable<T> callableWithResult) {
+		return transactionTemplate.execute((transactionStatus) -> {
+			try  {
+				return callableWithResult.call();
+			} catch (Throwable t) {
+				LOG.error("Error executing transaction with result", t);
+				throw new RuntimeException(t);
+			}
+		});
+	}
+
 	public void executeInNewTransaction(Runnable runnable) {
 		requiresNewTransactionTemplate.execute(new TransactionCallbackWithoutResult() {
 	        @Override

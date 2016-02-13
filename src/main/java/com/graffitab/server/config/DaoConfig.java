@@ -1,9 +1,13 @@
 package com.graffitab.server.config;
 
+import java.io.Serializable;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
+import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.User;
 
 @Configuration
@@ -11,8 +15,17 @@ public class DaoConfig {
 
 	@Bean
 	public HibernateDaoImpl<User, Long> userDao() {
-		HibernateDaoImpl<User, Long> userDao = new HibernateDaoImpl<>();
-		userDao.setEntityClass(User.class);
-		return userDao;
+		return generateDao(User.class);
+	}
+
+	@Bean
+	public HibernateDaoImpl<Asset, Long> assetDao() {
+		return generateDao(Asset.class);
+	}
+
+	private <T extends Identifiable<K>,K extends Serializable> HibernateDaoImpl<T,K> generateDao(Class<T> entityClass) {
+		HibernateDaoImpl<T, K> dao = new HibernateDaoImpl<>();
+		dao.setEntityClass(entityClass);
+		return dao;
 	}
 }

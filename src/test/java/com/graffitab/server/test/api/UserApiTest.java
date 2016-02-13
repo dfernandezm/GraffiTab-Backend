@@ -1,14 +1,17 @@
 package com.graffitab.server.test.api;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.Resource;
+import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
 import org.apache.commons.io.IOUtils;
@@ -16,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,6 +32,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.graffitab.server.config.spring.MainConfig;
 import com.graffitab.server.config.web.WebConfig;
+import com.graffitab.server.persistence.model.AssetType;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
@@ -44,6 +49,9 @@ public class UserApiTest {
 	    @Resource
 	    private UserService userService;
 
+	    @Autowired
+	    private Filter springSecurityFilterChain;
+
 	    private static User testUser;
 
 	    private static User testUser2;
@@ -52,7 +60,9 @@ public class UserApiTest {
 
 	    @Before
 	    public void setUp() {
-	        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
+	        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+	        		                      .addFilters(springSecurityFilterChain)
+	        		                      .build();
 	    }
 
 	    @After
@@ -63,8 +73,11 @@ public class UserApiTest {
 	    @Test
 	    @Transactional
 	    public void getUserByIdTest() throws Exception {
+	    	User loggedInUser = createUser();
 	    	createUser();
-	        mockMvc.perform(get("/api/users/{id}",testUser.getId()).accept(MediaType.APPLICATION_JSON))
+	        mockMvc.perform(get("/api/users/{id}",testUser.getId()).
+	        		with(user(loggedInUser))
+	        		.accept(MediaType.APPLICATION_JSON))
 	                .andExpect(status().isOk())
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
 	                .andExpect(jsonPath("$.user.id").value(testUser.getId().intValue()));
@@ -88,7 +101,7 @@ public class UserApiTest {
     				.andExpect(jsonPath("$.user.email").isNotEmpty());
 	    }
 
-	    @Test
+	   // @Test
 	    @Transactional
 	    public void addFollowerToUserTest() {
 	    	User user1 = fillTestUser();
@@ -106,6 +119,23 @@ public class UserApiTest {
 //	    	assertEquals(userFollower.getFollowing().size(), 1);
 //	    	assertTrue(userFollower.getFollowing().contains(user1));
 	    }
+
+	    @Test
+	    @Transactional
+	    public void addAssetTest() throws IOException, Exception {
+	    	User loggedInUser = createUser();
+	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
+	    	mockMvc.perform(post("/api/users/avatar")
+	    			//.header("Authorization", "Basic " + new String(Base64.encode(authorize.getBytes())))
+	    			.with(user(loggedInUser))
+	                .contentType("application/octet-stream")
+	                .content(IOUtils.toByteArray(in)))
+	                .andExpect(status().is(200))
+	                .andExpect(content().contentType("application/json;charset=UTF-8"))
+	                .andExpect(jsonPath("$.asset.guid").isNotEmpty())
+	                .andExpect(jsonPath("$.asset.type").value(AssetType.AVATAR.name()));
+	    }
+
 
 	    private User fillTestUser() {
 	    	testUser = new User();
