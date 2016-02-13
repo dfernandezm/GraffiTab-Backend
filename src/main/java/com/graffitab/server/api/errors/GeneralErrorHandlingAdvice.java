@@ -25,16 +25,13 @@ public class GeneralErrorHandlingAdvice {
     	errorResult.setResultCode(restApiException.getResultCode());
     	errorResult.setResultMessage(restApiException.getMessage());
     	return new ResponseEntity<RestApiResult>(errorResult, new HttpHeaders(), HttpStatus.valueOf(restApiException.getResultCode().getStatusCode()));
-    
     }
-	
-	
-	
+
     @ExceptionHandler(value = Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public RestApiResult generalException(Throwable throwable, WebRequest request) {
-        // return new ApiError(Throwables.getRootCause(exception).getMessage());
+    	
     	RestApiResult errorResult = new RestApiResult();
     	errorResult.setResultCode(ResultCode.GENERAL_ERROR);
     	errorResult.setResultMessage(throwable.getMessage());

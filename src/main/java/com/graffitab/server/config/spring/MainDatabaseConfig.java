@@ -63,8 +63,6 @@ public class MainDatabaseConfig {
 			LOG.info("Overriding database configuration with application properties: jbcUrl -> " + 
 					  jdbcUrl +", user -> " + dbUsername);
 			
-			LOG.info(">>>>>>>>>>>>> THE SEVEN: " + seven);
-			
 			targetDataSource.setUrl(jdbcUrl);
 			targetDataSource.setUsername(dbUsername);
 			targetDataSource.setPassword(dbPassword);

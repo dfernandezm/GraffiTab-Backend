@@ -1,5 +1,6 @@
 package com.graffitab.server.api.user;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -35,10 +36,12 @@ import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.api.util.UploadUtils;
+import com.graffitab.server.persistence.model.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.UserService;
+import com.graffitab.server.util.GuidGenerator;
 
 @RestController
 @RequestMapping("/api/users")
@@ -124,10 +127,8 @@ public class UserApiController extends BaseApiController {
 		} else {
 			throw new ValidationErrorException("Validation error updating user");
 		}
-		
 	}
-	
-	
+
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
 	@Transactional
 	public ListUsersResult listUsers(@RequestParam(value="offset", required = false) Integer offset, 
@@ -178,20 +179,23 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}/avatar"}, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
-	public GetUserProfileResult addAvatarForUser(@PathVariable("id") Long userId) {
+	public GetUserProfileResult addAvatarForUser(@PathVariable("id") Long userId, HttpServletRequest request) {
 		
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
 		
-		MultipartFile avatarImageFile = uploadUtils.getFirstMultipartFileForCurrentRequest();
-		
-		if (avatarImageFile != null) {
-			//TODO: transfer the file -- store in disk, save metadata in database
+		//TODO: transfer the file -- store in disk, save metadata in database
+		try {
+			String userGuid = GuidGenerator.generate();
+			long contentLength = request.getContentLengthLong();
 			
-			
-		} else {
-			throw new RestApiException(ResultCode.BAD_REQUEST, "Avatar file is empty");
+			//TODO: return the new assetGuid in the result
+			userService.addAssetToUser(request.getInputStream(), AssetType.AVATAR, userGuid, contentLength);
+		} catch (IOException e) {
+			String msg = "Error reading InputStream";
+			LOG.error(msg, e);
+			throw new RestApiException(msg);
 		}
-		
+	
 		return userProfileResult;
 		
 	}

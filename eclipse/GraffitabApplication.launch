@@ -6,6 +6,10 @@
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
 </listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="AWS_ACCESS_KEY" value="AKIAITC53IKFIY54HPOA"/>
+<mapEntry key="AWS_SECRET_KEY" value="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"/>
+</mapAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_START_ON_FIRST_THREAD" value="true"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.graffitab.server.GraffitabApplication"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="--spring.config.location=conf/application.properties"/>

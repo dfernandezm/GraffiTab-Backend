@@ -1,5 +1,6 @@
 package com.graffitab.server.service;
 
+import java.io.InputStream;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -14,7 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.PagedList;
+import com.graffitab.server.persistence.model.AssetType;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.service.store.DatastoreService;
+import com.graffitab.server.util.GuidGenerator;
 
 /**
  * Created by david 
@@ -28,6 +32,10 @@ public class UserService {
  @Resource
  private PagingService<User> pagingService;
 
+ @Resource
+ private DatastoreService datastoreService;
+ 
+ 
  @Transactional(readOnly=true)
  public User findUserById(Long id) {
 	 return userDao.find(id);
@@ -132,5 +140,8 @@ public PagedList<User> searchUser(String query, Integer offset, Integer count) {
 	 return new PagedList<User>(listUsers,total,offset); 
  }
  
+ public void addAssetToUser(InputStream inputStream, AssetType assetType, String userGuid, long contentLength) {
+	 datastoreService.saveAsset(inputStream, contentLength, userGuid, GuidGenerator.generate(), assetType, null);
+ }
  
 }
