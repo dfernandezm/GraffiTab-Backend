@@ -110,14 +110,6 @@ public class UserService {
 public PagedList<User> searchUser(String query, Integer offset, Integer count) {
 	 // By username, first name, lastName
 	 
-	 // select count(*)
-	 // from gt_user g
-	 // where g.username like '%query%'
-	 
-	 // select g
-	 // from gt_user g
-	 // where g.username like '%query%'
-	 
 	 Criterion usernameRestriction = Restrictions.like("username", query, MatchMode.ANYWHERE);
 	 Criterion firstNameRestriction = Restrictions.like("firstName", query, MatchMode.ANYWHERE);
 	 Criterion lastNameRestriction = Restrictions.like("lastName", query, MatchMode.ANYWHERE);
