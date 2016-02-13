@@ -13,7 +13,11 @@ import com.graffitab.server.api.authentication.JsonLoginSuccessHandler;
 @Configuration
 @Order(4) // one more than the latest block
 public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
-	
+
+	@Bean
+	public JsonLoginSuccessHandler jsonLoginSuccessHandler() {
+		return new JsonLoginSuccessHandler();
+	}
 
 	@Bean
     public JsonLoginAuthenticationFilter jsonAuthenticationFilter() throws Exception {
@@ -21,12 +25,12 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
         authFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/api/login","POST"));
         authFilter.setAuthenticationManager(authenticationManager());
         // Custom success handler - send 200 OK
-        authFilter.setAuthenticationSuccessHandler(new JsonLoginSuccessHandler());
+        authFilter.setAuthenticationSuccessHandler(jsonLoginSuccessHandler());
         // Custom failure handler - send 401 unauthorized
         authFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
         authFilter.setUsernameParameter("username");
         authFilter.setPasswordParameter("password");
         return authFilter;
     }
-	
+
 }

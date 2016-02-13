@@ -48,6 +48,10 @@ public class UserService {
 		UserDetails userDetails =
 				(UserDetails) criteria.add(Restrictions.eq("username", username)).uniqueResult();
 
+		if (userDetails == null) {
+			throw new UsernameNotFoundException("The user " + username + " was not found");
+		}
+
 		return userDetails;
 	}
 

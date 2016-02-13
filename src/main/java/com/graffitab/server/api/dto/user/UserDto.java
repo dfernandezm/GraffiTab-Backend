@@ -1,7 +1,9 @@
 package com.graffitab.server.api.dto.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(Include.NON_NULL)
 public class UserDto {
@@ -11,14 +13,16 @@ public class UserDto {
 	private String username;
 	private String firstName;
 	private String lastName;
+
 	private String password;
+
 	private String email;
 	private String website;
 	private String about;
 	private Boolean followedByCurrentUser;
 	private String avatarUrl;
 	private String coverUrl;
-	
+
 	public String getAvatarUrl() {
 		return avatarUrl;
 	}
@@ -67,9 +71,13 @@ public class UserDto {
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
+
+	@JsonIgnore
 	public String getPassword() {
 		return password;
 	}
+
+	@JsonProperty("password")
 	public void setPassword(String password) {
 		this.password = password;
 	}
@@ -91,6 +99,6 @@ public class UserDto {
 	public void setAbout(String about) {
 		this.about = about;
 	}
-	
-	
+
+
 }

@@ -22,6 +22,7 @@ import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
 import com.graffitab.server.api.authentication.CustomFailureBasicAuthFilter;
 import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
+import com.graffitab.server.api.authentication.JsonLoginSuccessHandler;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
 import com.graffitab.server.service.GraffiTabUserDetailsService;
 

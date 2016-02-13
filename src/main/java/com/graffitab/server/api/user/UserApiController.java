@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -78,6 +79,25 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 
+	@RequestMapping(value = "/username/{username}", method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	public GetUserResult getUserByUsername(@PathVariable("username") String username) {
+
+		GetUserResult getUserResult;
+		User user;
+		try {
+			getUserResult = new GetUserResult();
+			user = (User) userService.findUserByUsername(username);
+
+			getUserResult.setUser(mapper.map(user, UserDto.class));
+		} catch (UsernameNotFoundException e) {
+			LOG.info("Could not find user " + username);
+			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user " + username);
+		}
+
+		return getUserResult;
+	}
+
 	@RequestMapping(value = {"","/register"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
@@ -92,8 +112,9 @@ public class UserApiController extends BaseApiController {
 				User user = mapper.map(userDto, User.class);
 				userService.saveUser(user);
 
-				LOG.info("Created user with ID " + user.getId());
-				createUserResult.setUser(mapper.map(user, UserDto.class));
+				UserDto outputUser = mapper.map(user, UserDto.class);
+				outputUser.setPassword(null);
+				createUserResult.setUser(outputUser);
 
 			} else {
 
