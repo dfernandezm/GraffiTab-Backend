@@ -37,29 +37,29 @@ import com.graffitab.server.service.UserService;
 @Rollback(value = true)
 @ActiveProfiles("unit-test")
 public class UserApiTest {
-	   
+
 	    @Resource
 	    private WebApplicationContext ctx;
-	    
+
 	    @Resource
 	    private UserService userService;
-	    
+
 	    private static User testUser;
-	    
+
 	    private static User testUser2;
-	 
+
 	    private MockMvc mockMvc;
-	 
+
 	    @Before
 	    public void setUp() {
 	        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx).build();
 	    }
-	    
+
 	    @After
 	    public void clear() {
 	    	// Nothing to do
 	    }
-	 
+
 	    @Test
 	    @Transactional
 	    public void getUserByIdTest() throws Exception {
@@ -68,16 +68,16 @@ public class UserApiTest {
 	                .andExpect(status().isOk())
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
 	                .andExpect(jsonPath("$.user.id").value(testUser.getId().intValue()));
-	        
+
 	    }
-	    
+
 	    @Test
 	    @Transactional
 	    public void createUserTest() throws Exception {
 	    	fillTestUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/user.json");
 	    	String json = IOUtils.toString(in);
-	    
+
 	    	mockMvc.perform(post("/api/users/register")
 	                .contentType("application/json;charset=UTF-8")
 	                .content(json))
@@ -85,28 +85,28 @@ public class UserApiTest {
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
 	                .andExpect(jsonPath("$.user.id").isNotEmpty())
 	                .andExpect(jsonPath("$.user.username").isNotEmpty())
-    				.andExpect(jsonPath("$.user.email").isNotEmpty());		
+    				.andExpect(jsonPath("$.user.email").isNotEmpty());
 	    }
-	    
+
 	    @Test
 	    @Transactional
 	    public void addFollowerToUserTest() {
 	    	User user1 = fillTestUser();
 	    	User userFollower = fillTestUser();
-	    	
-	    	userService.persist(user1);
-	    	userService.persist(userFollower);
-	    	
+
+	    	userService.saveUser(user1);
+	    	userService.saveUser(userFollower);
+
 	    	user1.getFollowers().add(userFollower);
 	    	//TODO: This gives null!!
 //	    	userService.flush();
-//	    	
+//
 //	    	userFollower = userService.findUserById(userFollower.getId());
-//	    	
+//
 //	    	assertEquals(userFollower.getFollowing().size(), 1);
 //	    	assertTrue(userFollower.getFollowing().contains(user1));
 	    }
-	   
+
 	    private User fillTestUser() {
 	    	testUser = new User();
 	    	testUser.setFirstName("a");
@@ -116,7 +116,7 @@ public class UserApiTest {
 	    	testUser.setPassword("pass");
 	    	return testUser;
 	    }
-	    
+
 	    @SuppressWarnings("unused")
 		private User fillTestUser2() {
 	    	testUser2 = new User();
@@ -127,11 +127,11 @@ public class UserApiTest {
 	    	testUser2.setPassword("pass2");
 	    	return testUser2;
 	    }
-	    
+
 	    private User createUser() {
 	    	fillTestUser();
-	    	userService.persist(testUser);
+	    	userService.saveUser(testUser);
 	    	return testUser;
 	    }
-	
+
 }

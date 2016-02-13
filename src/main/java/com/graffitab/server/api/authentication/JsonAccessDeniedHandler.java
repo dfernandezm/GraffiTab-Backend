@@ -19,19 +19,19 @@ public class JsonAccessDeniedHandler implements AccessDeniedHandler {
 			HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException,
 			ServletException {
-		
-		
+
+
 		JSONObject json = new JSONObject();
 		json.put("resultCode", HttpStatus.FORBIDDEN.value());
-		
+
 		String message = accessDeniedException.getMessage();
-		
+
 		json.put("resultMessage", message);
-		
+
 		response.setContentType("application/json");
 		IOUtils.write(json.toString(), response.getOutputStream());
 		response.setStatus(HttpStatus.FORBIDDEN.value());
-		response.getWriter().flush();
+//		response.getWriter().flush();
 	}
 
 }

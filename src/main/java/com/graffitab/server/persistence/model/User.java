@@ -1,15 +1,21 @@
 package com.graffitab.server.persistence.model;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 
 /**
  * Created by david.
  */
-public class User implements Identifiable<Long> {
-	
+public class User implements Identifiable<Long>, UserDetails {
+
 	private static final long serialVersionUID = 1L;
 	private Long id;
 	private String externalId;
@@ -24,7 +30,49 @@ public class User implements Identifiable<Long> {
 	private Cover cover;
 	private Set<User> followers = new HashSet<>();
 	private Set<User> following = new HashSet<>();
-	
+
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		GrantedAuthority g = new SimpleGrantedAuthority("ROLE_USER");
+
+		return Collections.singletonList(g);
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
+
+	@Override
+	public Long getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	@Override
+	public String getUsername() {
+		return username;
+	}
+
 	public Set<User> getFollowers() {
 		return followers;
 	}
@@ -45,26 +93,12 @@ public class User implements Identifiable<Long> {
 
     }
 
-	@Override
-	public Long getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
 	public String getExternalId() {
 		return externalId;
 	}
 
 	public void setExternalId(String externalId) {
 		this.externalId = externalId;
-	}
-
-	public String getUsername() {
-		return username;
 	}
 
 	public void setUsername(String username) {
@@ -163,13 +197,12 @@ public class User implements Identifiable<Long> {
 			return false;
 		return true;
 	}
-	
+
 	public void addFollower(User follower) {
 		followers.add(follower);
 	}
-	
+
 	public void unfollow(User userToUnfollow) {
 		following.remove(userToUnfollow);
 	}
-	
 }

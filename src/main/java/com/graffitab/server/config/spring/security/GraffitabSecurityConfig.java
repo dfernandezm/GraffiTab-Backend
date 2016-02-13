@@ -6,22 +6,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
 import com.graffitab.server.api.authentication.CustomFailureBasicAuthFilter;
 import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
-import com.graffitab.server.api.authentication.JsonLoginFailureHandler;
-import com.graffitab.server.api.authentication.JsonLoginSuccessHandler;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
+import com.graffitab.server.service.GraffiTabUserDetailsService;
 
 
 @Configuration
@@ -29,14 +31,35 @@ import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
 //@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 @Import(SecurityBeansConfig.class)
 public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
-	
+
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication()
-			.withUser("user").password("password").roles("USER").and()
-			.withUser("admin").password("password").roles("USER", "ADMIN");		
+		auth.authenticationProvider(daoAuthenticationProvider());
 	}
-	
+
+	@Bean
+	public UserDetailsService graffiTabUserDetailsService() {
+		return new GraffiTabUserDetailsService();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public DaoAuthenticationProvider daoAuthenticationProvider() {
+		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+	    authProvider.setUserDetailsService(userDetailsService());
+	    authProvider.setPasswordEncoder(passwordEncoder());
+	    return authProvider;
+	}
+
+	@Override
+	protected UserDetailsService userDetailsService() {
+		return graffiTabUserDetailsService();
+	}
+
 	@Override
     public void configure(WebSecurity web) throws Exception {
       web
@@ -47,13 +70,13 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Configuration
     @Order(1)
     public static class LoginEndpointWebSecurityConfig extends WebSecurityConfigurerAdapter {
-		
+
 		@Autowired
 		private JsonLoginAuthenticationFilter jsonAuthenticationFilter;
-		
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-        	
+
         	// We allow anonymous access here (by not disabling it). This means that if a request matches
         	// and it is not authenticated (anonymous) we let it pass -- this is what we want for login and
         	// register endpoints
@@ -67,20 +90,20 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
                     .and()
             	    .sessionManagement()
             	    	.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
-            
+
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             http.exceptionHandling().authenticationEntryPoint(new CommonAuthenticationEntryPoint());
 
         }
 	}
-        
+
 	@Configuration
     @Order(2)
     public static class SessionAndBasicAuthSecurityConfig extends WebSecurityConfigurerAdapter{
-		
+
 		@Autowired
 		private JsonLoginAuthenticationFilter jsonAuthenticationFilter;
-		
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable()
@@ -98,17 +121,17 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
             // Add the custom filter before the regular one
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            
+
             // Add the basic auth filter before the jsonLogin filter (check first)
-            http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager()), 
+            http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager()),
             		    JsonLoginAuthenticationFilter.class);
-            
+
             // Common entry points: 401 Unauthorized and access denied handlers
             http.exceptionHandling().authenticationEntryPoint(new CommonAuthenticationEntryPoint());
             http.exceptionHandling().accessDeniedHandler(new JsonAccessDeniedHandler());
         }
 	}
-	
+
 	@Configuration
     @Order(3)
     public static class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -116,7 +139,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable()
                     .antMatcher("/**")
-                    .authorizeRequests().anyRequest().permitAll();       
+                    .authorizeRequests().anyRequest().permitAll();
         }
 	}
 }
