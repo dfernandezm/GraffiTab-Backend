@@ -164,5 +164,12 @@ public class User implements Identifiable<Long> {
 		return true;
 	}
 	
+	public void addFollower(User follower) {
+		followers.add(follower);
+	}
+	
+	public void unfollow(User userToUnfollow) {
+		following.remove(userToUnfollow);
+	}
 	
 }

@@ -216,15 +216,15 @@ public class UserApiController extends BaseApiController {
 	}
 	
 	
-	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
-	public GetUserProfileResult getUserFollowers(@PathVariable("id") Long userId) {
+	public GetUserProfileResult follow(@PathVariable("id") Long userId) {
 		//TODO: getCurrentUser()
 		User user1 = userService.findUserById(2L);
 		User user2 = userService.findUserById(userId);
 		
-		user1.getFollowers().add(user2);
+		user1.addFollower(user2);
 		
 		return null;
 		
