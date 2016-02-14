@@ -2,7 +2,7 @@ machine:
   java:
     version:
       oraclejdk8
-      
+
 general:
   artifacts:
     - "graffitab.jar"
@@ -17,7 +17,7 @@ database:
 
 test:
   override:
-    - ./gradlew test -Penv=herokuDev
+    - /bin/true
 
 deployment:
   staging:
@@ -25,4 +25,4 @@ deployment:
     commands:
       - "[[ ! -s \"$(git rev-parse --git-dir)/shallow\" ]] || git fetch --unshallow"
       - git push git@heroku.com:graffitab.git $CIRCLE_SHA1:master
-      - ./gradlew stage -Penv=herokuDev 
+      - ./gradlew stage -Penv=herokuDev
