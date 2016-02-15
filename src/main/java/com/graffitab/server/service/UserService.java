@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
+import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
@@ -42,6 +43,9 @@ public class UserService {
 	@Resource
 	private PasswordEncoder passwordEncoder;
 
+	@Resource
+	private TransactionUtils transactionUtils;
+
 	@Transactional(readOnly = true)
 	public UserDetails findUserByUsername(String username) throws UsernameNotFoundException {
 		Criteria criteria = userDao.getBaseCriteria();
@@ -58,6 +62,7 @@ public class UserService {
 	@Transactional
 	public void saveUser(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.setGuid(GuidGenerator.generate());
 		userDao.persist(user);
 	}
 
@@ -142,7 +147,20 @@ public class UserService {
 		return new PagedList<User>(listUsers, total, offset);
 	}
 
-	public void addAssetToUser(InputStream inputStream, AssetType assetType, String userGuid, long contentLength) {
-		datastoreService.saveAsset(inputStream, contentLength, userGuid, GuidGenerator.generate(), assetType, null);
+
+	public Asset addAssetToUser(User user, InputStream assetInputStream, AssetType assetType, long contentLength) {
+
+		Asset assetToAdd = Asset.asset(assetType);
+
+		//TODO: Bring back this when we have new AWS Keys
+		// datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid(), assetType, null);
+
+		Asset addedAsset = transactionUtils.executeInTransactionWithResult(() -> {
+			User thisUser = userDao.find(user.getId());
+			thisUser.getAssets().add(assetToAdd);
+			return assetToAdd;
+		});
+
+		return addedAsset;
 	}
 }

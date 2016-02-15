@@ -1,17 +1,17 @@
 buildscript {
-   
+
     ext {
         springBootVersion = '1.3.0.RELEASE'
     }
-     
+
     repositories {
         mavenCentral()
     }
-    
+
     dependencies {
         classpath "org.liquibase:liquibase-gradle-plugin:1.1.1"
         classpath "mysql:mysql-connector-java:5.1.27"
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     }
 }
 
@@ -24,7 +24,7 @@ apply plugin: 'spring-boot'
 jar {
     baseName = 'graffitab'
     version = '0.1'
-    
+
     manifest {
         attributes 'Main-Class': 'com.graffitab.server.GraffitabApplication'
     }
@@ -35,7 +35,7 @@ targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
-} 
+}
 
 
 // Gradle Tool Window in IntelliJ IDEA:
@@ -75,7 +75,7 @@ def awsVersion = "1.10.44"
 
 def commonsFileuploadVersion = "1.3.1"
 //http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
-def springSecurityVersion = "4.0.3.RELEASE" 
+def springSecurityVersion = "4.0.3.RELEASE"
 
 
 List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
@@ -130,7 +130,7 @@ dependencies {
    compile ("org.slf4j:jcl-over-slf4j:$slf4jVersion") {
        exclude module: "slf4j-api"
    }
-   
+
    compile("org.apache.tomcat.embed:tomcat-embed-jasper")
 
     // Logging
@@ -143,41 +143,44 @@ dependencies {
    compile "commons-io:commons-io:$commonsIoVersion"
 
    compile spring, jackson, log4j
-   
+
    //springSecurity, jackson, log4j
-   
+
    compile "ma.glasnost.orika:orika-core:$orikaVersion"
-   
+
    compile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
 
    compile "com.amazonaws:aws-java-sdk-s3:$awsVersion"
-   
+
+   compile "org.projectlombok:lombok:1.16.6"
+
    // for OAuth 2.0
    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
    compile 'org.json:json:20151123'
    compile 'org.apache.commons:commons-dbcp2:2.1.1'
-   
+
    // Spring Boot
    compile 'org.springframework.boot:spring-boot-starter'
    compile 'org.springframework.boot:spring-boot-starter-web'
    compile 'org.springframework.boot:spring-boot-starter-security'
    testCompile 'org.springframework.boot:spring-boot-starter-test'
-   
+   testCompile 'org.springframework.security:spring-security-test:4.0.3.RELEASE'
+
    // For tomcat server, not for embedded
    // providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
    // providedCompile group: 'javax.servlet.jsp', name: 'jsp-api', version: '2.1'
-   
+
    // For an executable and deployable WAR, add this
    // providedCompile "org.springframework.boot:spring-boot-starter-tomcat"
 
    runtime "mysql:mysql-connector-java:$mysqlVersion"
-   
+
    testCompile "junit:junit:$jUnitVersion"
    testCompile "org.mockito:mockito-core:$mockitoVersion"
    testCompile "com.jayway.jsonpath:json-path:$jsonPathVersion"
    testCompile "org.hsqldb:hsqldb:$hsqldbVersion"
    testCompile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
-   
+
 }
 
 
@@ -206,7 +209,7 @@ processResources {
 }
 
 //war {
-//  archiveName = "graffitab.war"  
+//  archiveName = "graffitab.war"
 //}
 
 
@@ -214,74 +217,74 @@ processResources {
  This can be passed from the command line like -Penv=value
 */
 def loadConfiguration() {
-	
+
 	def localConfigFilePath = "$configDir/$localConfigFileName"
     def localConfigExists = file(localConfigFilePath).exists()
-    
+
     // Temporarily assume heroku if not local file present -- need to setup more env variables in CircleCI / Heroku to detect this
     // and not hardcode it
     def env = hasProperty('env') ? env : ( (localConfigExists) ? 'local' : 'herokuDev')
-    
+
     project.ext.env = env
-    
+
     println "=== Environment is $env ==="
-        
+
     def dbHost = System.getenv("DB_HOST")
     def dbName = System.getenv("DB_NAME")
     def dbUser = System.getenv("DB_USERNAME")
     def dbPassword = System.getenv("DB_PASSWORD")
     def dbUrl = System.getenv("DATABASE_URL")
-        
+
     def config = null
-    
+
     if (dbUrl?.trim()) {
-    
+
        URI dbUri = new URI(System.getenv("DATABASE_URL"));
        String username = dbUri.getUserInfo().split(":")[0];
        String password = dbUri.getUserInfo().split(":")[1];
        String dbJdbcUrl = "jdbc:mysql://" + dbUri.getHost() + dbUri.getPath();
        println "DATABASE URL " + dbJdbcUrl
-       
-       println "=== Reading config for remote deployment for $env ==="	
-       config = readConfigFile("$configDir/$remotesConfigFileName", env)	
+
+       println "=== Reading config for remote deployment for $env ==="
+       config = readConfigFile("$configDir/$remotesConfigFileName", env)
        config.databaseDomainAndName =  dbUri.getHost() + dbUri.getPath()
        config.databaseUsername = username
        config.databasePassword = password
-  
+
     }
-    else if (dbHost?.trim() || !localConfigExists) { 
-      
+    else if (dbHost?.trim() || !localConfigExists) {
+
       // If the variable is not empty (CircleCI) or the local config file does not exist, assume remote deployment
-      // Read from env variables     
-      println "=== Reading config for remote deployment for $env ==="	
-      config = readConfigFile("$configDir/$remotesConfigFileName", env)	
-  
+      // Read from env variables
+      println "=== Reading config for remote deployment for $env ==="
+      config = readConfigFile("$configDir/$remotesConfigFileName", env)
+
       config.databaseDomainAndName = "$dbHost:3306/$dbName".toString()
       config.databaseUsername = "$dbUser".toString()
-      config.databasePassword = "$dbPassword".toString() 
-      
+      config.databasePassword = "$dbPassword".toString()
+
     } else {
-    
-      println "=== Reading local deployment config for $env ==="	
+
+      println "=== Reading local deployment config for $env ==="
       config = readConfigFile(localConfigFilePath, env)
-    
+
     }
-    
+
     // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
     // which are the files under 'src/main/resources'
     ext.config = config
     ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
     ext.dbUser = "$config.databaseUsername"
     ext.dbPassword = "$config.databasePassword"
-    
+
     println "JDBC Url: " + ext.jdbcUrl
-    
+
 }
 
 def readConfigFile(configFilePath, environment) {
   def configFile = file("$configFilePath")
   def config = new ConfigSlurper("$environment").parse(configFile.toURL())
-  return config		
+  return config
 }
 
 ext.baseDir = "$rootProject.projectDir"
@@ -336,7 +339,7 @@ task restartTomcat() {
 task stage(type:Copy) {
     dependsOn clean, assemble
     from jar.archivePath
-    into project.rootDir 
+    into project.rootDir
     rename {
         'graffitab.jar'
     }

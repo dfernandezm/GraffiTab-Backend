@@ -26,3 +26,23 @@ ALTER TABLE cover DROP COLUMN userId;
 --changeset lucia:v100cs06
 ALTER TABLE graffiti DROP FOREIGN KEY del_graffiti_on_tag;
 ALTER TABLE graffiti DROP COLUMN tagId;
+
+--changeset georgi:v100cs07
+alter table gt_user drop foreign key gt_user_avatar_fk;
+alter table gt_user drop foreign key gt_user_cover_fk;
+DROP TABLE avatar;
+DROP TABLE cover;
+CREATE TABLE asset (
+	id bigint(20) NOT NULL AUTO_INCREMENT,
+	guid varchar(40) NOT NULL,
+	asset_type varchar(20) NOT NULL,
+	user_id bigint(20) NOT NULL,
+	PRIMARY KEY (id),
+	CONSTRAINT asset_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id)
+)
+
+--changeset georgi:v100cs08
+alter table asset add order_key int(11) not null;
+
+--changeset georgi:v100cs09
+alter table gt_user add guid varchar(40) NOT NULL;

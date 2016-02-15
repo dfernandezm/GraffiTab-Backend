@@ -7,6 +7,7 @@
             <column name="id" />
             <generator class="native" />
         </id>
+        <property name="guid" column="guid" not-null="false"/>
         <property name="externalId" column="external_id" not-null="false"/>
         <property name="username" column="username" not-null="true" />
         <property name="password" column="password" not-null="true"/>
@@ -15,7 +16,7 @@
         <property name="email" column="email" not-null="true"/>
         <property name="website" column="website" not-null="false"/>
         <property name="about" column="about" not-null="false"/>
-        
+
         <!--  http://viralpatel.net/blogs/hibernate-many-to-many-xml-mapping-example/ -->
         <set name="followers" cascade="all" table="following">
             <key column="followingId" not-null="true" />
@@ -23,37 +24,41 @@
         		<column name="userId" not-null="true" />
         	</many-to-many>
         </set>
-        
+
         <set name="following" cascade="all" table="following">
             <key column="userId" not-null="true" />
         	<many-to-many class="com.graffitab.server.persistence.model.User">
-        	   <column name="followingId" not-null="true" /> 
+        	   <column name="followingId" not-null="true" />
         	</many-to-many>
         </set>
-        
-        <many-to-one class="com.graffitab.server.persistence.model.Avatar" column="avatar_id" name="avatar" cascade="all"/>
-        <many-to-one class="com.graffitab.server.persistence.model.Cover" column="cover_id" name="cover" cascade="all"/>
-             
+
+		<!-- Bidirectional mapping -->
+        <list name="assets" cascade="all" table="asset">
+            <key column="user_id" not-null="true" />
+            <list-index column="order_key" />
+        	<one-to-many class="com.graffitab.server.persistence.model.Asset" />
+        </list>
+
      </class>
-     
+
      <query name="User.findAll">
        select u
        from User u
      </query>
-     
+
      <query name="User.findUsersWithEmail">
        select u
        from User u
-       where u.email = :email 
+       where u.email = :email
        and u.id != :userId
      </query>
-     
+
      <query name="User.findUsersWithUsername">
        select u
        from User u
-       where u.username = :username 
+       where u.username = :username
        and u.id != :userId
      </query>
-     
-     
+
+
 </hibernate-mapping>

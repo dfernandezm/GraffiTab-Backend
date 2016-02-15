@@ -1,9 +1,14 @@
 package com.graffitab.server.persistence.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,10 +19,12 @@ import com.graffitab.server.persistence.dao.Identifiable;
 /**
  * Created by david.
  */
+@Getter @Setter
 public class User implements Identifiable<Long>, UserDetails {
 
 	private static final long serialVersionUID = 1L;
 	private Long id;
+	private String guid;
 	private String externalId;
 	private String username;
 	private String firstName;
@@ -26,10 +33,9 @@ public class User implements Identifiable<Long>, UserDetails {
 	private String email;
 	private String website;
 	private String about;
-	private Avatar avatar;
-	private Cover cover;
 	private Set<User> followers = new HashSet<>();
 	private Set<User> following = new HashSet<>();
+	private List<Asset> assets = new ArrayList<>();
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -73,106 +79,13 @@ public class User implements Identifiable<Long>, UserDetails {
 		return username;
 	}
 
-	public Set<User> getFollowers() {
-		return followers;
+	public void addFollower(User follower) {
+		followers.add(follower);
 	}
 
-	public void setFollowers(Set<User> followers) {
-		this.followers = followers;
+	public void unfollow(User userToUnfollow) {
+		following.remove(userToUnfollow);
 	}
-
-	public Set<User> getFollowing() {
-		return following;
-	}
-
-	public void setFollowing(Set<User> following) {
-		this.following = following;
-	}
-
-	public User() {
-
-    }
-
-	public String getExternalId() {
-		return externalId;
-	}
-
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getWebsite() {
-		return website;
-	}
-
-	public void setWebsite(String website) {
-		this.website = website;
-	}
-
-	public String getAbout() {
-		return about;
-	}
-
-	public void setAbout(String about) {
-		this.about = about;
-	}
-
-	public Avatar getAvatar() {
-		return avatar;
-	}
-
-	public void setAvatar(Avatar avatar) {
-		this.avatar = avatar;
-	}
-
-	public Cover getCover() {
-		return cover;
-	}
-
-	public void setCover(Cover cover) {
-		this.cover = cover;
-	}
-
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -196,13 +109,5 @@ public class User implements Identifiable<Long>, UserDetails {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
-	}
-
-	public void addFollower(User follower) {
-		followers.add(follower);
-	}
-
-	public void unfollow(User userToUnfollow) {
-		following.remove(userToUnfollow);
 	}
 }

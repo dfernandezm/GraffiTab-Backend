@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class UserDto {
 
 	private Long id;
+	private String guid;
 	private String externalId;
 	private String username;
 	private String firstName;
@@ -99,6 +100,10 @@ public class UserDto {
 	public void setAbout(String about) {
 		this.about = about;
 	}
-
-
+	public String getGuid() {
+		return guid;
+	}
+	public void setGuid(String guid) {
+		this.guid = guid;
+	}
 }
