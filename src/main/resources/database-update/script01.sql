@@ -50,3 +50,8 @@ alter table gt_user add guid varchar(40) NOT NULL;
 --changeset david:v100cs10
 ALTER TABLE following CHANGE followingId following_id bigint(20) not null;
 ALTER TABLE following CHANGE userId user_id bigint(20) not null;
+ALTER TABLE following DROP FOREIGN KEY del_following_on_person_1;
+ALTER TABLE following DROP FOREIGN KEY del_following_on_person_2;
+ALTER TABLE following ADD CONSTRAINT user_following_fk1 FOREIGN KEY (following_id) REFERENCES gt_user(id);
+ALTER TABLE following ADD CONSTRAINT user_following_fk2 FOREIGN KEY (user_id) REFERENCES gt_user(id);
+
