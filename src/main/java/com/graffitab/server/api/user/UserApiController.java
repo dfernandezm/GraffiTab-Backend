@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -26,7 +25,6 @@ import com.graffitab.server.api.BaseApiController;
 import com.graffitab.server.api.dto.asset.AddAssetResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.user.CreateUserResult;
-import com.graffitab.server.api.dto.user.DeleteUserResult;
 import com.graffitab.server.api.dto.user.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
@@ -171,22 +169,14 @@ public class UserApiController extends BaseApiController {
 		return listUsersResult;
 	}
 
-	@RequestMapping(value = {"/{id}"}, method = RequestMethod.DELETE, produces={"application/json"})
-	public DeleteUserResult deleteUser(@PathVariable("id") Long userId) {
-		DeleteUserResult deleteUserResult = new DeleteUserResult();
-
-		//TODO: deleteUser
-		return deleteUserResult;
-	}
-
-
-	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET, consumes={"application/json"})
+	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public GetUserProfileResult getUserProfile(@PathVariable("id") Long id) {
 
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
 
+		//TODO: Find user profile
 		User user = userService.findUserById(id);
 
 		if (user != null) {
@@ -201,23 +191,21 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
-	public AddAssetResult addAvatarForUser(HttpServletRequest request) {
-		return addAssetToLoggedInUser(request, AssetType.AVATAR);
+	public AddAssetResult addAvatarForUser(HttpServletRequest request) throws IOException {
+		return addAssetToCurrentUser(request, AssetType.AVATAR);
 	}
 
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	public AddAssetResult addCoverForUser(HttpServletRequest request) {
-		return addAssetToLoggedInUser(request, AssetType.COVER);
+		return addAssetToCurrentUser(request, AssetType.COVER);
 	}
 
-	private AddAssetResult addAssetToLoggedInUser(HttpServletRequest request, AssetType assetType) {
+	private AddAssetResult addAssetToCurrentUser(HttpServletRequest request, AssetType assetType) {
 		AddAssetResult result = new AddAssetResult();
 		try {
-
 			long contentLength = request.getContentLengthLong();
-			User loggedInUser = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			Asset asset = userService.addAssetToUser(loggedInUser, request.getInputStream(), assetType, contentLength);
+			Asset asset = userService.addAssetToCurrentUser(request.getInputStream(), assetType, contentLength);
 			AssetDto assetDto = mapper.map(asset, AssetDto.class);
 			result.setAsset(assetDto);
 		} catch (IOException e) {
@@ -229,46 +217,53 @@ public class UserApiController extends BaseApiController {
 		return result;
 	}
 
-
-	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/{id}/follow"}, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public GetUserProfileResult follow(@PathVariable("id") Long userId) {
-		//TODO: getCurrentUser()
-		User user1 = userService.findUserById(2L);
-		User user2 = userService.findUserById(userId);
 
-		user1.addFollower(user2);
+		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+		User toFollow = userService.findUserById(userId);
 
-		return null;
+		if (toFollow != null) {
+			User currentUser = userService.getCurrentUser();
+			currentUser.follow(toFollow);
+			userProfileResult.setUser(mapper.map(currentUser, UserProfileDto.class));
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
+		}
 
+		return userProfileResult;
 	}
 
-	@RequestMapping(value = {"/{id}/unfollow"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/{id}/unfollow"}, method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public GetUserProfileResult unFollow(@PathVariable("id") Long userId) {
 
-		//TODO: getCurrentUser()
-		User currentUser = userService.findUserById(1L);
-		User userToUnfollow = userService.findUserById(userId);
+		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+		User toUnfollow = userService.findUserById(userId);
 
-		currentUser.getFollowers().remove(userToUnfollow);
+		if (toUnfollow != null) {
+			User currentUser = userService.getCurrentUser();
+			currentUser.unfollow(toUnfollow);
+			userProfileResult.setUser(mapper.map(currentUser, UserProfileDto.class));
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
+		}
 
-		return null;
-
+		return userProfileResult;
 	}
 
 
-	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
+	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
-	public GetUserProfileResult getUsersFollowing(@PathVariable("id") Long userId) {
-
-		//TODO: Get the followers of the logged in user
-
-		return null;
-
+	public ListUsersResult getFollowers() {
+		ListUsersResult result = new ListUsersResult();
+		//TODO: Use query
+		//List<UserProfileDto> followers = mapper.mapList(new ArrayList<>(userService.getCurrentUser().getFollowers()), UserProfileDto.class);
+		return result;
 	}
 
 	private Boolean validateUser(UserDto userDto) {

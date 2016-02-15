@@ -46,3 +46,7 @@ alter table asset add order_key int(11) not null;
 
 --changeset georgi:v100cs09
 alter table gt_user add guid varchar(40) NOT NULL;
+
+--changeset david:v100cs10
+ALTER TABLE following CHANGE followingId following_id bigint(20) not null;
+ALTER TABLE following CHANGE userId user_id bigint(20) not null;

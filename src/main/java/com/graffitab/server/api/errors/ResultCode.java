@@ -6,10 +6,11 @@ public enum ResultCode {
 	NOT_FOUND(404),
 	USER_NOT_FOUND(404),
 	BAD_REQUEST(400),
+	USER_NOT_LOGGED_IN(401),
 	GENERAL_ERROR(500);
-	
+
 	private Integer statusCode;
-	
+
 	public Integer getStatusCode() {
 		return statusCode;
 	}

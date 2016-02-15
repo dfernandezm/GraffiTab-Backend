@@ -19,16 +19,16 @@
 
         <!--  http://viralpatel.net/blogs/hibernate-many-to-many-xml-mapping-example/ -->
         <set name="followers" cascade="all" table="following">
-            <key column="followingId" not-null="true" />
+            <key column="following_id" not-null="true" />
         	<many-to-many class="com.graffitab.server.persistence.model.User">
-        		<column name="userId" not-null="true" />
+        		<column name="user_id" not-null="true" />
         	</many-to-many>
         </set>
 
         <set name="following" cascade="all" table="following">
-            <key column="userId" not-null="true" />
+            <key column="user_id" not-null="true" />
         	<many-to-many class="com.graffitab.server.persistence.model.User">
-        	   <column name="followingId" not-null="true" />
+        	   <column name="following_id" not-null="true" />
         	</many-to-many>
         </set>
 

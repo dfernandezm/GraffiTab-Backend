@@ -11,12 +11,15 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.graffitab.server.api.errors.UserNotLoggedInException;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.AssetType;
@@ -148,7 +151,7 @@ public class UserService {
 	}
 
 
-	public Asset addAssetToUser(User user, InputStream assetInputStream, AssetType assetType, long contentLength) {
+	public Asset addAssetToCurrentUser(InputStream assetInputStream, AssetType assetType, long contentLength) {
 
 		Asset assetToAdd = Asset.asset(assetType);
 
@@ -156,11 +159,24 @@ public class UserService {
 		// datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid(), assetType, null);
 
 		Asset addedAsset = transactionUtils.executeInTransactionWithResult(() -> {
-			User thisUser = userDao.find(user.getId());
-			thisUser.getAssets().add(assetToAdd);
+			User currentUser = getCurrentUser();
+			currentUser.getAssets().add(assetToAdd);
 			return assetToAdd;
 		});
 
 		return addedAsset;
+	}
+
+	@Transactional
+	public User getCurrentUser() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.getPrincipal() != null) {
+			User currentUser = (User) auth.getPrincipal();
+			currentUser = userDao.merge(currentUser);
+			return currentUser;
+		} else {
+			String msg = "Cannot get logged in user";
+			throw new UserNotLoggedInException(msg);
+		}
 	}
 }

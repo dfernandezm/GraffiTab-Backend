@@ -101,23 +101,42 @@ public class UserApiTest {
     				.andExpect(jsonPath("$.user.email").isNotEmpty());
 	    }
 
-	   // @Test
+	    @Test
 	    @Transactional
-	    public void addFollowerToUserTest() {
-	    	User user1 = fillTestUser();
-	    	User userFollower = fillTestUser();
+	    public void followUserTest() throws Exception {
+	    	User currentUser = createUser();
+	    	User userToFollow = createUser2();
 
-	    	userService.saveUser(user1);
-	    	userService.saveUser(userFollower);
+	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/follow")
+	    			.with(user(currentUser)))
+	                .andExpect(status().is(200))
+	                .andExpect(content().contentType("application/json;charset=UTF-8"))
+	                .andExpect(jsonPath("$.user.guid").isNotEmpty())
+	                .andExpect(jsonPath("$.user.email").isNotEmpty())
+	                .andExpect(jsonPath("$.user.followersCount").isNotEmpty())
+	                .andExpect(jsonPath("$.user.followingCount").isNotEmpty())
+	                .andExpect(jsonPath("$.user.streamablesCount").isNotEmpty());
 
-	    	user1.getFollowers().add(userFollower);
-	    	//TODO: This gives null!!
-//	    	userService.flush();
-//
-//	    	userFollower = userService.findUserById(userFollower.getId());
-//
-//	    	assertEquals(userFollower.getFollowing().size(), 1);
-//	    	assertTrue(userFollower.getFollowing().contains(user1));
+	    	//TODO: complete test when possible to query following and followers
+	    }
+
+	    @Test
+	    @Transactional
+	    public void unFollowUserTest() throws Exception {
+	    	User currentUser = createUser();
+	    	User userToFollow = createUser2();
+
+	    	// Follow first
+	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/follow")
+	    			.with(user(currentUser)))
+	                .andExpect(status().is(200));
+
+	    	// Unfollow afterwards
+	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/unfollow")
+	    			.with(user(currentUser)))
+	                .andExpect(status().is(200));
+
+	    	//TODO: Complete test when possible to query following and followers
 	    }
 
 	    @Test
@@ -147,7 +166,6 @@ public class UserApiTest {
 	    	return testUser;
 	    }
 
-	    @SuppressWarnings("unused")
 		private User fillTestUser2() {
 	    	testUser2 = new User();
 	    	testUser2.setFirstName("b");
@@ -162,6 +180,12 @@ public class UserApiTest {
 	    	fillTestUser();
 	    	userService.saveUser(testUser);
 	    	return testUser;
+	    }
+
+	    private User createUser2() {
+	    	fillTestUser2();
+	    	userService.saveUser(testUser2);
+	    	return testUser2;
 	    }
 
 }
