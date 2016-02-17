@@ -20,7 +20,7 @@ public class UserDto {
 	private String email;
 	private String website;
 	private String about;
-	private Boolean followedByCurrentUser;
+	private Boolean followedByCurrentUser = Boolean.FALSE;
 	private String avatarUrl;
 	private String coverUrl;
 

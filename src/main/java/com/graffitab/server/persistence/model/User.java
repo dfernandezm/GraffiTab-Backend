@@ -36,6 +36,7 @@ public class User implements Identifiable<Long>, UserDetails {
 	private Set<User> followers = new HashSet<>();
 	private Set<User> following = new HashSet<>();
 	private List<Asset> assets = new ArrayList<>();
+	private Boolean followedByCurrentUser = Boolean.FALSE;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

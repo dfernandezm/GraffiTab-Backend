@@ -191,14 +191,37 @@ public class UserService {
 
 		Query query = userDao.createQuery("select f from User u join u.followers f where u = :currentUser");
 		query.setParameter("currentUser", user);
+
 		query.setFirstResult(0);
 		query.setMaxResults(10);
 
-//		Criteria criteria = userDao.getBaseCriteria("u");
-//		criteria.createAlias("u.followers", "f")
-//				.add(Restrictions.eq("u.id", getCurrentUser().getId())).setProjection(Projections.);
-//		PagedList<User> followers = userDao.findPaged(criteria, offset, count);
 		PagedList<User> followers = new PagedList<>((List<User>)query.list(), offset, count);
+
+		User currentUser = getCurrentUser();
+
+		//TODO: use new Streams() and foreach()
+		for (User follower : followers) {
+			follower.setFollowedByCurrentUser(currentUser.getFollowing().contains(follower));
+		}
+
 		return followers;
 	}
+
+// TODO: Try to get it to work with Criteria
+//	Criteria criteria = userDao.getBaseCriteria("u");
+//	criteria.createAlias("u.followers", "f")
+//			.add(Restrictions.eq("u.id", getCurrentUser().getId())).setProjection(Projections.);
+//	PagedList<User> followers = userDao.findPaged(criteria, offset, count);
+
+/*
+ List results = session.createCriteria(Domestic.class, "cat")
+  .createAlias("kittens", "kit")
+  .setProjection( Projections.projectionList()
+    .add( Projections.property("cat.name"), "catName" )
+    .add( Projections.property("kit.name"), "kitName" )
+)
+.addOrder( Order.asc("catName") )
+.addOrder( Order.asc("kitName") )
+.list();
+*/
 }

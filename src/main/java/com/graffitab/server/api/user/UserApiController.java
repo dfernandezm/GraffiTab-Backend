@@ -162,6 +162,7 @@ public class UserApiController extends BaseApiController {
 		}
 	}
 
+	// Maybe not needed
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
 	@Transactional
 	public ListUsersResult listUsers(@RequestParam(value="offset", required = false) Integer offset,
@@ -181,6 +182,8 @@ public class UserApiController extends BaseApiController {
 		return listUsersResult;
 	}
 
+
+	//TODO: To be done
 	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
@@ -233,14 +236,14 @@ public class UserApiController extends BaseApiController {
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public GetUserProfileResult follow(@PathVariable("id") Long userId) {
-
+		//TODO: Get the profile of the user I am following
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
 		User toFollow = userService.findUserById(userId);
 
 		if (toFollow != null) {
 			User currentUser = userService.getCurrentUser();
 			currentUser.follow(toFollow);
-			userProfileResult.setUser(mapper.map(currentUser, UserProfileDto.class));
+			userProfileResult.setUser(mapper.map(toFollow, UserProfileDto.class));
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
@@ -273,7 +276,6 @@ public class UserApiController extends BaseApiController {
 	public ListUsersResult getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {
 
-
 		PagedList<User> followers = userService.getFollowers(null, offset, count);
 		ListUsersResult listUsersResult = new ListUsersResult();
 		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
@@ -294,7 +296,9 @@ public class UserApiController extends BaseApiController {
 
 		PagedList<User> followers = userService.getFollowers(userId, offset, count);
 		ListUsersResult listUsersResult = new ListUsersResult();
+
 		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
+
 		listUsersResult.setUsers(userDtos);
 		listUsersResult.setTotal(followers.getTotal());
 		listUsersResult.setPageSize(followers.getCount());
@@ -302,6 +306,17 @@ public class UserApiController extends BaseApiController {
 
 		return listUsersResult;
 	}
+
+
+	//TODO: * fullProfile /api/users/me
+	//TODO: * change password ones (/api/users/changepassword - invalidate
+	//TODO: * registration Mailing workflow
+	//TODO: * checkLoginStatus -> basicProfile -> we have it maybe
+	//TODO: * reset password /api/user/resetpassword?email=
+	//TODO: Most active users -> /api/users/mostactive page by page
+	//TODO: getSocialFriends -> /api/users/socialfriends page by page
+	//TODO: linkFacebookProfile -> Link externalprofile, receives externalId + FB token
+	//TODO: register with facebook workflow
 
 	private Boolean validateUser(UserDto userDto) {
 
