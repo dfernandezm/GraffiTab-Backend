@@ -182,29 +182,25 @@ public class UserService {
 
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public PagedList<User> getFollowers(Long userId, Integer offset, Integer count) {
-		User user;
-		if (userId == null)
-			user = getCurrentUser();
-		else
-			user = findUserById(userId);
+	public PagedList<User> getFollowingOrFollowers(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
+		User user = userId == null ? getCurrentUser() : findUserById(userId);
 
-		Query query = userDao.createQuery("select f from User u join u.followers f where u = :currentUser");
+		Query query = userDao.createQuery("select f from User u join u." + (shouldGetFollowers ? "followers" : "following") + " f where u = :currentUser");
 		query.setParameter("currentUser", user);
 
 		query.setFirstResult(0);
 		query.setMaxResults(10);
 
-		PagedList<User> followers = new PagedList<>((List<User>)query.list(), offset, count);
+		PagedList<User> users = new PagedList<>((List<User>)query.list(), offset, count);
 
 		User currentUser = getCurrentUser();
 
 		//TODO: use new Streams() and foreach()
-		for (User follower : followers) {
-			follower.setFollowedByCurrentUser(currentUser.getFollowing().contains(follower));
+		for (User u : users) {
+			u.setFollowedByCurrentUser(currentUser.getFollowing().contains(u));
 		}
 
-		return followers;
+		return users;
 	}
 
 // TODO: Try to get it to work with Criteria
