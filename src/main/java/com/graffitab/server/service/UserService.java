@@ -182,10 +182,15 @@ public class UserService {
 
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public PagedList<User> getFollowersForCurrentUser(Integer offset, Integer count) {
+	public PagedList<User> getFollowers(Long userId, Integer offset, Integer count) {
+		User user;
+		if (userId == null)
+			user = getCurrentUser();
+		else
+			user = findUserById(userId);
 
 		Query query = userDao.createQuery("select f from User u join u.followers f where u = :currentUser");
-		query.setParameter("currentUser", getCurrentUser());
+		query.setParameter("currentUser", user);
 		query.setFirstResult(0);
 		query.setMaxResults(10);
 

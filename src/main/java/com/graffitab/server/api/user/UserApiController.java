@@ -267,15 +267,32 @@ public class UserApiController extends BaseApiController {
 		return userProfileResult;
 	}
 
-
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
-	public ListUsersResult getFollowers(@RequestParam(value="offset", required = false) Integer offset,
+	public ListUsersResult getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {
 
 
-		PagedList<User> followers = userService.getFollowersForCurrentUser(offset, count);
+		PagedList<User> followers = userService.getFollowers(null, offset, count);
+		ListUsersResult listUsersResult = new ListUsersResult();
+		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
+		listUsersResult.setUsers(userDtos);
+		listUsersResult.setTotal(followers.getTotal());
+		listUsersResult.setPageSize(followers.getCount());
+		listUsersResult.setOffset(followers.getOffset());
+
+		return listUsersResult;
+	}
+
+	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public ListUsersResult getFollowers(@PathVariable("id") Long userId, @RequestParam(value="offset", required = false) Integer offset,
+										@RequestParam(value="count", required = false) Integer count) {
+
+
+		PagedList<User> followers = userService.getFollowers(userId, offset, count);
 		ListUsersResult listUsersResult = new ListUsersResult();
 		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
 		listUsersResult.setUsers(userDtos);
