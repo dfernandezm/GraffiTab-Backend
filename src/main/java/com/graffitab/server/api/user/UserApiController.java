@@ -79,6 +79,18 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 
+	@RequestMapping(value = "/me", method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	public GetUserResult getMe() {
+
+		GetUserResult getUserResult = new GetUserResult();
+		User user = userService.getCurrentUser();
+
+		getUserResult.setUser(mapper.map(user, UserDto.class));
+
+		return getUserResult;
+	}
+
 	@RequestMapping(value = "/username/{username}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	public GetUserResult getUserByUsername(@PathVariable("username") String username) {
