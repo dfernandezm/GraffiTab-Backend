@@ -110,7 +110,7 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 
-	@RequestMapping(value = {"","/register"}, method = RequestMethod.POST, consumes={"application/json"})
+	@RequestMapping(value = {"/register"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
 	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
@@ -141,7 +141,7 @@ public class UserApiController extends BaseApiController {
 		return createUserResult;
 	}
 
-	@RequestMapping(value = {"/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
+	@RequestMapping(value = {"/me/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public UpdateUserResult updateUser(@PathVariable("id") Long id, @JsonProperty("user") UserDto userDto) {
@@ -255,14 +255,14 @@ public class UserApiController extends BaseApiController {
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public GetUserProfileResult unFollow(@PathVariable("id") Long userId) {
-
+		//TODO: Get the profile of the user I am unfollowing
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
 		User toUnfollow = userService.findUserById(userId);
 
 		if (toUnfollow != null) {
 			User currentUser = userService.getCurrentUser();
 			currentUser.unfollow(toUnfollow);
-			userProfileResult.setUser(mapper.map(currentUser, UserProfileDto.class));
+			userProfileResult.setUser(mapper.map(toUnfollow, UserProfileDto.class));
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
@@ -276,15 +276,7 @@ public class UserApiController extends BaseApiController {
 	public ListUsersResult getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {
 
-		PagedList<User> followers = userService.getFollowers(null, offset, count);
-		ListUsersResult listUsersResult = new ListUsersResult();
-		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
-		listUsersResult.setUsers(userDtos);
-		listUsersResult.setTotal(followers.getTotal());
-		listUsersResult.setPageSize(followers.getCount());
-		listUsersResult.setOffset(followers.getOffset());
-
-		return listUsersResult;
+		return getFollowingOrFollowersResultForUser(true, null, offset, count);
 	}
 
 	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
@@ -293,20 +285,26 @@ public class UserApiController extends BaseApiController {
 	public ListUsersResult getFollowers(@PathVariable("id") Long userId, @RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {
 
-
-		PagedList<User> followers = userService.getFollowers(userId, offset, count);
-		ListUsersResult listUsersResult = new ListUsersResult();
-
-		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
-
-		listUsersResult.setUsers(userDtos);
-		listUsersResult.setTotal(followers.getTotal());
-		listUsersResult.setPageSize(followers.getCount());
-		listUsersResult.setOffset(followers.getOffset());
-
-		return listUsersResult;
+		return getFollowingOrFollowersResultForUser(true, userId, offset, count);
 	}
 
+	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public ListUsersResult getFollowingForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
+										@RequestParam(value="count", required = false) Integer count) {
+
+		return getFollowingOrFollowersResultForUser(false, null, offset, count);
+	}
+
+	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
+	@ResponseStatus(HttpStatus.OK)
+	@Transactional
+	public ListUsersResult getFollowing(@PathVariable("id") Long userId, @RequestParam(value="offset", required = false) Integer offset,
+										@RequestParam(value="count", required = false) Integer count) {
+
+		return getFollowingOrFollowersResultForUser(false, userId, offset, count);
+	}
 
 	//TODO: * fullProfile /api/users/me
 	//TODO: * change password ones (/api/users/changepassword - invalidate
@@ -317,6 +315,20 @@ public class UserApiController extends BaseApiController {
 	//TODO: getSocialFriends -> /api/users/socialfriends page by page
 	//TODO: linkFacebookProfile -> Link externalprofile, receives externalId + FB token
 	//TODO: register with facebook workflow
+
+	private ListUsersResult getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
+		PagedList<User> followers = userService.getFollowingOrFollowers(shouldGetFollowers, userId, offset, count);
+		ListUsersResult listUsersResult = new ListUsersResult();
+
+		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
+
+		listUsersResult.setUsers(userDtos);
+		listUsersResult.setTotal(followers.getTotal());
+		listUsersResult.setPageSize(followers.getCount());
+		listUsersResult.setOffset(followers.getOffset());
+
+		return listUsersResult;
+	}
 
 	private Boolean validateUser(UserDto userDto) {
 
