@@ -179,4 +179,21 @@ public class UserService {
 			throw new UserNotLoggedInException(msg);
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public PagedList<User> getFollowersForCurrentUser(Integer offset, Integer count) {
+
+		Query query = userDao.createQuery("select f from User u join u.followers f where u = :currentUser");
+		query.setParameter("currentUser", getCurrentUser());
+		query.setFirstResult(0);
+		query.setMaxResults(10);
+
+//		Criteria criteria = userDao.getBaseCriteria("u");
+//		criteria.createAlias("u.followers", "f")
+//				.add(Restrictions.eq("u.id", getCurrentUser().getId())).setProjection(Projections.);
+//		PagedList<User> followers = userDao.findPaged(criteria, offset, count);
+		PagedList<User> followers = new PagedList<>((List<User>)query.list(), offset, count);
+		return followers;
+	}
 }

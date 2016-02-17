@@ -83,8 +83,8 @@ public class HibernateDaoImpl<E extends Identifiable<K>, K extends Serializable>
 	public E find(K id) {
 		return (E) getSession().get(getEntityClass(), id);
 	}
-	
-	
+
+
 
 	@SuppressWarnings(value = "unchecked")
 	@Override
@@ -94,7 +94,7 @@ public class HibernateDaoImpl<E extends Identifiable<K>, K extends Serializable>
 		return Collections.unmodifiableCollection(results);
 	}
 
-	
+
 
 	@Override
 	public void flush() {
@@ -169,7 +169,7 @@ public class HibernateDaoImpl<E extends Identifiable<K>, K extends Serializable>
 	public void setFindAllQuery(String findAllQuery) {
 		this.findAllQuery = findAllQuery;
 	}
-	
+
 
 	@Override
 	public void setSessionFactory(SessionFactory sessionFactory) {
@@ -179,59 +179,63 @@ public class HibernateDaoImpl<E extends Identifiable<K>, K extends Serializable>
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<E> findByField(String fieldName, Object fieldValue) {
-		
-		Class<?> propertyClass = fieldValue.getClass();	
-		
+
+		Class<?> propertyClass = fieldValue.getClass();
+
 		List<E> list = (List<E>) getSession().createCriteria(entityClass)
 	     .add(Restrictions.eq(fieldName, propertyClass.cast(fieldValue)))
 	     .list();
-	
+
 	   return list;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public E findByUniqueField(String fieldName, Object fieldValue) {
-		
-		Class<?> propertyClass = fieldValue.getClass();	
-		
+
+		Class<?> propertyClass = fieldValue.getClass();
+
 		E entity = (E) getSession().createCriteria(entityClass)
 	     .add(Restrictions.eq(fieldName, propertyClass.cast(fieldValue)))
 	     .uniqueResult();
-	
+
 	   return entity;
 	}
-	
+
 	public Criteria getBaseCriteria() {
 		return getSession().createCriteria(entityClass);
 	}
-	
+
+	public Criteria getBaseCriteria(String alias) {
+		return getSession().createCriteria(entityClass, alias);
+	}
+
 	private Long getCount(Criteria currentCriteria) {
 		Long total = (Long) currentCriteria.setProjection(Projections.rowCount()).uniqueResult();
 		currentCriteria.setProjection(null);
 		return total;
 	}
-	
+
 	private void addPagedParams(Criteria currentCriteria, Integer offset, Integer count) {
 		currentCriteria.setFirstResult(offset).setMaxResults(count);
 	}
-	
+
 	// -- For any query --
 	@SuppressWarnings("unchecked")
 	public <T> PagedList<T> findPaged(Criteria criteria, Integer offset, Integer count) {
-		
+
 		 offset = (offset == null) ? 0 : offset;
 		 count = (count == null) ? PagingService.PAGE_SIZE_DEFAULT_VALUE : count;
-		 
+
 		 Integer total = getCount(criteria).intValue();
-		 
+
 		 criteria.setProjection(null);
 		 criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
 		 addPagedParams(criteria, offset, count);
 		 List<T> results = (List<T>) criteria.list();
-		 
+
 		 PagedList<T> list = new PagedList<>(results, total, offset, count);
-		 
+
 		 return list;
 	}
 
