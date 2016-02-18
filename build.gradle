@@ -383,13 +383,13 @@ task buildClient(type:Exec) {
 	  // delete('Graffitab-Frontend/build-client.sh')
 	   println "[client-build] Copying built file to public folder"
 	  copy {
-        from 'Graffitab-Frontend'
+        from 'GraffiTab-Frontend'
         into 'src/main/resources/public'
         include 'bundle.js'
       }
   }
 
-  workingDir 'Graffitab-Frontend'
+  workingDir 'GraffiTab-Frontend'
   commandLine './build.sh'
 }
 
