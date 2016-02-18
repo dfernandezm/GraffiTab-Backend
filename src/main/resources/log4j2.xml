@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' monitorInterval="20" packages="com.qumu.kerberos.authenticator">
+
+	<appenders>
+
+		<Console name="STANDARD_CONSOLE" target="SYSTEM_OUT">
+			<PatternLayout>
+                <pattern>%highlight{%d [%t] [%X{session-id}] %-5p}{DEBUG=blue, WARN=magenta} %20c{1}.%M - %m%n</pattern>
+			</PatternLayout>
+		</Console>
+
+		<RollingFile name="FILE_APPENDER" fileName="/tmp/graffitab.log" filePattern="/tmp/graffitab-%i.log">
+			<PatternLayout>
+                <pattern>%highlight{%d [%t] [%X{session-id}] %-5p}{DEBUG=blue, WARN=magenta} %20c{1}.%M - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="500000 KB" />
+			</Policies>
+			<DefaultRolloverStrategy max="5" />
+		</RollingFile>
+
+	</appenders>
+
+	<loggers>
+
+		<logger name="com.graffitab.server" level="debug" additivity="false">
+			<appender-ref ref="FILE_APPENDER" />
+			<appender-ref ref="STANDARD_CONSOLE" />
+		</logger>
+
+		<logger name="org.springframework" level="info" additivity="false">
+			<appender-ref ref="FILE_APPENDER" />
+			<appender-ref ref="STANDARD_CONSOLE" />
+		</logger>
+
+		<logger name="org.springframework.security" level="debug" additivity="false">
+			<appender-ref ref="FILE_APPENDER" />
+			<appender-ref ref="STANDARD_CONSOLE" />
+		</logger>
+
+		<root level="warn">
+			<appender-ref ref="FILE_APPENDER" />
+			<appender-ref ref="STANDARD_CONSOLE" />
+		</root>
+
+	</loggers>
+</log4j:configuration>

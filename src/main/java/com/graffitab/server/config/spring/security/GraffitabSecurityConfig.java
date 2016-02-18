@@ -65,7 +65,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) throws Exception {
       web
         .ignoring()
-           .antMatchers("/favicon.ico","/resources/**", "/client/**");
+           .antMatchers("/favicon.ico","/resources/**", "/public/**");
     }
 
 	@Configuration
