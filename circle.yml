@@ -15,7 +15,7 @@ general:
 dependencies:
   override:
     - ./gradlew dependencies -Penv=herokuDev
-    - cd Graffitab-Frontend
+    - cd GraffiTab-Frontend
     - npm install
     - PATH=node_modules/.bin:$PATH
     - export PATH
