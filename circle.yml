@@ -10,6 +10,7 @@ general:
 dependencies:
   override:
     - ./gradlew dependencies -Penv=herokuDev
+    - ./gradlew buildClient -Penv=herokuDev
 
 database:
   override:

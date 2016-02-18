@@ -371,7 +371,24 @@ task localTomcat {
     }
 }
 
+
 task buildClient(type:Exec) {
+
+  doFirst {
+    println "[client-build] Deleting any prebuilt files..."
+    delete('src/main/resources/public/bundle.js')
+  }
+
+  doLast {
+	  // delete('Graffitab-Frontend/build-client.sh')
+	   println "[client-build] Copying built file to public folder"
+	  copy {
+        from 'Graffitab-Frontend'
+        into 'src/main/resources/public'
+        include 'bundle.js'
+      }
+  }
+
   workingDir 'Graffitab-Frontend'
   commandLine './build.sh'
 }
