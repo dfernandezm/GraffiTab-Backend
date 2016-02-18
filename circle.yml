@@ -15,7 +15,7 @@ general:
 dependencies:
   override:
     - ./gradlew dependencies -Penv=herokuDev
-    - ./gradlew buildClient -Penv=herokuDev
+    - ./gradlew buildClient -Penv=herokuDev --debug --stacktrace
 
 database:
   override:
