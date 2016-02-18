@@ -317,15 +317,15 @@ public class UserApiController extends BaseApiController {
 	//TODO: register with facebook workflow
 
 	private ListUsersResult getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
-		PagedList<User> followers = userService.getFollowingOrFollowers(shouldGetFollowers, userId, offset, count);
+		PagedList<User> users = userService.getFollowingOrFollowers(shouldGetFollowers, userId, offset, count);
 		ListUsersResult listUsersResult = new ListUsersResult();
 
-		List<UserDto> userDtos = mapper.mapList(followers, UserDto.class);
+		List<UserDto> userDtos = mapper.mapList(users, UserDto.class);
 
 		listUsersResult.setUsers(userDtos);
-		listUsersResult.setTotal(followers.getTotal());
-		listUsersResult.setPageSize(followers.getCount());
-		listUsersResult.setOffset(followers.getOffset());
+		listUsersResult.setTotal(users.getTotal());
+		listUsersResult.setPageSize(users.getCount());
+		listUsersResult.setOffset(users.getOffset());
 
 		return listUsersResult;
 	}

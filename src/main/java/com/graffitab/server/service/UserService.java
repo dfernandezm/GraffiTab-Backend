@@ -188,17 +188,15 @@ public class UserService {
 		Query query = userDao.createQuery("select f from User u join u." + (shouldGetFollowers ? "followers" : "following") + " f where u = :currentUser");
 		query.setParameter("currentUser", user);
 
-		query.setFirstResult(0);
-		query.setMaxResults(10);
+		query.setFirstResult(offset != null ? offset : 0);
+		query.setMaxResults(count != null ? count : 10);
 
 		PagedList<User> users = new PagedList<>((List<User>)query.list(), offset, count);
 
 		User currentUser = getCurrentUser();
 
-		//TODO: use new Streams() and foreach()
-		for (User u : users) {
-			u.setFollowedByCurrentUser(currentUser.getFollowing().contains(u));
-		}
+		// Check if the current user is following user u from the list.
+		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.getFollowing().contains(u)));
 
 		return users;
 	}
