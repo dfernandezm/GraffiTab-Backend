@@ -15,7 +15,12 @@ general:
 dependencies:
   override:
     - ./gradlew dependencies -Penv=herokuDev
-    - ./gradlew buildClient -Penv=herokuDev --debug --stacktrace
+    - cd Graffitab-Frontend
+    - npm install
+    - PATH=node_modules/.bin:$PATH
+    - export PATH
+    - gulp
+    - cp bundle.js ../src/main/resources/public
 
 database:
   override:
