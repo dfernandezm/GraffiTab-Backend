@@ -20,10 +20,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,7 +38,7 @@ import com.graffitab.server.service.UserService;
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={MainConfig.class, TestDatabaseConfig.class, WebConfig.class})
+@SpringApplicationConfiguration(classes={MainConfig.class, TestDatabaseConfig.class, WebConfig.class})
 @Rollback(value = true)
 @ActiveProfiles("unit-test")
 public class UserApiTest {
@@ -91,7 +91,7 @@ public class UserApiTest {
 	    	InputStream in = this.getClass().getResourceAsStream("/api/user.json");
 	    	String json = IOUtils.toString(in);
 
-	    	mockMvc.perform(post("/api/users/register")
+	    	mockMvc.perform(post("/api/users")
 	                .contentType("application/json;charset=UTF-8")
 	                .content(json))
 	                .andExpect(status().is(201))

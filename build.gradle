@@ -371,6 +371,12 @@ task localTomcat {
     }
 }
 
+task buildClient(type:Exec) {
+  workingDir 'Graffitab-Frontend'
+  commandLine './build.sh'
+}
+
+
 // Spring Boot
 
 bootRun.dependsOn processResources
