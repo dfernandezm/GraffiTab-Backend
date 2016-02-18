@@ -28,7 +28,7 @@ public class DefaultController {
 		return statusDto;
 	}
 
-	@RequestMapping("/")
+	@RequestMapping(value = {"/","/home"})
 	@ResponseStatus(HttpStatus.OK)
 	public ModelAndView getBasePage(HttpServletRequest request, Model model) {
 		return new ModelAndView("home");
