@@ -336,9 +336,31 @@ task restartTomcat() {
     }
 }
 
+
+task buildClient(type:Exec) {
+
+  doFirst {
+    println "[client-build] Deleting any prebuilt files..."
+    delete('src/main/resources/public/bundle.js')
+  }
+
+  doLast {
+	  // delete('Graffitab-Frontend/build-client.sh')
+	   println "[client-build] Copying built file to public folder"
+	  copy {
+        from 'GraffiTab-Frontend'
+        into 'src/main/resources/public'
+        include 'bundle.js'
+      }
+  }
+
+  workingDir 'GraffiTab-Frontend'
+  commandLine './build.sh'
+}
+
 task stage(type:Copy) {
     dependsOn clean, assemble, buildClient
-    assemble.mustRunAfter buildClient
+    assemble.mustRunAfter(buildClient)
     from jar.archivePath
     into project.rootDir
     rename {
@@ -374,26 +396,7 @@ task localTomcat {
 }
 
 
-task buildClient(type:Exec) {
 
-  doFirst {
-    println "[client-build] Deleting any prebuilt files..."
-    delete('src/main/resources/public/bundle.js')
-  }
-
-  doLast {
-	  // delete('Graffitab-Frontend/build-client.sh')
-	   println "[client-build] Copying built file to public folder"
-	  copy {
-        from 'GraffiTab-Frontend'
-        into 'src/main/resources/public'
-        include 'bundle.js'
-      }
-  }
-
-  workingDir 'GraffiTab-Frontend'
-  commandLine './build.sh'
-}
 
 
 // Spring Boot
