@@ -1,5 +1,4 @@
-<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
-          xmlns:tiles="http://tiles.apache.org/tags-tiles" version="2.0">
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
 
 <html>
 	<jsp:output doctype-root-element="html"
@@ -10,15 +9,16 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
 
-	<link rel="stylesheet" type="text/css" media="screen" href="/public/main.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="public/main.css" />
+    <script src="public/bundle.js" type="text/javascript"><!-- hell --></script>
 
 
 	<title>Graffitab</title>
 	</head>
 
 	<body>
-        <div class="content"></div>
-		<script src="/public/bundle.js" type="text/javascript"><!-- hell --></script>
+        <div class="content"><!-- hell --></div>
+
 	</body>
 
 </html>
