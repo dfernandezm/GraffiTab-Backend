@@ -14,8 +14,9 @@ general:
 
 dependencies:
   override:
-    - ./gradlew dependencies -Penv=herokuDev
     - ./gradlew buildClient -Penv=herokuDev
+    - ls -la src/main/resources
+    - ./gradlew dependencies -Penv=herokuDev
 
 database:
   override:
