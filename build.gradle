@@ -337,7 +337,8 @@ task restartTomcat() {
 }
 
 task stage(type:Copy) {
-    dependsOn clean, assemble
+    dependsOn clean, assemble, buildClient
+    assemble.mustRunAfter buildClient
     from jar.archivePath
     into project.rootDir
     rename {
@@ -345,6 +346,7 @@ task stage(type:Copy) {
     }
 }
 stage.mustRunAfter(clean)
+
 
 task updateDb() {
   dependsOn update
