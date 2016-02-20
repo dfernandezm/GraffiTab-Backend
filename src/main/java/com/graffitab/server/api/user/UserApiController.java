@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
 import com.graffitab.server.api.dto.asset.AddAssetResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
+import com.graffitab.server.api.dto.user.ActivateUserResult;
 import com.graffitab.server.api.dto.user.CreateUserResult;
 import com.graffitab.server.api.dto.user.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
@@ -136,25 +137,19 @@ public class UserApiController extends BaseApiController {
 		return createUserResult;
 	}
 
-	// TODO: implement changepassword
-//	@RequestMapping(value = "/activate/{token}", method = RequestMethod.PUT)
-//	@Transactional(readOnly = true)
-//	public GetUserResult activateAccount(@PathVariable("token") String username) {
-//
-//		GetUserResult getUserResult;
-//		User user;
-//		try {
-//			getUserResult = new GetUserResult();
-//			user = (User) userService.findUserByUsername(username);
-//
-//			getUserResult.setUser(mapper.map(user, UserDto.class));
-//		} catch (UsernameNotFoundException e) {
-//			LOG.info("Could not find user " + username);
-//			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user " + username);
-//		}
-//
-//		return getUserResult;
-//	}
+	@RequestMapping(value = "/activate/{token}", method = RequestMethod.PUT)
+	@Transactional(readOnly = true)
+	public ActivateUserResult activateAccount(@PathVariable("token") String token) {
+		ActivateUserResult activateUserResult;
+		User user;
+
+		activateUserResult = new ActivateUserResult();
+		user = userService.activateUserWithToken(token);
+
+		activateUserResult.setUser(mapper.map(user, UserDto.class));
+
+		return activateUserResult;
+	}
 
 	// TODO: implement changepassword
 //	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.POST, consumes={"application/json"})

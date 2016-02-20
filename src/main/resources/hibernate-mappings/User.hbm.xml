@@ -73,5 +73,12 @@
        and u.id != :userId
      </query>
 
+	<query name="User.findUsersWithToken">
+       select u
+       from User u
+       join u.metadataItems mi
+       where index(mi) = :tokenKeyName
+       and :token in elements(mi)
+     </query>
 
 </hibernate-mapping>

@@ -22,7 +22,6 @@ import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
 import com.graffitab.server.api.authentication.CustomFailureBasicAuthFilter;
 import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
-import com.graffitab.server.api.authentication.JsonLoginSuccessHandler;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
 import com.graffitab.server.service.GraffiTabUserDetailsService;
 
@@ -83,7 +82,8 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
         	// register endpoints
             http.csrf().disable()
                   .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/api/login", "/api/users","/api/users/register")
+                    .antMatchers(HttpMethod.POST, "/api/login", "/api/users")
+                    .antMatchers(HttpMethod.PUT, "/api/users/activate/**")
                     .and()
                     .authorizeRequests()
                     .anyRequest()

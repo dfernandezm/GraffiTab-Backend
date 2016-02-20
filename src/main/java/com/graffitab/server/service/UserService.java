@@ -22,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.graffitab.server.api.errors.EntityNotFoundException;
+import com.graffitab.server.api.errors.RestApiException;
+import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.errors.UserNotLoggedInException;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Asset;
@@ -65,6 +68,9 @@ public class UserService {
 	public static final String METADATA_KEY_ACTIVATION_TOKEN = "activationToken";
 	public static final String METADATA_KEY_ACTIVATION_TOKEN_DATE = "activationTokenDate";
 
+	// 6 hours in milliseconds.
+	public static final Long TOKEN_EXPIRATION_MS = 6 * 60 * 60 * 1000L;
+
 	@Transactional(readOnly = true)
 	public UserDetails findUserByUsername(String username) throws UsernameNotFoundException {
 		Criteria criteria = userDao.getBaseCriteria();
@@ -78,6 +84,29 @@ public class UserService {
 		return userDetails;
 	}
 
+	@Transactional
+	public User activateUserWithToken(String token) {
+		User user = findUsersWithToken(token);
+
+		if (user == null) {
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find token " + token);
+		}
+
+		Long tokenDate = Long.parseLong(user.getMetadataItems().get(METADATA_KEY_ACTIVATION_TOKEN_DATE));
+		Long now = System.currentTimeMillis();
+
+		if ((Long)(now - tokenDate) > TOKEN_EXPIRATION_MS) {
+			throw new RestApiException(ResultCode.TOKEN_EXPIRED, "This token has expired.");
+		}
+
+		user.setAccountStatus(AccountStatus.ACTIVE);
+
+		userDao.merge(user);
+
+		return user;
+	}
+
+	@Transactional
 	public void saveUser(User user) {
 		final String userToken = GuidGenerator.generate();
 
@@ -149,6 +178,14 @@ public class UserService {
 		query.setParameter("email", email);
 		query.setParameter("userId", userId);
 		return query.list();
+	}
+
+	@Transactional(readOnly = true)
+	public User findUsersWithToken(String token) {
+		Query query = userDao.createNamedQuery("User.findUsersWithToken");
+		query.setParameter("tokenKeyName", METADATA_KEY_ACTIVATION_TOKEN);
+		query.setParameter("token", token);
+		return (User) query.uniqueResult();
 	}
 
 	// Temporary method
