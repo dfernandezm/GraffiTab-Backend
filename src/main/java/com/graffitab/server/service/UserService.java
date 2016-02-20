@@ -6,8 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -42,8 +40,6 @@ import com.graffitab.server.util.GuidGenerator;
 @Service
 public class UserService {
 
-	private static Logger log = LogManager.getLogger();
-
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
 
@@ -69,18 +65,16 @@ public class UserService {
 	public static final String METADATA_KEY_ACTIVATION_TOKEN_DATE = "activationTokenDate";
 
 	// 6 hours in milliseconds.
-	public static final Long TOKEN_EXPIRATION_MS = 6 * 60 * 60 * 1000L;
+	public static final Long ACTIVATION_TOKEN_EXPIRATION_MS = 6 * 60 * 60 * 1000L;
 
 	@Transactional(readOnly = true)
 	public UserDetails findUserByUsername(String username) throws UsernameNotFoundException {
-		Criteria criteria = userDao.getBaseCriteria();
-		UserDetails userDetails =
-				(UserDetails) criteria.add(Restrictions.eq("username", username)).uniqueResult();
+
+		UserDetails userDetails = (UserDetails) findByUsername(username);
 
 		if (userDetails == null) {
 			throw new UsernameNotFoundException("The user " + username + " was not found");
 		}
-
 		return userDetails;
 	}
 
@@ -95,7 +89,7 @@ public class UserService {
 		Long tokenDate = Long.parseLong(user.getMetadataItems().get(METADATA_KEY_ACTIVATION_TOKEN_DATE));
 		Long now = System.currentTimeMillis();
 
-		if ((Long)(now - tokenDate) > TOKEN_EXPIRATION_MS) {
+		if ((Long)(now - tokenDate) > ACTIVATION_TOKEN_EXPIRATION_MS) {
 			throw new RestApiException(ResultCode.TOKEN_EXPIRED, "This token has expired.");
 		}
 
@@ -107,8 +101,7 @@ public class UserService {
 		return user;
 	}
 
-	@Transactional
-	public void saveUser(User user) {
+	public void createUser(User user) {
 		final String userToken = GuidGenerator.generate();
 
 		transactionUtils.executeInNewTransaction(() -> {
@@ -136,16 +129,6 @@ public class UserService {
 		return userDao.find(id);
 	}
 
-	@Transactional
-	public void merge(User user) {
-		userDao.merge(user);
-	}
-
-	@Transactional
-	public void remove(Long userId) {
-		userDao.remove(userId);
-	}
-
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<User> findAll() {
@@ -154,8 +137,11 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<User> findByUsername(String username) {
-		return userDao.findByField("username", username);
+	public User findByUsername(String username) {
+		Criteria criteria = userDao.getBaseCriteria();
+		User user =
+				(User) criteria.add(Restrictions.eq("username", username)).uniqueResult();
+		return user;
 	}
 
 	@Transactional(readOnly = true)
@@ -165,7 +151,7 @@ public class UserService {
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<User> findUsersWithUsername(String username, Long userId) {
+	public List<User> findUsersByUsernameWithDifferentId(String username, Long userId) {
 		Query query = userDao.createNamedQuery("User.findUsersWithUsername");
 		query.setParameter("username", username);
 		query.setParameter("userId", userId);
@@ -189,23 +175,10 @@ public class UserService {
 		return (User) query.uniqueResult();
 	}
 
-	// Temporary method
-	@Transactional
-	public void addFollowerToUser(Long currentUserId, Long followerId) {
-		User current = findUserById(currentUserId);
-		User follower = findUserById(followerId);
-		current.getFollowers().add(follower);
-	}
-
-	@Transactional
-	public void flush() {
-		userDao.flush();
-	}
-
 	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
 	public PagedList<User> searchUser(String query, Integer offset, Integer count) {
 		// By username, first name, lastName
-
 		Criterion usernameRestriction = Restrictions.like("username", query, MatchMode.ANYWHERE);
 		Criterion firstNameRestriction = Restrictions.like("firstName", query, MatchMode.ANYWHERE);
 		Criterion lastNameRestriction = Restrictions.like("lastName", query, MatchMode.ANYWHERE);
@@ -250,28 +223,29 @@ public class UserService {
 		}
 	}
 
+	// TODO: Try to get it to work with Criteria
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public PagedList<User> getFollowingOrFollowers(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
 		User user = userId == null ? getCurrentUser() : findUserById(userId);
 
-		Query query = userDao.createQuery("select f from User u join u." + (shouldGetFollowers ? "followers" : "following") + " f where u = :currentUser");
+		Query query = userDao.createQuery("select f from User u " +
+										  "join u." + (shouldGetFollowers ? "followers" : "following") + " f " +
+										  "where u = :currentUser");
 		query.setParameter("currentUser", user);
-
 		query.setFirstResult(offset != null ? offset : 0);
 		query.setMaxResults(count != null ? count : 10);
 
 		PagedList<User> users = new PagedList<>((List<User>)query.list(), offset, count);
 
 		User currentUser = getCurrentUser();
-
 		// Check if the current user is following user u from the list.
 		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.getFollowing().contains(u)));
 
 		return users;
 	}
 
-// TODO: Try to get it to work with Criteria
+
 //	Criteria criteria = userDao.getBaseCriteria("u");
 //	criteria.createAlias("u.followers", "f")
 //			.add(Restrictions.eq("u.id", getCurrentUser().getId())).setProjection(Projections.);

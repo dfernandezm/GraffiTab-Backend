@@ -120,7 +120,7 @@ public class UserApiController extends BaseApiController {
 		if (validateUser(userDto)) {
 			if (userDto.getId() == null) {
 				User user = mapper.map(userDto, User.class);
-				userService.saveUser(user);
+				userService.createUser(user);
 
 				UserDto outputUser = mapper.map(user, UserDto.class);
 				createUserResult.setUser(outputUser);
@@ -204,7 +204,7 @@ public class UserApiController extends BaseApiController {
 		}
 	}
 
-	// Maybe not needed
+	// Maybe not needed - get all the users page by page
 	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
 	@Transactional
 	public ListUsersResult listUsers(@RequestParam(value="offset", required = false) Integer offset,
@@ -396,17 +396,17 @@ public class UserApiController extends BaseApiController {
 
 	private Boolean isUsernameTaken(String username, Long userId) {
 		if ( userId != null){
-			return  !userService.findUsersWithUsername(username, userId).isEmpty();
+			return !userService.findUsersByUsernameWithDifferentId(username, userId).isEmpty();
 		} else {
-			return  !userService.findByUsername(username).isEmpty();
+			return userService.findByUsername(username) != null;
 		}
 	}
 
 	private Boolean isEmailTaken(String email, Long userId) {
 		if ( userId != null){
-			return  !userService.findUsersWithEmail(email, userId).isEmpty();
+			return !userService.findUsersWithEmail(email, userId).isEmpty();
 		} else {
-			return  !userService.findByEmail(email).isEmpty();
+			return !userService.findByEmail(email).isEmpty();
 		}
 	}
 }

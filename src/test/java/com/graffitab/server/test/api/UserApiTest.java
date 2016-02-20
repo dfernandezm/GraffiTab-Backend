@@ -178,13 +178,13 @@ public class UserApiTest {
 
 	    private User createUser() {
 	    	fillTestUser();
-	    	userService.saveUser(testUser);
+	    	userService.createUser(testUser);
 	    	return testUser;
 	    }
 
 	    private User createUser2() {
 	    	fillTestUser2();
-	    	userService.saveUser(testUser2);
+	    	userService.createUser(testUser2);
 	    	return testUser2;
 	    }
 
