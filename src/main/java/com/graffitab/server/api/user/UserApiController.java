@@ -38,7 +38,7 @@ import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.api.util.UploadUtils;
 import com.graffitab.server.persistence.model.Asset;
-import com.graffitab.server.persistence.model.AssetType;
+import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.PagingService;
@@ -114,32 +114,79 @@ public class UserApiController extends BaseApiController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
 	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
-
 		CreateUserResult createUserResult = new CreateUserResult();
 
-		if (validateUser(userDto)){
-
+		if (validateUser(userDto)) {
 			if (userDto.getId() == null) {
-
 				User user = mapper.map(userDto, User.class);
 				userService.saveUser(user);
 
 				UserDto outputUser = mapper.map(user, UserDto.class);
-				outputUser.setPassword(null);
 				createUserResult.setUser(outputUser);
-
-			} else {
-
+				createUserResult.setToken(user.getMetadataItems().get(UserService.METADATA_KEY_ACTIVATION_TOKEN));
+			}
+			else {
 				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
 			}
-
-		} else {
-
+		}
+		else {
 			throw new ValidationErrorException("Validation error creating user");
 		}
 
 		return createUserResult;
 	}
+
+	// TODO: implement changepassword
+//	@RequestMapping(value = "/activate/{token}", method = RequestMethod.PUT)
+//	@Transactional(readOnly = true)
+//	public GetUserResult activateAccount(@PathVariable("token") String username) {
+//
+//		GetUserResult getUserResult;
+//		User user;
+//		try {
+//			getUserResult = new GetUserResult();
+//			user = (User) userService.findUserByUsername(username);
+//
+//			getUserResult.setUser(mapper.map(user, UserDto.class));
+//		} catch (UsernameNotFoundException e) {
+//			LOG.info("Could not find user " + username);
+//			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user " + username);
+//		}
+//
+//		return getUserResult;
+//	}
+
+	// TODO: implement changepassword
+//	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.POST, consumes={"application/json"})
+//	@ResponseStatus(HttpStatus.OK)
+//	@Transactional
+//	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
+//
+//		CreateUserResult createUserResult = new CreateUserResult();
+//
+//		if (validateUser(userDto)){
+//
+//			if (userDto.getId() == null) {
+//
+//				User user = mapper.map(userDto, User.class);
+//				userService.saveUser(user);
+//
+//				UserDto outputUser = mapper.map(user, UserDto.class);
+//				outputUser.setPassword(null);
+//				createUserResult.setUser(outputUser);
+//
+//			} else {
+//
+//				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
+//			}
+//
+//		} else {
+//
+//			throw new ValidationErrorException("Validation error creating user");
+//		}
+//
+//		return createUserResult;
+//	}
 
 	@RequestMapping(value = {"/me/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.OK)

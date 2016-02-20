@@ -3,7 +3,6 @@ package com.graffitab.server.service.store;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -19,7 +18,7 @@ import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import com.graffitab.server.persistence.model.AssetType;
+import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.UploadJobService;
 import com.graffitab.server.util.GuidGenerator;

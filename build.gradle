@@ -72,6 +72,8 @@ def jsonPathVersion = "2.0.0"
 def hsqldbVersion = "2.2.8"
 def orikaVersion = "1.4.6"
 def awsVersion = "1.10.44"
+def jodaTimeVersion = "2.9.2"
+def jadiraVersion = "5.0.0.GA"
 
 def commonsFileuploadVersion = "1.3.1"
 //http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
@@ -153,6 +155,10 @@ dependencies {
    compile "com.amazonaws:aws-java-sdk-s3:$awsVersion"
 
    compile "org.projectlombok:lombok:1.16.6"
+
+   compile "joda-time:joda-time:$jodaTimeVersion"
+
+   compile "org.jadira.usertype:usertype.core:$jadiraVersion"
 
    // for OAuth 2.0
    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'

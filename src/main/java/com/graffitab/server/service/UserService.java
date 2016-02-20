@@ -22,9 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.graffitab.server.api.errors.UserNotLoggedInException;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Asset;
-import com.graffitab.server.persistence.model.AssetType;
+import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 
@@ -49,6 +50,9 @@ public class UserService {
 	@Resource
 	private TransactionUtils transactionUtils;
 
+	public static final String METADATA_KEY_ACTIVATION_TOKEN = "activationToken";
+	public static final String METADATA_KEY_ACTIVATION_TOKEN_DATE = "activationTokenDate";
+
 	@Transactional(readOnly = true)
 	public UserDetails findUserByUsername(String username) throws UsernameNotFoundException {
 		Criteria criteria = userDao.getBaseCriteria();
@@ -66,6 +70,10 @@ public class UserService {
 	public void saveUser(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setGuid(GuidGenerator.generate());
+		user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
+		user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN, GuidGenerator.generate());
+		user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN_DATE, System.currentTimeMillis() + "");
+
 		userDao.persist(user);
 	}
 

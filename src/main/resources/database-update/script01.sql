@@ -55,3 +55,13 @@ ALTER TABLE following CHANGE userId user_id bigint(20) not null;
 ALTER TABLE following ADD CONSTRAINT user_following_fk1 FOREIGN KEY (following_id) REFERENCES gt_user(id);
 ALTER TABLE following ADD CONSTRAINT user_following_fk2 FOREIGN KEY (user_id) REFERENCES gt_user(id);
 
+--changeset georgi:v100cs11
+alter table gt_user add status varchar(50) not null;
+CREATE TABLE gt_user_metadata (
+	id bigint(20) NOT NULL AUTO_INCREMENT,
+	user_id bigint(20) NOT NULL,
+	metadata_key varchar(50) NOT NULL,
+	metadata_value varchar(300) NOT NULL,
+	PRIMARY KEY (id),
+	CONSTRAINT gt_user_metadata_fk FOREIGN KEY (user_id) REFERENCES gt_user (id)
+)

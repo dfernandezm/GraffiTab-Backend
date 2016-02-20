@@ -17,6 +17,13 @@
         <property name="website" column="website" not-null="false"/>
         <property name="about" column="about" not-null="false"/>
 
+		<property name="accountStatus" column="status">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">com.graffitab.server.persistence.model.User$AccountStatus</param>
+                <param name="type">12</param>
+            </type>
+        </property>
+
         <!--  http://viralpatel.net/blogs/hibernate-many-to-many-xml-mapping-example/ -->
         <set name="followers" cascade="all" table="following">
             <key column="following_id" not-null="true" />
@@ -38,6 +45,12 @@
             <list-index column="order_key" />
         	<one-to-many class="com.graffitab.server.persistence.model.Asset" />
         </list>
+
+		<map name="metadataItems" table="gt_user_metadata" cascade="all">
+            <key column="user_id"/>
+            <map-key column="metadata_key" type="string"/>
+            <element column="metadata_value" type="string"/>
+        </map>
 
      </class>
 

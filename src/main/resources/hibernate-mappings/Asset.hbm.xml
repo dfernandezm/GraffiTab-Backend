@@ -17,7 +17,7 @@
 
 		<property name="assetType" column="asset_type">
             <type name="org.hibernate.type.EnumType">
-                <param name="enumClass">com.graffitab.server.persistence.model.AssetType</param>
+                <param name="enumClass">com.graffitab.server.persistence.model.Asset$AssetType</param>
                 <param name="type">12</param>
             </type>
         </property>

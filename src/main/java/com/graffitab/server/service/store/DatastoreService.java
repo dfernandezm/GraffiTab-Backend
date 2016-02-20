@@ -1,9 +1,8 @@
 package com.graffitab.server.service.store;
 
 import java.io.InputStream;
-import java.util.Map;
 
-import com.graffitab.server.persistence.model.AssetType;
+import com.graffitab.server.persistence.model.Asset.AssetType;
 
 public interface DatastoreService {
 

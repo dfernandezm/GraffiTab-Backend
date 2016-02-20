@@ -1,16 +1,20 @@
 package com.graffitab.server.persistence.model;
 
+import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.util.GuidGenerator;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import com.graffitab.server.persistence.dao.Identifiable;
-import com.graffitab.server.util.GuidGenerator;
 
 @Getter @Setter @EqualsAndHashCode
 public class Asset implements Identifiable<Long> {
 
 	private static final long serialVersionUID = 1L;
+
+	public enum AssetType {
+		AVATAR, COVER, GRAFFITI;
+	}
 
 	private Long id;
 	private String guid;

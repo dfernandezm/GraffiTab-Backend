@@ -1,15 +1,10 @@
 package com.graffitab.server.api.dto.user;
 
+import lombok.Data;
+
+@Data
 public class CreateUserResult {
-	
+
 	private UserDto user;
-
-	public UserDto getUser() {
-		return user;
-	}
-
-	public void setUser(UserDto user) {
-		this.user = user;
-	}
-	
+	private String token;
 }

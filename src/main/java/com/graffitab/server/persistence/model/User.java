@@ -3,12 +3,11 @@ package com.graffitab.server.persistence.model;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import lombok.Getter;
-import lombok.Setter;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,13 +15,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Created by david.
  */
 @Getter @Setter
 public class User implements Identifiable<Long>, UserDetails {
 
+	public enum AccountStatus {
+		PENDING_ACTIVATION, ACTIVE, SUSPENDED;
+	}
+
 	private static final long serialVersionUID = 1L;
+
 	private Long id;
 	private String guid;
 	private String externalId;
@@ -37,6 +44,8 @@ public class User implements Identifiable<Long>, UserDetails {
 	private Set<User> following = new HashSet<>();
 	private List<Asset> assets = new ArrayList<>();
 	private Boolean followedByCurrentUser = Boolean.FALSE;
+	private Map<String, String> metadataItems = new HashMap<>();
+	private AccountStatus accountStatus;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
