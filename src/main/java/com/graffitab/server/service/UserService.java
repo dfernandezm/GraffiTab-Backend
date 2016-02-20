@@ -99,10 +99,11 @@ public class UserService {
 			throw new RestApiException(ResultCode.TOKEN_EXPIRED, "This token has expired.");
 		}
 
+		if (user.getAccountStatus() != AccountStatus.PENDING_ACTIVATION) {
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
+		}
+
 		user.setAccountStatus(AccountStatus.ACTIVE);
-
-		userDao.merge(user);
-
 		return user;
 	}
 

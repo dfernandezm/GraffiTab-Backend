@@ -137,8 +137,8 @@ public class UserApiController extends BaseApiController {
 		return createUserResult;
 	}
 
-	@RequestMapping(value = "/activate/{token}", method = RequestMethod.PUT)
-	@Transactional(readOnly = true)
+	@RequestMapping(value = "/activate/{token}", method = RequestMethod.GET)
+	@Transactional
 	public ActivateUserResult activateAccount(@PathVariable("token") String token) {
 		ActivateUserResult activateUserResult;
 		User user;

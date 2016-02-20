@@ -8,6 +8,7 @@ public enum ResultCode {
 	USER_NOT_FOUND(404),
 	BAD_REQUEST(400),
 	USER_NOT_LOGGED_IN(401),
+	USER_NOT_IN_EXPECTED_STATE(406),
 	GENERAL_ERROR(500);
 
 	private Integer statusCode;
