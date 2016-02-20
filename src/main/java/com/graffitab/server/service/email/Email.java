@@ -26,11 +26,14 @@ public class Email {
 	private static String PASSWORD_RESET_TEMPLATE_CONTENTS;
 	private static String FEEDBACK_TEMPLATE_CONTENTS;
 
+	private static String FROM_NAME = "GraffiTab";
+	private static String FROM_ADDRESS = "no_reply@graffitab.com";
+
 	static {
 		try {
 			WELCOME_TEMPLATE_CONTENTS = readTemplate(EmailType.ACTIVATION.getTemplateName());
-			PASSWORD_RESET_TEMPLATE_CONTENTS = readTemplate(EmailType.ACTIVATION.getTemplateName());
-			FEEDBACK_TEMPLATE_CONTENTS = readTemplate(EmailType.ACTIVATION.getTemplateName());
+			PASSWORD_RESET_TEMPLATE_CONTENTS = readTemplate(EmailType.RESET_PASSWORD.getTemplateName());
+			FEEDBACK_TEMPLATE_CONTENTS = readTemplate(EmailType.FEEDBACK.getTemplateName());
 		} catch (IOException e) {
 			log.error("Error reading email templates", e);
 		}
@@ -40,10 +43,23 @@ public class Email {
 		Email email = new Email();
 		EmailType emailType = EmailType.ACTIVATION;
 		email.setSubject("Welcome to GraffiTab");
-		email.setFromAddress("no_reply@graffitab.com");
-		email.setFromName("GraffiTab");
+		email.setFromAddress(FROM_ADDRESS);
+		email.setFromName(FROM_NAME);
 		email.setEmailType(emailType);
 		String emailBody = replacePlaceholders(placeHolders, WELCOME_TEMPLATE_CONTENTS);
+		email.setHtmlBody(emailBody);
+		email.setRecipients(recipients);
+		return email;
+	}
+
+	public static Email resetPassword(String[] recipients, Map<String, String> placeHolders) {
+		Email email = new Email();
+		EmailType emailType = EmailType.RESET_PASSWORD;
+		email.setSubject("Reset your password in GraffiTab");
+		email.setFromAddress(FROM_ADDRESS);
+		email.setFromName(FROM_NAME);
+		email.setEmailType(emailType);
+		String emailBody = replacePlaceholders(placeHolders, PASSWORD_RESET_TEMPLATE_CONTENTS);
 		email.setHtmlBody(emailBody);
 		email.setRecipients(recipients);
 		return email;
@@ -58,7 +74,7 @@ public class Email {
 	}
 
 	private static String readTemplate(String templateName) throws IOException {
-		InputStream is = Email.class.getClassLoader().getResourceAsStream("emailTemplates/welcome.htm");
+		InputStream is = Email.class.getClassLoader().getResourceAsStream("emailTemplates/" + templateName);
 		String templateString = IOUtils.toString(is);
 		return templateString;
 	}

@@ -21,21 +21,31 @@ public class EmailService {
 
 	private ExecutorService emailExecutor = Executors.newFixedThreadPool(2);
 
-	public void prepareAndSendWelcomeEmail(String username, String email, String activationLink) {
+	public void sendWelcomeEmail(String username, String email, String activationLink) {
 		Map<String,String> data = new HashMap<>();
 		data.put("@username", username);
 		data.put("@activation_link", activationLink);
 
 		Email welcomeEmail = Email.welcome(new String[] {email}, data);
+		sendEmailAsync(welcomeEmail);
+	}
 
+	public void sendResetPasswordEmail(String email, String resetPasswordLink) {
+		Map<String,String> data = new HashMap<>();
+		data.put("@reset_link", resetPasswordLink);
+
+		Email resetPasswordEmail = Email.resetPassword(new String[] {email}, data);
+		sendEmailAsync(resetPasswordEmail);
+	}
+
+	private void sendEmailAsync(Email email) {
 		emailExecutor.submit(() -> {
 			log.debug("About to send email " + email);
 			try {
-				emailSenderService.sendEmail(welcomeEmail);
+				emailSenderService.sendEmail(email);
 			} catch (Throwable t) {
 				log.error("Error sending email", t);
 			}
 		});
 	}
-
 }

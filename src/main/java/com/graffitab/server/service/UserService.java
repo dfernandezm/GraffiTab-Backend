@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.log4j.Log4j2;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -38,6 +40,7 @@ import com.graffitab.server.util.GuidGenerator;
  * Created by david
  */
 @Service
+@Log4j2
 public class UserService {
 
 	@Resource
@@ -61,11 +64,15 @@ public class UserService {
 	@Resource
 	private HttpServletRequest request;
 
-	public static final String METADATA_KEY_ACTIVATION_TOKEN = "activationToken";
-	public static final String METADATA_KEY_ACTIVATION_TOKEN_DATE = "activationTokenDate";
+	public static final String ACTIVATION_TOKEN_METADATA_KEY = "activationToken";
+	public static final String ACTIVATION_TOKEN_DATE_METADATA_KEY = "activationTokenDate";
+	public static final String RESET_PASSWORD_ACTIVATION_TOKEN = "resetPasswordToken";
+	public static final String RESET_PASSWORD_ACTIVATION_TOKEN_DATE = "resetPasswordTokenDate";
 
 	// 6 hours in milliseconds.
 	public static final Long ACTIVATION_TOKEN_EXPIRATION_MS = 6 * 60 * 60 * 1000L;
+	// 30 minutes
+	public static final Long RESET_PASSWORD_TOKEN_EXPIRATION_MS = 30 * 60 * 1000L;
 
 	@Transactional(readOnly = true)
 	public UserDetails findUserByUsername(String username) throws UsernameNotFoundException {
@@ -79,17 +86,17 @@ public class UserService {
 	}
 
 	@Transactional
-	public User activateUserWithToken(String token) {
-		User user = findUsersWithToken(token);
+	public User activateUser(String token) {
+		User user = findUsersWithToken(ACTIVATION_TOKEN_METADATA_KEY, token);
 
 		if (user == null) {
 			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find token " + token);
 		}
 
-		Long tokenDate = Long.parseLong(user.getMetadataItems().get(METADATA_KEY_ACTIVATION_TOKEN_DATE));
+		Long tokenDate = Long.parseLong(user.getMetadataItems().get(ACTIVATION_TOKEN_DATE_METADATA_KEY));
 		Long now = System.currentTimeMillis();
 
-		if ((Long)(now - tokenDate) > ACTIVATION_TOKEN_EXPIRATION_MS) {
+		if ((now - tokenDate) > ACTIVATION_TOKEN_EXPIRATION_MS) {
 			throw new RestApiException(ResultCode.TOKEN_EXPIRED, "This token has expired.");
 		}
 
@@ -108,20 +115,28 @@ public class UserService {
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
 			user.setGuid(GuidGenerator.generate());
 			user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
-			user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN, userToken);
-			user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN_DATE, System.currentTimeMillis() + "");
+			user.getMetadataItems().put(ACTIVATION_TOKEN_METADATA_KEY, userToken);
+			user.getMetadataItems().put(ACTIVATION_TOKEN_DATE_METADATA_KEY, System.currentTimeMillis() + "");
 			userDao.persist(user);
 		});
 
-		emailService.prepareAndSendWelcomeEmail(user.getUsername(), user.getEmail(), generateUserAccountActivationLink(userToken));
+		emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(), generateUserAccountActivationLink(userToken));
 	}
 
 	private String generateUserAccountActivationLink(String userToken) {
-		String activationLink = request.getScheme() + "://" +
-	             request.getServerName() +
-	             ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "") +
-	             "/api/users/activate/" + userToken;
+		String activationLink = generateBaseLink() + "/api/users/activate/" + userToken;
 		return activationLink;
+	}
+
+	/**
+	 * Returns the base server link i.e. http://www.graffitab.com:port
+	 *
+	 * @return
+	 */
+	private String generateBaseLink() {
+		return request.getScheme() + "://" +
+	             request.getServerName() +
+	             ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
 	}
 
 	@Transactional(readOnly = true)
@@ -145,8 +160,16 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<User> findByEmail(String email) {
-		return userDao.findByField("email", email);
+	public User findByEmail(String email) {
+
+		User user = (User) userDao.getBaseCriteria()
+										  .add(Restrictions.eq("email", email))
+										  .uniqueResult();
+		if (user == null) {
+			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "User with email " + email + " not found");
+		}
+
+		return user;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -160,17 +183,17 @@ public class UserService {
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<User> findUsersWithEmail(String email, Long userId) {
+	public List<User> findUsersByEmailWithDifferentID(String email, Long userId) {
 		Query query = userDao.createNamedQuery("User.findUsersWithEmail");
 		query.setParameter("email", email);
 		query.setParameter("userId", userId);
 		return query.list();
 	}
 
-	@Transactional(readOnly = true)
-	public User findUsersWithToken(String token) {
+
+	private User findUsersWithToken(String tokenMetadataKey, String token) {
 		Query query = userDao.createNamedQuery("User.findUsersWithToken");
-		query.setParameter("tokenKeyName", METADATA_KEY_ACTIVATION_TOKEN);
+		query.setParameter("tokenKeyName", tokenMetadataKey);
 		query.setParameter("token", token);
 		return (User) query.uniqueResult();
 	}
@@ -227,7 +250,7 @@ public class UserService {
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public PagedList<User> getFollowingOrFollowers(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
-		User user = userId == null ? getCurrentUser() : findUserById(userId);
+		User user = (userId == null) ? getCurrentUser() : findUserById(userId);
 
 		Query query = userDao.createQuery("select f from User u " +
 										  "join u." + (shouldGetFollowers ? "followers" : "following") + " f " +
@@ -243,6 +266,57 @@ public class UserService {
 		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.getFollowing().contains(u)));
 
 		return users;
+	}
+
+	public User resetPassword(String email) {
+		final String resetPasswordToken = GuidGenerator.generate();
+		User user = transactionUtils.executeInTransactionWithResult(() -> {
+			User innerUser = findByEmail(email);
+			innerUser.setAccountStatus(AccountStatus.RESET_PASSWORD);
+			innerUser.getMetadataItems().put(RESET_PASSWORD_ACTIVATION_TOKEN, resetPasswordToken);
+			innerUser.getMetadataItems().put(RESET_PASSWORD_ACTIVATION_TOKEN_DATE, System.currentTimeMillis() + "");
+			return innerUser;
+		});
+
+		emailService.sendResetPasswordEmail(email, generateResetPasswordLink(resetPasswordToken));
+		return user;
+	}
+
+	private String generateResetPasswordLink(String resetPasswordToken) {
+		return generateBaseLink() + "/api/users/resetpassword/" + resetPasswordToken;
+	}
+
+	@Transactional
+	public User completePasswordReset(String token, String newPassword) {
+
+		User user = findUsersWithToken(RESET_PASSWORD_ACTIVATION_TOKEN, token);
+
+		if (user == null) {
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find token " + token);
+		}
+
+		Long tokenDate = Long.parseLong(user.getMetadataItems().get(RESET_PASSWORD_ACTIVATION_TOKEN_DATE));
+		Long now = System.currentTimeMillis();
+
+		if ((now - tokenDate) > RESET_PASSWORD_TOKEN_EXPIRATION_MS) {
+			throw new RestApiException(ResultCode.TOKEN_EXPIRED, "This token has expired.");
+		}
+
+		if (user.getAccountStatus() != AccountStatus.RESET_PASSWORD) {
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE,
+					"The user is not in the expected state: " + user.getAccountStatus());
+		}
+
+		user.setAccountStatus(AccountStatus.ACTIVE);
+		user.setPassword(passwordEncoder.encode(newPassword));
+
+		//TODO: Logout from all devices
+
+		if (log.isDebugEnabled()) {
+			log.debug("Successfully reset password for user " + user.getUsername());
+		}
+
+		return user;
 	}
 
 

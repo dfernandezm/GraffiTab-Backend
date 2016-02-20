@@ -124,7 +124,7 @@ public class UserApiController extends BaseApiController {
 
 				UserDto outputUser = mapper.map(user, UserDto.class);
 				createUserResult.setUser(outputUser);
-				createUserResult.setToken(user.getMetadataItems().get(UserService.METADATA_KEY_ACTIVATION_TOKEN));
+				createUserResult.setToken(user.getMetadataItems().get(UserService.ACTIVATION_TOKEN_METADATA_KEY));
 			}
 			else {
 				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
@@ -144,44 +144,33 @@ public class UserApiController extends BaseApiController {
 		User user;
 
 		activateUserResult = new ActivateUserResult();
-		user = userService.activateUserWithToken(token);
+		user = userService.activateUser(token);
 
 		activateUserResult.setUser(mapper.map(user, UserDto.class));
 
 		return activateUserResult;
 	}
 
-	// TODO: implement changepassword
-//	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.POST, consumes={"application/json"})
-//	@ResponseStatus(HttpStatus.OK)
-//	@Transactional
-//	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
-//
-//		CreateUserResult createUserResult = new CreateUserResult();
-//
-//		if (validateUser(userDto)){
-//
-//			if (userDto.getId() == null) {
-//
-//				User user = mapper.map(userDto, User.class);
-//				userService.saveUser(user);
-//
-//				UserDto outputUser = mapper.map(user, UserDto.class);
-//				outputUser.setPassword(null);
-//				createUserResult.setUser(outputUser);
-//
-//			} else {
-//
-//				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
-//			}
-//
-//		} else {
-//
-//			throw new ValidationErrorException("Validation error creating user");
-//		}
-//
-//		return createUserResult;
-//	}
+	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
+	public GetUserResult resetPassword(@JsonProperty("email") String email) {
+
+		GetUserResult resetPasswordResult = new GetUserResult();
+
+		User user = userService.resetPassword(email);
+		resetPasswordResult.setUser(mapper.map(user, UserDto.class));
+
+		return resetPasswordResult;
+	}
+
+	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.POST)
+	public GetUserResult completePasswordReset(@PathVariable("token") String token, @JsonProperty("password") String password) {
+
+		GetUserResult resetPasswordResult = new GetUserResult();
+		User user = userService.completePasswordReset(token, password);
+		resetPasswordResult.setUser(mapper.map(user, UserDto.class));
+
+		return resetPasswordResult;
+	}
 
 	@RequestMapping(value = {"/me/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.OK)
@@ -404,9 +393,9 @@ public class UserApiController extends BaseApiController {
 
 	private Boolean isEmailTaken(String email, Long userId) {
 		if ( userId != null){
-			return !userService.findUsersWithEmail(email, userId).isEmpty();
+			return !userService.findUsersByEmailWithDifferentID(email, userId).isEmpty();
 		} else {
-			return !userService.findByEmail(email).isEmpty();
+			return userService.findByEmail(email) != null;
 		}
 	}
 }

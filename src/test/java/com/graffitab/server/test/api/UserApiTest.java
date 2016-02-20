@@ -19,6 +19,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.aop.framework.Advised;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
@@ -35,6 +37,8 @@ import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
+import com.graffitab.server.service.email.Email;
+import com.graffitab.server.service.email.EmailSenderService;
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -187,5 +191,26 @@ public class UserApiTest {
 	    	userService.createUser(testUser2);
 	    	return testUser2;
 	    }
+
+	    public static class TestEmailSenderService implements EmailSenderService {
+			@Override
+			public void sendEmail(Email email) {
+				//TODO: use wiser or something to mock the emailSent
+				//TODO: use ReflectionTestUtils to change emailService
+			}
+	    }
+
+	    /**
+		 * Unwrap the given spring bean, if it's proxied.
+		 * @throws Exception
+		 */
+		protected <T> Object unwrapSpringProxy(T mayBeProxied) throws Exception {
+			Object unwrapped = mayBeProxied;
+			if (AopUtils.isAopProxy(mayBeProxied)
+					&& mayBeProxied instanceof Advised) {
+				unwrapped = ((Advised) mayBeProxied).getTargetSource().getTarget();
+			}
+			return unwrapped;
+		}
 
 }

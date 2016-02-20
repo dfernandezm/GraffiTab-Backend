@@ -25,7 +25,7 @@ import lombok.Setter;
 public class User implements Identifiable<Long>, UserDetails {
 
 	public enum AccountStatus {
-		PENDING_ACTIVATION, ACTIVE, SUSPENDED;
+		PENDING_ACTIVATION, ACTIVE, SUSPENDED, RESET_PASSWORD;
 	}
 
 	private static final long serialVersionUID = 1L;
