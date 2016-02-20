@@ -4,7 +4,10 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -26,6 +29,7 @@ import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
+import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 
@@ -34,6 +38,8 @@ import com.graffitab.server.util.GuidGenerator;
  */
 @Service
 public class UserService {
+
+	private static Logger log = LogManager.getLogger();
 
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
@@ -49,6 +55,12 @@ public class UserService {
 
 	@Resource
 	private TransactionUtils transactionUtils;
+
+	@Resource
+	private EmailService emailService;
+
+	@Resource
+	private HttpServletRequest request;
 
 	public static final String METADATA_KEY_ACTIVATION_TOKEN = "activationToken";
 	public static final String METADATA_KEY_ACTIVATION_TOKEN_DATE = "activationTokenDate";
@@ -66,15 +78,27 @@ public class UserService {
 		return userDetails;
 	}
 
-	@Transactional
 	public void saveUser(User user) {
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		user.setGuid(GuidGenerator.generate());
-		user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
-		user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN, GuidGenerator.generate());
-		user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN_DATE, System.currentTimeMillis() + "");
+		final String userToken = GuidGenerator.generate();
 
-		userDao.persist(user);
+		transactionUtils.executeInNewTransaction(() -> {
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+			user.setGuid(GuidGenerator.generate());
+			user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
+			user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN, userToken);
+			user.getMetadataItems().put(METADATA_KEY_ACTIVATION_TOKEN_DATE, System.currentTimeMillis() + "");
+			userDao.persist(user);
+		});
+
+		emailService.prepareAndSendWelcomeEmail(user.getUsername(), user.getEmail(), generateUserAccountActivationLink(userToken));
+	}
+
+	private String generateUserAccountActivationLink(String userToken) {
+		String activationLink = request.getScheme() + "://" +
+	             request.getServerName() +
+	             ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "") +
+	             "/api/users/activate/" + userToken;
+		return activationLink;
 	}
 
 	@Transactional(readOnly = true)

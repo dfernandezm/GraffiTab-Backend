@@ -74,6 +74,7 @@ def orikaVersion = "1.4.6"
 def awsVersion = "1.10.44"
 def jodaTimeVersion = "2.9.2"
 def jadiraVersion = "5.0.0.GA"
+def sendgridVersion = "2.2.2"
 
 def commonsFileuploadVersion = "1.3.1"
 //http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
@@ -169,6 +170,8 @@ dependencies {
    compile 'org.springframework.boot:spring-boot-starter'
    compile 'org.springframework.boot:spring-boot-starter-web'
    compile 'org.springframework.boot:spring-boot-starter-security'
+   compile "com.sendgrid:sendgrid-java:$sendgridVersion"
+
    testCompile 'org.springframework.boot:spring-boot-starter-test'
    testCompile 'org.springframework.security:spring-security-test:4.0.3.RELEASE'
 
@@ -401,11 +404,6 @@ task localTomcat {
     }
 }
 
-
-
-
-
 // Spring Boot
-
 bootRun.dependsOn processResources
 

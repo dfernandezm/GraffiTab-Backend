@@ -45,7 +45,7 @@ public class User implements Identifiable<Long>, UserDetails {
 	private List<Asset> assets = new ArrayList<>();
 	private Boolean followedByCurrentUser = Boolean.FALSE;
 	private Map<String, String> metadataItems = new HashMap<>();
-	private AccountStatus accountStatus;
+	private AccountStatus accountStatus = AccountStatus.PENDING_ACTIVATION;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
