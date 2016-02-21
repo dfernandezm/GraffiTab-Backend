@@ -165,10 +165,6 @@ public class UserService {
 		User user = (User) userDao.getBaseCriteria()
 										  .add(Restrictions.eq("email", email))
 										  .uniqueResult();
-		if (user == null) {
-			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "User with email " + email + " not found");
-		}
-
 		return user;
 	}
 
@@ -272,6 +268,11 @@ public class UserService {
 		final String resetPasswordToken = GuidGenerator.generate();
 		User user = transactionUtils.executeInTransactionWithResult(() -> {
 			User innerUser = findByEmail(email);
+
+			if (innerUser == null) {
+				throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "User with email: " + email + " not found");
+			}
+
 			innerUser.setAccountStatus(AccountStatus.RESET_PASSWORD);
 			innerUser.getMetadataItems().put(RESET_PASSWORD_ACTIVATION_TOKEN, resetPasswordToken);
 			innerUser.getMetadataItems().put(RESET_PASSWORD_ACTIVATION_TOKEN_DATE, System.currentTimeMillis() + "");
