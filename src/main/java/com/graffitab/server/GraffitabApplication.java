@@ -28,30 +28,36 @@ import com.graffitab.server.config.spring.MainConfig;
 import com.graffitab.server.config.spring.MainDatabaseConfig;
 
 @SpringBootApplication
-//@Import(MainConfig.class)
 @EnableAutoConfiguration(exclude={SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SpringBootWebSecurityConfiguration.class})
 public class GraffitabApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication.run(GraffitabApplication.class, args);
     }
-    
-    @Override 
+
+    @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application ) {
         return application.sources(GraffitabApplication.class, MainConfig.class, MainDatabaseConfig.class);
     }
 
     @Override public void onStartup( ServletContext servletContext ) throws ServletException {
         super.onStartup(servletContext);
-        servletContext.addListener(requestContextListener()); 
+        servletContext.addListener(requestContextListener());
     }
-    
-    @Bean 
+
+    @Bean
     public RequestContextListener requestContextListener(){
         return new RequestContextListener();
     }
-    
-    @Bean
+
+
+    //TODO: These three beans are redundant, still not sure why I needed to put them here, but until more functionality is done
+    //and tested I'll keep the code here, but commented out the registration. Need to figure out where are they being registered and
+    //why registering them here is not needed
+
+    // =================================================================================================================================
+
+    //@Bean
     public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
         ServletRegistrationBean registration = new ServletRegistrationBean(
                 dispatcherServlet);
@@ -63,8 +69,8 @@ public class GraffitabApplication extends SpringBootServletInitializer {
         registration.setLoadOnStartup(2);
         return registration;
     }
-    
-    @Bean
+
+    //@Bean
     public FilterRegistrationBean filterRegistrationBean() {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
@@ -73,13 +79,13 @@ public class GraffitabApplication extends SpringBootServletInitializer {
         registrationBean.setUrlPatterns(Collections.singletonList("/*"));
         return registrationBean;
     }
-    
-    
-    
+
+
+
     // Spring security filter chain should be handled by the autoconfiguration (GraffitabSecurityConfig),
-    // but it is disabled there and added manually here because of not being able to delete default 
+    // but it is disabled there and added manually here because of not being able to delete default
     // login form configuration
-    @Bean
+    // @Bean
     public FilterRegistrationBean securityFilterChainRegistration() {
         DelegatingFilterProxy delegatingFilterProxy = new DelegatingFilterProxy();
         delegatingFilterProxy.setTargetBeanName(AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME);

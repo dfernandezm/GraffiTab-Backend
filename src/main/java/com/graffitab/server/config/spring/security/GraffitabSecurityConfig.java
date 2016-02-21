@@ -1,6 +1,10 @@
 package com.graffitab.server.config.spring.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.SpringBootWebSecurityConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,6 +33,7 @@ import com.graffitab.server.service.GraffiTabUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableAutoConfiguration(exclude={SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SpringBootWebSecurityConfiguration.class})
 @Import(SecurityBeansConfig.class)
 public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
