@@ -6,8 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -35,6 +33,8 @@ import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -320,6 +320,31 @@ public class UserService {
 		return user;
 	}
 
+	@Transactional
+	public User changePassword(String currentPassword, String newPassword) {
+
+		User user = getCurrentUser();
+
+		// Check if the provided password matches the current password.
+		if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+			throw new RestApiException(ResultCode.INCORRECT_PASSWORD, "The provided password was incorrect.");
+		}
+
+		if (user.getAccountStatus() != AccountStatus.ACTIVE) {
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE,
+					"The user is not in the expected state: " + user.getAccountStatus());
+		}
+
+		user.setPassword(passwordEncoder.encode(newPassword));
+
+		//TODO: Logout from all devices
+
+		if (log.isDebugEnabled()) {
+			log.debug("Successfully changed password for user " + user.getUsername());
+		}
+
+		return user;
+	}
 
 //	Criteria criteria = userDao.getBaseCriteria("u");
 //	criteria.createAlias("u.followers", "f")

@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +26,7 @@ import com.graffitab.server.api.BaseApiController;
 import com.graffitab.server.api.dto.asset.AddAssetResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.user.ActivateUserResult;
+import com.graffitab.server.api.dto.user.ChangePasswordDto;
 import com.graffitab.server.api.dto.user.CreateUserResult;
 import com.graffitab.server.api.dto.user.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
@@ -170,6 +172,17 @@ public class UserApiController extends BaseApiController {
 		resetPasswordResult.setUser(mapper.map(user, UserDto.class));
 
 		return resetPasswordResult;
+	}
+
+	@RequestMapping(value = {"/me/changepassword"}, method = RequestMethod.POST)
+	@Transactional
+	public GetUserResult changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
+
+		GetUserResult getUserResult = new GetUserResult();
+		User user = userService.changePassword(changePasswordDto.getCurrentPassword(), changePasswordDto.getNewPassword());
+		getUserResult.setUser(mapper.map(user, UserDto.class));
+
+		return getUserResult;
 	}
 
 	@RequestMapping(value = {"/me/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
@@ -339,7 +352,6 @@ public class UserApiController extends BaseApiController {
 
 	//TODO: * fullProfile /api/users/me
 	//TODO: * change password ones (/api/users/changepassword - invalidate
-	//TODO: * registration Mailing workflow
 	//TODO: * checkLoginStatus -> basicProfile -> we have it maybe
 	//TODO: * reset password /api/user/resetpassword?email=
 	//TODO: Most active users -> /api/users/mostactive page by page
@@ -373,7 +385,7 @@ public class UserApiController extends BaseApiController {
 
 		} else {
 
-			if (isUsernameTaken(userDto.getUsername(),userDto.getId()) || isEmailTaken(userDto.getEmail(),userDto.getId()) ){
+			if (isUsernameTaken(userDto.getUsername(), userDto.getId()) || isEmailTaken(userDto.getEmail(), userDto.getId()) ){
 				validationResult = false;
 			} else {
 				validationResult = true;
