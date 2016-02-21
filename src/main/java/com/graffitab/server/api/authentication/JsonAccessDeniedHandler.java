@@ -31,7 +31,6 @@ public class JsonAccessDeniedHandler implements AccessDeniedHandler {
 		response.setContentType("application/json");
 		IOUtils.write(json.toString(), response.getOutputStream());
 		response.setStatus(HttpStatus.FORBIDDEN.value());
-//		response.getWriter().flush();
 	}
 
 }

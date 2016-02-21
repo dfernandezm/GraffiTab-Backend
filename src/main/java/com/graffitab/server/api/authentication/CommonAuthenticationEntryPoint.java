@@ -20,10 +20,10 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint 
 	public void commence(HttpServletRequest request,
 			HttpServletResponse response, AuthenticationException authException)
 			throws IOException, ServletException {
-		
+
 		JSONObject json = new JSONObject();
 		json.put("resultCode", HttpStatus.UNAUTHORIZED.value());
-		
+
 		String message = "";
 		if (authException instanceof BadCredentialsException) {
 			message = "Invalid username/password provided";
@@ -32,13 +32,12 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint 
 		} else {
 			message = authException.getMessage();
 		}
-		
+
 		json.put("resultMessage", message);
-		
+
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		IOUtils.write(json.toString(), response.getOutputStream());
-		response.flushBuffer();
-	} 
+	}
 
 }

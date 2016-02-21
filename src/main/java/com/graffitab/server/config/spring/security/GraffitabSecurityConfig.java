@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
@@ -28,7 +29,6 @@ import com.graffitab.server.service.GraffiTabUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
-//@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 @Import(SecurityBeansConfig.class)
 public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -122,13 +122,13 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
             // Add the custom filter before the regular one
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+            AuthenticationEntryPoint commonEntryPoint = new CommonAuthenticationEntryPoint();
             // Add the basic auth filter before the jsonLogin filter (check first)
-            http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager()),
+            http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager(), commonEntryPoint),
             		    JsonLoginAuthenticationFilter.class);
 
             // Common entry points: 401 Unauthorized and access denied handlers
-            http.exceptionHandling().authenticationEntryPoint(new CommonAuthenticationEntryPoint());
+            http.exceptionHandling().authenticationEntryPoint(commonEntryPoint);
             http.exceptionHandling().accessDeniedHandler(new JsonAccessDeniedHandler());
         }
 	}

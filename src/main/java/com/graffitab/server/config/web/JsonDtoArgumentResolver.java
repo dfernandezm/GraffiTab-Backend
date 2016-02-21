@@ -2,6 +2,8 @@ package com.graffitab.server.config.web;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -12,22 +14,23 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.graffitab.server.api.errors.RestApiException;
+import com.graffitab.server.api.errors.ResultCode;
 
 /**
  * Created by david on 16/05/15.
  */
 public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
 
-//   @Autowired
-//    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
+	private static Logger log = LogManager.getLogger();
 
 	@Autowired
 	private List<HttpMessageConverter<?>> converters;
-	
+
 	@Autowired
 	private CustomMappingJackson2HttpMessageConverter jacksonConverter;
-	
-    private RequestResponseBodyMethodProcessor delegateRequestResponseBodyMethodProcessor = null;  
+
+    private RequestResponseBodyMethodProcessor delegateRequestResponseBodyMethodProcessor = null;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -75,8 +78,15 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
         String propertyToExtract = annotation.value();
 
         provideCustomPropertyToExtractToJacksonCustomHttpMessageConverter(propertyToExtract);
-        Object value = getDelegateRequestResponseBodyMethodProcessor().resolveArgument(parameter,mavContainer,webRequest,binderFactory);
 
+        Object value;
+        try {
+        	 value = getDelegateRequestResponseBodyMethodProcessor().resolveArgument(parameter,mavContainer,webRequest,binderFactory);
+        } catch(Throwable t) {
+        	String msg = "Cannot process JSON payload";
+        	log.error(msg, t);
+        	throw new RestApiException(ResultCode.BAD_REQUEST, msg);
+        }
         return value;
     }
 }
