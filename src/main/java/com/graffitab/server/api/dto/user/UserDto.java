@@ -10,7 +10,6 @@ public class UserDto {
 
 	private Long id;
 	private String guid;
-	private String externalId;
 	private String username;
 	private String firstName;
 	private String lastName;
@@ -47,12 +46,6 @@ public class UserDto {
 	}
 	public void setId(Long id) {
 		this.id = id;
-	}
-	public String getExternalId() {
-		return externalId;
-	}
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
 	}
 	public String getUsername() {
 		return username;

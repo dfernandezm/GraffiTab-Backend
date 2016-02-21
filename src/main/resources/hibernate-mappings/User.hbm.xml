@@ -8,7 +8,6 @@
             <generator class="native" />
         </id>
         <property name="guid" column="guid" not-null="false"/>
-        <property name="externalId" column="external_id" not-null="false"/>
         <property name="username" column="username" not-null="true" />
         <property name="password" column="password" not-null="true"/>
         <property name="firstName" column="firstname" not-null="true"/>
@@ -73,12 +72,12 @@
        and u.id != :userId
      </query>
 
-	<query name="User.findUsersWithToken">
+	<query name="User.findUsersWithMetadataValues">
        select u
        from User u
        join u.metadataItems mi
-       where index(mi) = :tokenKeyName
-       and :token in elements(mi)
+       where index(mi) = :metadataKey
+       and :metadataValue in elements(mi)
      </query>
 
 </hibernate-mapping>

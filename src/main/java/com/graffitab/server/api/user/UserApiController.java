@@ -23,14 +23,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.BaseApiController;
+import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.asset.AddAssetResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
-import com.graffitab.server.api.dto.user.ActivateUserResult;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
+import com.graffitab.server.api.dto.user.CreateExternalUserResult;
 import com.graffitab.server.api.dto.user.CreateUserResult;
+import com.graffitab.server.api.dto.user.ExternalProviderDto;
+import com.graffitab.server.api.dto.user.ExternalUserDto;
 import com.graffitab.server.api.dto.user.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
+import com.graffitab.server.api.dto.user.ResetPasswordDto;
 import com.graffitab.server.api.dto.user.UpdateUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserProfileDto;
@@ -87,8 +91,8 @@ public class UserApiController extends BaseApiController {
 	public GetUserResult getMe() {
 
 		GetUserResult getUserResult = new GetUserResult();
-		User user = userService.getCurrentUser();
 
+		User user = userService.getCurrentUser();
 		getUserResult.setUser(mapper.map(user, UserDto.class));
 
 		return getUserResult;
@@ -98,10 +102,10 @@ public class UserApiController extends BaseApiController {
 	@Transactional(readOnly = true)
 	public GetUserResult getUserByUsername(@PathVariable("username") String username) {
 
-		GetUserResult getUserResult;
+		GetUserResult getUserResult = new GetUserResult();
 		User user;
+
 		try {
-			getUserResult = new GetUserResult();
 			user = (User) userService.findUserByUsername(username);
 
 			getUserResult.setUser(mapper.map(user, UserDto.class));
@@ -113,10 +117,49 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 
+	@RequestMapping(value = "/externalprovider/verify", method = RequestMethod.POST)
+	@Transactional()
+	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
+
+		GetUserResult getUserResult = new GetUserResult();
+
+		User user = userService.verifyExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
+		getUserResult.setUser(mapper.map(user, UserDto.class));
+
+		return getUserResult;
+	}
+
+	@RequestMapping(value = {"/externalprovider"}, method = RequestMethod.POST, consumes={"application/json"})
+	@ResponseStatus(HttpStatus.CREATED)
+	@Transactional
+	public CreateExternalUserResult createExternalUser(@JsonProperty("user") ExternalUserDto externalUserDto) {
+
+		CreateExternalUserResult createExternalUserResult = new CreateExternalUserResult();
+
+		if (validateUser(externalUserDto)) {
+			if (externalUserDto.getId() == null) {
+				User user = mapper.map(externalUserDto, User.class);
+				userService.createExternalUser(user, externalUserDto.getExternalId(), externalUserDto.getAccessToken(), externalUserDto.getExternalProviderType());
+
+				UserDto outputUser = mapper.map(user, UserDto.class);
+				createExternalUserResult.setUser(outputUser);
+			}
+			else {
+				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
+			}
+		}
+		else {
+			throw new ValidationErrorException("Validation error creating user");
+		}
+
+		return createExternalUserResult;
+	}
+
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
 	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
+
 		CreateUserResult createUserResult = new CreateUserResult();
 
 		if (validateUser(userDto)) {
@@ -141,46 +184,38 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = "/activate/{token}", method = RequestMethod.GET)
 	@Transactional
-	public ActivateUserResult activateAccount(@PathVariable("token") String token) {
-		ActivateUserResult activateUserResult;
-		User user;
+	public ActionCompletedResult activateAccount(@PathVariable("token") String token) {
 
-		activateUserResult = new ActivateUserResult();
-		user = userService.activateUser(token);
-
-		activateUserResult.setUser(mapper.map(user, UserDto.class));
+		ActionCompletedResult activateUserResult = new ActionCompletedResult();
+		userService.activateUser(token);
 
 		return activateUserResult;
 	}
 
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
-	public GetUserResult resetPassword(@JsonProperty("email") String email) {
+	public ActionCompletedResult resetPassword(@JsonProperty("email") String email) {
 
-		GetUserResult resetPasswordResult = new GetUserResult();
-
-		User user = userService.resetPassword(email);
-		resetPasswordResult.setUser(mapper.map(user, UserDto.class));
+		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
+		userService.resetPassword(email);
 
 		return resetPasswordResult;
 	}
 
 	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.POST)
-	public GetUserResult completePasswordReset(@PathVariable("token") String token, @JsonProperty("password") String password) {
+	public ActionCompletedResult completePasswordReset(@PathVariable("token") String token, @RequestBody ResetPasswordDto resetPasswordDto) {
 
-		GetUserResult resetPasswordResult = new GetUserResult();
-		User user = userService.completePasswordReset(token, password);
-		resetPasswordResult.setUser(mapper.map(user, UserDto.class));
+		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
+		userService.completePasswordReset(token, resetPasswordDto.getPassword());
 
 		return resetPasswordResult;
 	}
 
 	@RequestMapping(value = {"/me/changepassword"}, method = RequestMethod.POST)
 	@Transactional
-	public GetUserResult changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
+	public ActionCompletedResult changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
 
-		GetUserResult getUserResult = new GetUserResult();
-		User user = userService.changePassword(changePasswordDto.getCurrentPassword(), changePasswordDto.getNewPassword());
-		getUserResult.setUser(mapper.map(user, UserDto.class));
+		ActionCompletedResult getUserResult = new ActionCompletedResult();
+		userService.changePassword(changePasswordDto.getCurrentPassword(), changePasswordDto.getNewPassword());
 
 		return getUserResult;
 	}
@@ -226,7 +261,6 @@ public class UserApiController extends BaseApiController {
 		return listUsersResult;
 	}
 
-
 	//TODO: To be done
 	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK)
@@ -258,22 +292,6 @@ public class UserApiController extends BaseApiController {
 	@ResponseStatus(HttpStatus.OK)
 	public AddAssetResult addCoverForUser(HttpServletRequest request) {
 		return addAssetToCurrentUser(request, AssetType.COVER);
-	}
-
-	private AddAssetResult addAssetToCurrentUser(HttpServletRequest request, AssetType assetType) {
-		AddAssetResult result = new AddAssetResult();
-		try {
-			long contentLength = request.getContentLengthLong();
-			Asset asset = userService.addAssetToCurrentUser(request.getInputStream(), assetType, contentLength);
-			AssetDto assetDto = mapper.map(asset, AssetDto.class);
-			result.setAsset(assetDto);
-		} catch (IOException e) {
-			String msg = "Error reading InputStream";
-			LOG.error(msg, e);
-			throw new RestApiException(msg);
-		}
-
-		return result;
 	}
 
 	@RequestMapping(value = {"/{id}/follow"}, method = RequestMethod.POST)
@@ -351,13 +369,28 @@ public class UserApiController extends BaseApiController {
 	}
 
 	//TODO: * fullProfile /api/users/me
-	//TODO: * change password ones (/api/users/changepassword - invalidate
-	//TODO: * checkLoginStatus -> basicProfile -> we have it maybe
 	//TODO: * reset password /api/user/resetpassword?email=
 	//TODO: Most active users -> /api/users/mostactive page by page
 	//TODO: getSocialFriends -> /api/users/socialfriends page by page
 	//TODO: linkFacebookProfile -> Link externalprofile, receives externalId + FB token
 	//TODO: register with facebook workflow
+
+	private AddAssetResult addAssetToCurrentUser(HttpServletRequest request, AssetType assetType) {
+		AddAssetResult result = new AddAssetResult();
+
+		try {
+			long contentLength = request.getContentLengthLong();
+			Asset asset = userService.addAssetToCurrentUser(request.getInputStream(), assetType, contentLength);
+			AssetDto assetDto = mapper.map(asset, AssetDto.class);
+			result.setAsset(assetDto);
+		} catch (IOException e) {
+			String msg = "Error reading InputStream";
+			LOG.error(msg, e);
+			throw new RestApiException(msg);
+		}
+
+		return result;
+	}
 
 	private ListUsersResult getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
 		PagedList<User> users = userService.getFollowingOrFollowers(shouldGetFollowers, userId, offset, count);

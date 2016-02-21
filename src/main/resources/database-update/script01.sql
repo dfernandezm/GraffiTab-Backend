@@ -65,3 +65,10 @@ CREATE TABLE gt_user_metadata (
 	PRIMARY KEY (id),
 	CONSTRAINT gt_user_metadata_fk FOREIGN KEY (user_id) REFERENCES gt_user (id)
 )
+
+--changeset georgi:v100cs12
+ALTER TABLE gt_user DROP COLUMN avatar_id;
+ALTER TABLE gt_user DROP COLUMN cover_id;
+
+--changeset georgi:v100cs13
+ALTER TABLE gt_user DROP COLUMN external_id;

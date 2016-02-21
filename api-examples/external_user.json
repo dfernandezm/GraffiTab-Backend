@@ -1,0 +1,12 @@
+{
+    "user":{
+        "username": "juanito",
+        "firstName": "Juanito",
+        "lastName": "Rodríguez",
+        "password": "pass",
+        "email": "pepe@pepe.com",
+        "externalId":"123456789",
+        "accessToken":"hsadoaoi98a7sdiausdi",
+        "externalProviderType":"TWITTER"
+    }
+}

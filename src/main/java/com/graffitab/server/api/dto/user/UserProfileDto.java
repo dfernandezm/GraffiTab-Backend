@@ -1,21 +1,17 @@
 package com.graffitab.server.api.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-@JsonIgnoreProperties({"password"})
 public class UserProfileDto extends UserDto {
-	
-	// Exclude password
+
 	private Integer followersCount;
 	private Integer followingCount;
 	private Integer streamablesCount;
-	
+
 	public UserProfileDto() {
 		this.followersCount = 0;
 		this.followingCount = 0;
 		this.streamablesCount = 0;
 	}
-	
+
 	public Integer getFollowersCount() {
 		return followersCount;
 	}

@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
@@ -33,6 +34,7 @@ import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
+import com.graffitab.server.util.PasswordGenerator;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -68,6 +70,8 @@ public class UserService {
 	public static final String ACTIVATION_TOKEN_DATE_METADATA_KEY = "activationTokenDate";
 	public static final String RESET_PASSWORD_ACTIVATION_TOKEN = "resetPasswordToken";
 	public static final String RESET_PASSWORD_ACTIVATION_TOKEN_DATE = "resetPasswordTokenDate";
+	public static final String EXTERNAL_PROVIDER_ID_KEY = "%s_externalId";
+	public static final String EXTERNAL_PROVIDER_TOKEN_KEY = "%s_externalToken";
 
 	// 6 hours in milliseconds.
 	public static final Long ACTIVATION_TOKEN_EXPIRATION_MS = 6 * 60 * 60 * 1000L;
@@ -86,8 +90,31 @@ public class UserService {
 	}
 
 	@Transactional
+	public User verifyExternalProvider(String externalId, String accessToken, ExternalProviderType externalProviderType) {
+		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalId);
+
+		if (user == null) {
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with externalId " + externalId);
+		}
+
+//		Long tokenDate = Long.parseLong(user.getMetadataItems().get(ACTIVATION_TOKEN_DATE_METADATA_KEY));
+//		Long now = System.currentTimeMillis();
+//
+//		if ((now - tokenDate) > ACTIVATION_TOKEN_EXPIRATION_MS) {
+//			throw new RestApiException(ResultCode.TOKEN_EXPIRED, "This token has expired.");
+//		}
+//
+//		if (user.getAccountStatus() != AccountStatus.PENDING_ACTIVATION) {
+//			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
+//		}
+//
+//		user.setAccountStatus(AccountStatus.ACTIVE);
+		return user;
+	}
+
+	@Transactional
 	public User activateUser(String token) {
-		User user = findUsersWithToken(ACTIVATION_TOKEN_METADATA_KEY, token);
+		User user = findUsersWithMetadataValues(ACTIVATION_TOKEN_METADATA_KEY, token);
 
 		if (user == null) {
 			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find token " + token);
@@ -121,6 +148,19 @@ public class UserService {
 		});
 
 		emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(), generateUserAccountActivationLink(userToken));
+	}
+
+	public void createExternalUser(User user, final String externalProviderId, String externalProviderToken, ExternalProviderType externalProviderType) {
+		transactionUtils.executeInNewTransaction(() -> {
+			user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
+			user.setGuid(GuidGenerator.generate());
+			user.setAccountStatus(AccountStatus.ACTIVE);
+			user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderId);
+			user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()), externalProviderToken);
+			userDao.persist(user);
+		});
+
+		emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
 	}
 
 	private String generateUserAccountActivationLink(String userToken) {
@@ -187,10 +227,10 @@ public class UserService {
 	}
 
 
-	private User findUsersWithToken(String tokenMetadataKey, String token) {
-		Query query = userDao.createNamedQuery("User.findUsersWithToken");
-		query.setParameter("tokenKeyName", tokenMetadataKey);
-		query.setParameter("token", token);
+	private User findUsersWithMetadataValues(String key, String value) {
+		Query query = userDao.createNamedQuery("User.findUsersWithMetadataValues");
+		query.setParameter("metadataKey", key);
+		query.setParameter("metadataValue", value);
 		return (User) query.uniqueResult();
 	}
 
@@ -290,7 +330,7 @@ public class UserService {
 	@Transactional
 	public User completePasswordReset(String token, String newPassword) {
 
-		User user = findUsersWithToken(RESET_PASSWORD_ACTIVATION_TOKEN, token);
+		User user = findUsersWithMetadataValues(RESET_PASSWORD_ACTIVATION_TOKEN, token);
 
 		if (user == null) {
 			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find token " + token);

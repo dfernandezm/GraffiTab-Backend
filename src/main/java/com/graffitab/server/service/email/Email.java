@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.amazonaws.util.IOUtils;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-
-import com.amazonaws.util.IOUtils;
 
 @Getter @Setter @Log4j2
 public class Email {
@@ -23,6 +23,7 @@ public class Email {
 	private String fromName;
 
 	private static String WELCOME_TEMPLATE_CONTENTS;
+	private static String WELCOME_EXTERNAL_TEMPLATE_CONTENTS;
 	private static String PASSWORD_RESET_TEMPLATE_CONTENTS;
 	private static String FEEDBACK_TEMPLATE_CONTENTS;
 
@@ -32,6 +33,7 @@ public class Email {
 	static {
 		try {
 			WELCOME_TEMPLATE_CONTENTS = readTemplate(EmailType.ACTIVATION.getTemplateName());
+			WELCOME_EXTERNAL_TEMPLATE_CONTENTS = readTemplate(EmailType.ACTIVATION_EXTERNAL.getTemplateName());
 			PASSWORD_RESET_TEMPLATE_CONTENTS = readTemplate(EmailType.RESET_PASSWORD.getTemplateName());
 			FEEDBACK_TEMPLATE_CONTENTS = readTemplate(EmailType.FEEDBACK.getTemplateName());
 		} catch (IOException e) {
@@ -47,6 +49,19 @@ public class Email {
 		email.setFromName(FROM_NAME);
 		email.setEmailType(emailType);
 		String emailBody = replacePlaceholders(placeHolders, WELCOME_TEMPLATE_CONTENTS);
+		email.setHtmlBody(emailBody);
+		email.setRecipients(recipients);
+		return email;
+	}
+
+	public static Email welcomeExternal(String[] recipients, Map<String, String> placeHolders) {
+		Email email = new Email();
+		EmailType emailType = EmailType.ACTIVATION_EXTERNAL;
+		email.setSubject("Welcome to GraffiTab");
+		email.setFromAddress(FROM_ADDRESS);
+		email.setFromName(FROM_NAME);
+		email.setEmailType(emailType);
+		String emailBody = replacePlaceholders(placeHolders, WELCOME_EXTERNAL_TEMPLATE_CONTENTS);
 		email.setHtmlBody(emailBody);
 		email.setRecipients(recipients);
 		return email;

@@ -30,6 +30,14 @@ public class EmailService {
 		sendEmailAsync(welcomeEmail);
 	}
 
+	public void sendWelcomeExternalEmail(String username, String email) {
+		Map<String,String> data = new HashMap<>();
+		data.put("@username", username);
+
+		Email welcomeEmail = Email.welcomeExternal(new String[] {email}, data);
+		sendEmailAsync(welcomeEmail);
+	}
+
 	public void sendResetPasswordEmail(String email, String resetPasswordLink) {
 		Map<String,String> data = new HashMap<>();
 		data.put("@reset_link", resetPasswordLink);
