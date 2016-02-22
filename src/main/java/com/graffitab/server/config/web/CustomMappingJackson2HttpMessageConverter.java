@@ -59,6 +59,18 @@ public class CustomMappingJackson2HttpMessageConverter extends AbstractJackson2H
         knownJavaTypes.add(javaType);
     }
 
+    @SuppressWarnings("unchecked")
+    private void replaceCustomDeserializerInObjectMapper(JavaType javaType) {
+
+    	customDeserializersJacksonModule = new SimpleModule();
+        GenericDeserializer deserializer = new GenericDeserializer(javaType.getRawClass(), propertyToExtract, delegate.getObjectMapper());
+        customDeserializersJacksonModule.addDeserializer(javaType.getRawClass(), deserializer);
+        currentObjectMapper = new ObjectMapper();
+        currentObjectMapper.registerModule(customDeserializersJacksonModule);
+        super.objectMapper = currentObjectMapper;
+
+    }
+
     @Override
     public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage)
             throws IOException, HttpMessageNotReadableException {
@@ -69,6 +81,8 @@ public class CustomMappingJackson2HttpMessageConverter extends AbstractJackson2H
 
             if (!knownJavaTypes.contains(javaType)) {
                 addCustomDeserializerToObjectMapper(javaType);
+            } else {
+            	replaceCustomDeserializerInObjectMapper(javaType);
             }
 
             return readJavaTypeFromStringInputMessage(javaType, messageString);

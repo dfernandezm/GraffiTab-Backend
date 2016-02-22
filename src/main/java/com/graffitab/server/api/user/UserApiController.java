@@ -206,7 +206,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
-	public ActionCompletedResult resetPassword(@JsonProperty(value = "email", required = true) String email) {
+	public ActionCompletedResult resetPassword(@JsonProperty(value = "email") String email) {
 
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
 		userService.resetPassword(email);
@@ -215,7 +215,8 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = "/resetpasswordwithtoken/{token}", method = RequestMethod.PUT)
-	public ActionCompletedResult completePasswordReset(@PathVariable(value = "token") String token, @JsonProperty(value = "password", required = true) String password) {
+	public ActionCompletedResult completePasswordReset(@PathVariable(value = "token") String token,
+														@JsonProperty(value = "password") String password) {
 
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
 		userService.completePasswordReset(token, password);

@@ -58,7 +58,7 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
         return delegateRequestResponseBodyMethodProcessor;
     }
 
-    private void provideCustomPropertyToExtractToJacksonCustomHttpMessageConverter(String propertyToExtract) {
+    private void setSpecificJsonPropertyToExtractInJacksonMessageConverter(String propertyToExtract) {
 
         List<HttpMessageConverter<?>> messageConverters =  converters;
 
@@ -77,21 +77,20 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
         JsonProperty annotation = parameter.getParameterAnnotation(JsonProperty.class);
         String propertyToExtract = annotation.value();
 
-        provideCustomPropertyToExtractToJacksonCustomHttpMessageConverter(propertyToExtract);
+        setSpecificJsonPropertyToExtractInJacksonMessageConverter(propertyToExtract);
 
         Object value;
+
         try {
         	 value = getDelegateRequestResponseBodyMethodProcessor().resolveArgument(parameter,mavContainer,webRequest,binderFactory);
-
-        	 if (value == null && annotation.required()) {
-        		 throw new RestApiException(ResultCode.BAD_REQUEST, "Required property " + propertyToExtract + " not provided.");
-        	 }
-
+        } catch (MissingJsonPropertyException mjpe) {
+        	throw mjpe;
         } catch(Throwable t) {
         	String msg = "Cannot process JSON payload";
         	log.error(msg, t);
         	throw new RestApiException(ResultCode.BAD_REQUEST, msg);
         }
+
         return value;
     }
 }

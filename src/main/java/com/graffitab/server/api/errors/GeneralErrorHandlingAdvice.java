@@ -1,6 +1,8 @@
 package com.graffitab.server.api.errors;
 
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import com.graffitab.server.config.web.MissingJsonPropertyException;
 
 @ControllerAdvice(annotations = RestController.class)
 public class GeneralErrorHandlingAdvice {
@@ -29,21 +33,28 @@ public class GeneralErrorHandlingAdvice {
     }
 
     @ExceptionHandler(value = Throwable.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public RestApiResult generalException(Throwable throwable, WebRequest request) {
+    public RestApiResult generalException(Throwable throwable, WebRequest request, HttpServletResponse response) {
 
     	RestApiResult errorResult = new RestApiResult();
 
     	if (throwable instanceof MethodArgumentTypeMismatchException) {
+    		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     		errorResult.setResultCode(ResultCode.BAD_REQUEST);
     		errorResult.setResultMessage("The argument passed to the endpoint is not of the expected type");
+    	} else if (throwable instanceof MissingJsonPropertyException) {
+    		MissingJsonPropertyException missingJsonPropertyException = (MissingJsonPropertyException) throwable;
+    		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    		errorResult.setResultCode(ResultCode.BAD_REQUEST);
+    		errorResult.setResultMessage("The required property " +
+    				missingJsonPropertyException.getRequestedJsonProperty() + " is not present in the request");
     	} else {
+    		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     		errorResult.setResultCode(ResultCode.GENERAL_ERROR);
     		errorResult.setResultMessage(throwable.getMessage());
     	}
 
-    	LOG.error("Unexpected error occurred", throwable);
+    	LOG.error("Error occurred processing request", throwable);
     	return errorResult;
     }
 }
