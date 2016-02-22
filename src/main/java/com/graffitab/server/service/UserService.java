@@ -100,19 +100,25 @@ public class UserService {
 			setAuthenticatedUserFromExternalId(user, externalId, accessToken, externalProviderType);
 		}
 
-//		Long tokenDate = Long.parseLong(user.getMetadataItems().get(ACTIVATION_TOKEN_DATE_METADATA_KEY));
-//		Long now = System.currentTimeMillis();
-//
-//		if ((now - tokenDate) > ACTIVATION_TOKEN_EXPIRATION_MS) {
-//			throw new RestApiException(ResultCode.TOKEN_EXPIRED, "This token has expired.");
-//		}
-//
-//		if (user.getAccountStatus() != AccountStatus.PENDING_ACTIVATION) {
-//			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
-//		}
-//
-//		user.setAccountStatus(AccountStatus.ACTIVE);
 		return user;
+	}
+
+	@Transactional
+	public void linkExternalProvider(String externalProviderId, String externalProviderToken, ExternalProviderType externalProviderType) {
+		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderToken);
+		User currentUser = getCurrentUser();
+
+		// Check if a user with that externalId already exists.
+		if (user != null) {
+			throw new RestApiException(ResultCode.ALREADY_EXISTS, "A user with externalId " + externalProviderId + " already exists");
+		}
+
+		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
+		}
+
+		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderId);
+		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()), externalProviderToken);
 	}
 
 	@Transactional

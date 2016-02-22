@@ -10,6 +10,7 @@ public enum ResultCode {
 	USER_NOT_LOGGED_IN(401),
 	USER_NOT_IN_EXPECTED_STATE(406),
 	INCORRECT_PASSWORD(403),
+	ALREADY_EXISTS(422),
 	GENERAL_ERROR(500);
 
 	private Integer statusCode;

@@ -118,7 +118,18 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 
-	@RequestMapping(value = "/externalprovider/verify", method = RequestMethod.POST)
+	@RequestMapping(value = "/me/externalprovider/link", method = RequestMethod.POST)
+	@Transactional()
+	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
+
+		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
+
+		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
+
+		return actionCompletedResult;
+	}
+
+	@RequestMapping(value = "/externalprovider/login", method = RequestMethod.POST)
 	@Transactional()
 	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto, HttpServletResponse response) {
 
@@ -126,6 +137,8 @@ public class UserApiController extends BaseApiController {
 
 		User user = userService.verifyExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
 		getUserResult.setUser(mapper.map(user, UserDto.class));
+
+		// TODO: Login user if they exist.
 
 		return getUserResult;
 	}
