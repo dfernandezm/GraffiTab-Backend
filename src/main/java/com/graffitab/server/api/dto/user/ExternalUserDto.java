@@ -5,8 +5,9 @@ import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderTyp
 import lombok.Data;
 
 @Data
-public class ExternalUserDto extends UserDto {
+public class ExternalUserDto {
 
+	private UserDto user;
 	private String externalId;
 	private String accessToken;
 	private ExternalProviderType externalProviderType;

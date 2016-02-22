@@ -6,8 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -38,6 +36,8 @@ import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -333,7 +333,7 @@ public class UserService {
 	}
 
 	private String generateResetPasswordLink(String resetPasswordToken) {
-		return generateBaseLink() + "/api/users/resetpassword/" + resetPasswordToken;
+		return generateBaseLink() + "/api/users/passwordreset/" + resetPasswordToken;
 	}
 
 	@Transactional

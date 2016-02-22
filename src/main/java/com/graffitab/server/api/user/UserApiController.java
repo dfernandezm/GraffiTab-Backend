@@ -35,7 +35,6 @@ import com.graffitab.server.api.dto.user.ExternalUserDto;
 import com.graffitab.server.api.dto.user.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
-import com.graffitab.server.api.dto.user.ResetPasswordDto;
 import com.graffitab.server.api.dto.user.UpdateUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserProfileDto;
@@ -146,13 +145,13 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/externalprovider"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
-	public CreateExternalUserResult createExternalUser(@JsonProperty("user") ExternalUserDto externalUserDto) {
+	public CreateExternalUserResult createExternalUser(@RequestBody ExternalUserDto externalUserDto) {
 
 		CreateExternalUserResult createExternalUserResult = new CreateExternalUserResult();
 
-		if (validateUser(externalUserDto)) {
-			if (externalUserDto.getId() == null) {
-				User user = mapper.map(externalUserDto, User.class);
+		if (validateUser(externalUserDto.getUser())) {
+			if (externalUserDto.getUser().getId() == null) {
+				User user = mapper.map(externalUserDto.getUser(), User.class);
 				userService.createExternalUser(user, externalUserDto.getExternalId(), externalUserDto.getAccessToken(), externalUserDto.getExternalProviderType());
 
 				UserDto outputUser = mapper.map(user, UserDto.class);
@@ -211,14 +210,15 @@ public class UserApiController extends BaseApiController {
 
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
 		userService.resetPassword(email);
+
 		return resetPasswordResult;
 	}
 
-	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.POST)
-	public ActionCompletedResult completePasswordReset(@PathVariable("token") String token, @RequestBody ResetPasswordDto resetPasswordDto) {
+	@RequestMapping(value = "/passwordreset/{token}", method = RequestMethod.PUT)
+	public ActionCompletedResult completePasswordReset(@PathVariable(value = "token") String token, @JsonProperty(value = "password", required = true) String password) {
 
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
-		userService.completePasswordReset(token, resetPasswordDto.getPassword());
+		userService.completePasswordReset(token, password);
 
 		return resetPasswordResult;
 	}
@@ -233,7 +233,7 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 
-	@RequestMapping(value = {"/me/{id}"}, method = RequestMethod.POST, consumes={"application/json"})
+	@RequestMapping(value = {"/me"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.OK)
 	@Transactional
 	public UpdateUserResult updateUser(@PathVariable("id") Long id, @JsonProperty("user") UserDto userDto) {
