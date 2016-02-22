@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.log4j.Log4j2;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -20,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.graffitab.server.api.authentication.ExternalIdAuthenticationToken;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
@@ -35,8 +38,6 @@ import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
-
-import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -95,6 +96,8 @@ public class UserService {
 
 		if (user == null) {
 			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with externalId " + externalId);
+		} else {
+			setAuthenticatedUserFromExternalId(user, externalId, accessToken, externalProviderType);
 		}
 
 //		Long tokenDate = Long.parseLong(user.getMetadataItems().get(ACTIVATION_TOKEN_DATE_METADATA_KEY));
@@ -384,6 +387,15 @@ public class UserService {
 		}
 
 		return user;
+	}
+
+	private void setAuthenticatedUserFromExternalId(User user, String externalId, String accessToken, ExternalProviderType externalProviderType) {
+		ExternalIdAuthenticationToken auth = new ExternalIdAuthenticationToken();
+		auth.setAccessToken(accessToken);
+		auth.setAuthenticated(true);
+		auth.setExternalId(externalId);
+		auth.setUser(user);
+		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 
 //	Criteria criteria = userDao.getBaseCriteria("u");

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -119,7 +120,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = "/externalprovider/verify", method = RequestMethod.POST)
 	@Transactional()
-	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
+	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto, HttpServletResponse response) {
 
 		GetUserResult getUserResult = new GetUserResult();
 

@@ -42,6 +42,18 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 		auth.authenticationProvider(daoAuthenticationProvider());
 	}
 
+//====  If multiple authentication providers are required ====
+//	@Bean
+//	public AuthenticationManager authenticationManager() {
+//		List<AuthenticationProvider> authenticationProviders = new ArrayList<>();
+//		authenticationProviders.add(daoAuthenticationProvider());
+//		authenticationProviders.add(externalIdAuthenticationProvider());
+//
+//		ProviderManager authManager = new ProviderManager(authenticationProviders);
+//		authManager.setEraseCredentialsAfterAuthentication(false);
+//		return authManager;
+//	}
+
 	@Bean
 	public UserDetailsService graffiTabUserDetailsService() {
 		return new GraffiTabUserDetailsService();
