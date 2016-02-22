@@ -214,7 +214,7 @@ public class UserApiController extends BaseApiController {
 		return resetPasswordResult;
 	}
 
-	@RequestMapping(value = "/passwordreset/{token}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/resetpasswordwithtoken/{token}", method = RequestMethod.PUT)
 	public ActionCompletedResult completePasswordReset(@PathVariable(value = "token") String token, @JsonProperty(value = "password", required = true) String password) {
 
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();

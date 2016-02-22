@@ -333,7 +333,7 @@ public class UserService {
 	}
 
 	private String generateResetPasswordLink(String resetPasswordToken) {
-		return generateBaseLink() + "/api/users/passwordreset/" + resetPasswordToken;
+		return generateBaseLink() + "/api/users/resetpasswordwithtoken/" + resetPasswordToken;
 	}
 
 	@Transactional
