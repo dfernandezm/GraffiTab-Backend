@@ -207,11 +207,10 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
-	public ActionCompletedResult resetPassword(@JsonProperty("email") String email) {
+	public ActionCompletedResult resetPassword(@JsonProperty(value = "email", required = true) String email) {
 
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
 		userService.resetPassword(email);
-
 		return resetPasswordResult;
 	}
 

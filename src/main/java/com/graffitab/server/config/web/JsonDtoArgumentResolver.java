@@ -82,6 +82,11 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
         Object value;
         try {
         	 value = getDelegateRequestResponseBodyMethodProcessor().resolveArgument(parameter,mavContainer,webRequest,binderFactory);
+
+        	 if (value == null && annotation.required()) {
+        		 throw new RestApiException(ResultCode.BAD_REQUEST, "Required property " + propertyToExtract + " not provided.");
+        	 }
+
         } catch(Throwable t) {
         	String msg = "Cannot process JSON payload";
         	log.error(msg, t);
