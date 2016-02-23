@@ -2,7 +2,13 @@ package com.graffitab.server.config.web;
 
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
+
 import lombok.extern.log4j.Log4j2;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -15,25 +21,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @SuppressWarnings("rawtypes")
 @Log4j2
-public class GenericDeserializer extends JsonDeserializer {
+@Component
+public class SinglePropertyJsonDeserializer extends JsonDeserializer {
 
-    private String propertyName;
     private Class<?> clazz;
     private ObjectMapper mapper;
 
-    public GenericDeserializer() {
-        super();
-    }
+    @Autowired
+    public MappingJackson2HttpMessageConverter delegate;
 
-    public GenericDeserializer(Class<?> clazz, String propertyName, ObjectMapper mapper) {
-        super();
-        this.propertyName = propertyName;
-        this.clazz = clazz;
-        this.mapper = mapper;
-    }
+    @PostConstruct
+    public void setup() {
+
+    	if (delegate != null) {
+    		this.mapper = delegate.getObjectMapper();
+    	} else {
+    		throw new IllegalStateException("Jackson delegate mapper is null");
+    	}
+ 	}
 
     @Override
     public Object deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+
+    	String propertyName = RunWithJsonProperty.get();
 
     	JsonNode node = jsonParser.getCodec().readTree(jsonParser);
         JsonNode extractedJsonNode = node.get(propertyName);
@@ -49,7 +59,15 @@ public class GenericDeserializer extends JsonDeserializer {
         }
 
         String extractedJson = extractedJsonNode.toString();
-        Object o = mapper.readValue(extractedJson, clazz);
-        return o;
+        Object value = mapper.readValue(extractedJson, clazz);
+        return value;
     }
+
+	public Class<?> getRawJavaClass() {
+		return clazz;
+	}
+
+	public void setRawJavaClass(Class<?> clazz) {
+		this.clazz = clazz;
+	}
 }

@@ -28,7 +28,7 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
 	private List<HttpMessageConverter<?>> converters;
 
 	@Autowired
-	private CustomMappingJackson2HttpMessageConverter jacksonConverter;
+	private SingleJsonPropertyMappingJackson2HttpMessageConverter jacksonConverter;
 
     private RequestResponseBodyMethodProcessor delegateRequestResponseBodyMethodProcessor = null;
 
@@ -58,26 +58,12 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
         return delegateRequestResponseBodyMethodProcessor;
     }
 
-    private void setSpecificJsonPropertyToExtractInJacksonMessageConverter(String propertyToExtract) {
-
-        List<HttpMessageConverter<?>> messageConverters =  converters;
-
-        for (HttpMessageConverter<?> messageConverter : messageConverters) {
-
-            if (messageConverter instanceof CustomMappingJackson2HttpMessageConverter) {
-                ((CustomMappingJackson2HttpMessageConverter) messageConverter).setPropertyToExtract(propertyToExtract);
-                return;
-            }
-        }
-        throw new IllegalStateException("Cannot find Jackson HttpMessageConverter, it is required for custom field extraction");
-    }
-
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         JsonProperty annotation = parameter.getParameterAnnotation(JsonProperty.class);
         String propertyToExtract = annotation.value();
 
-        setSpecificJsonPropertyToExtractInJacksonMessageConverter(propertyToExtract);
+        RunWithJsonProperty.set(propertyToExtract);
 
         Object value;
 
@@ -89,8 +75,11 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
         	String msg = "Cannot process JSON payload";
         	log.error(msg, t);
         	throw new RestApiException(ResultCode.BAD_REQUEST, msg);
+        } finally {
+        	RunWithJsonProperty.reset();
         }
 
         return value;
     }
 }
+
