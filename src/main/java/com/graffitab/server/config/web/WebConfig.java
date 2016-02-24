@@ -67,8 +67,8 @@ public class WebConfig extends WebMvcConfigurationSupport {
 	}
 
 	@Bean
-	public CustomMappingJackson2HttpMessageConverter jacksonHttpMessageConverter() {
-		return new CustomMappingJackson2HttpMessageConverter();
+	public SingleJsonPropertyMappingJackson2HttpMessageConverter jacksonHttpMessageConverter() {
+		return new SingleJsonPropertyMappingJackson2HttpMessageConverter();
 	}
 
 	@Bean
