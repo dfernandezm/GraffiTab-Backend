@@ -29,16 +29,11 @@ public class SingleJsonPropertyMappingJackson2HttpMessageConverter extends Abstr
     @Autowired
     public SinglePropertyJsonDeserializer singlePropertyJsonDeserializer;
 
-    private List<JavaType> knownJavaTypes;
-
     private Map<String, SinglePropertyJsonDeserializer> jsonPropertiesToDeserializer = new ConcurrentHashMap<>();
-
-    public static ThreadLocal<SinglePropertyJsonDeserializer> propertyDeserializerThreadLocal = new ThreadLocal<>();
 
     public SingleJsonPropertyMappingJackson2HttpMessageConverter() {
         super(new ObjectMapper(), new MediaType("application", "json", DEFAULT_CHARSET),
                 new MediaType("application", "*+json", DEFAULT_CHARSET));
-        this.knownJavaTypes = new ArrayList<>();
     }
 
     @Override
