@@ -101,7 +101,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
                   .requestMatchers()
                     .antMatchers(HttpMethod.POST, "/api/login", "/api/users", "/api/users/resetpassword", "/api/users/externalprovider/**")
                     .antMatchers(HttpMethod.GET, "/api/users/activate/**")
-                    .antMatchers(HttpMethod.PUT, "/api/users/resetpasswordwithtoken/**")
+                    .antMatchers(HttpMethod.PUT, "/api/users/resetpassword/**")
                     .and()
                     .authorizeRequests()
                     .anyRequest()

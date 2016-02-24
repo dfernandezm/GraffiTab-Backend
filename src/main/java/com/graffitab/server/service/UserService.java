@@ -29,6 +29,8 @@ import com.graffitab.server.api.errors.UserNotLoggedInException;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.Asset.AssetType;
+import com.graffitab.server.persistence.model.Device;
+import com.graffitab.server.persistence.model.Device.OSType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
@@ -48,6 +50,9 @@ public class UserService {
 
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
+
+	@Resource
+	private HibernateDaoImpl<Device, Long> deviceDao;
 
 	@Resource
 	private PagingService<User> pagingService;
@@ -80,27 +85,38 @@ public class UserService {
 	public static final Long RESET_PASSWORD_TOKEN_EXPIRATION_MS = 30 * 60 * 1000L;
 
 	@Transactional(readOnly = true)
-	public UserDetails findUserByUsername(String username) throws UsernameNotFoundException {
+	public User getUser(Long id) {
+		User user = findUserById(id);
 
-		UserDetails userDetails = (UserDetails) findByUsername(username);
-
-		if (userDetails == null) {
-			throw new UsernameNotFoundException("The user " + username + " was not found");
-		}
-		return userDetails;
-	}
-
-	@Transactional
-	public User verifyExternalProvider(String externalId, String accessToken, ExternalProviderType externalProviderType) {
-		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalId);
-
-		if (user == null) {
-			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with externalId " + externalId);
-		} else {
-			setAuthenticatedUserFromExternalId(user, externalId, accessToken, externalProviderType);
+		if (user != null) {
+			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user with id " + id);
 		}
 
 		return user;
+	}
+
+	@Transactional(readOnly = true)
+	public User getCurrentUser() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.getPrincipal() != null) {
+			User currentUser = (User) auth.getPrincipal();
+			currentUser = findUserById(currentUser.getId());
+			return currentUser;
+		} else {
+			String msg = "Cannot get logged in user";
+			throw new UserNotLoggedInException(msg);
+		}
+	}
+
+	@Transactional(readOnly = true)
+	public User getUserByUsername(String username) {
+		try {
+			User user = (User) findUserByUsername(username);
+
+			return user;
+		} catch (UsernameNotFoundException e) {
+			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user " + username);
+		}
 	}
 
 	@Transactional
@@ -119,6 +135,56 @@ public class UserService {
 
 		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderId);
 		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()), externalProviderToken);
+	}
+
+	@Transactional
+	public User verifyExternalProvider(String externalId, String accessToken, ExternalProviderType externalProviderType) {
+		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalId);
+
+		if (user == null) {
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with externalId " + externalId);
+		} else {
+			setAuthenticatedUserFromExternalId(user, externalId, accessToken, externalProviderType);
+		}
+
+		return user;
+	}
+
+	@Transactional
+	public void registerDevice(String token, OSType osType) {
+		Device device = findDevicesWithTokenAndType(token, osType);
+		User currentUser = getCurrentUser();
+
+		// Check if a device with that token already exists.
+		if (device != null) {
+			throw new RestApiException(ResultCode.ALREADY_EXISTS, "A device with token " + token + " already exists");
+		}
+
+		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
+		}
+
+		Device toAdd = new Device();
+		toAdd.setToken(token);
+		toAdd.setOsType(osType);
+		currentUser.getDevices().add(toAdd);
+	}
+
+	@Transactional
+	public void unregisterDevice(String token, OSType osType) {
+		Device device = findDevicesWithTokenAndType(token, osType);
+		User currentUser = getCurrentUser();
+
+		// Check if a device with that token exists.
+		if (device == null) {
+			throw new RestApiException(ResultCode.NOT_FOUND, "A device with token " + token + " was not found");
+		}
+
+		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
+		}
+
+		currentUser.getDevices().remove(device);
 	}
 
 	@Transactional
@@ -172,77 +238,6 @@ public class UserService {
 		emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
 	}
 
-	private String generateUserAccountActivationLink(String userToken) {
-		String activationLink = generateBaseLink() + "/api/users/activate/" + userToken;
-		return activationLink;
-	}
-
-	/**
-	 * Returns the base server link i.e. http://www.graffitab.com:port
-	 *
-	 * @return
-	 */
-	private String generateBaseLink() {
-		return request.getScheme() + "://" +
-	             request.getServerName() +
-	             ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
-	}
-
-	@Transactional(readOnly = true)
-	public User findUserById(Long id) {
-		return userDao.find(id);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
-	public List<User> findAll() {
-		Query query = userDao.createNamedQuery("User.findAll");
-		return (List<User>) query.list();
-	}
-
-	@Transactional(readOnly = true)
-	public User findByUsername(String username) {
-		Criteria criteria = userDao.getBaseCriteria();
-		User user =
-				(User) criteria.add(Restrictions.eq("username", username)).uniqueResult();
-		return user;
-	}
-
-	@Transactional(readOnly = true)
-	public User findByEmail(String email) {
-
-		User user = (User) userDao.getBaseCriteria()
-										  .add(Restrictions.eq("email", email))
-										  .uniqueResult();
-		return user;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
-	public List<User> findUsersByUsernameWithDifferentId(String username, Long userId) {
-		Query query = userDao.createNamedQuery("User.findUsersWithUsername");
-		query.setParameter("username", username);
-		query.setParameter("userId", userId);
-		return query.list();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Transactional(readOnly = true)
-	public List<User> findUsersByEmailWithDifferentID(String email, Long userId) {
-		Query query = userDao.createNamedQuery("User.findUsersWithEmail");
-		query.setParameter("email", email);
-		query.setParameter("userId", userId);
-		return query.list();
-	}
-
-
-	private User findUsersWithMetadataValues(String key, String value) {
-		Query query = userDao.createNamedQuery("User.findUsersWithMetadataValues");
-		query.setParameter("metadataKey", key);
-		query.setParameter("metadataValue", value);
-		return (User) query.uniqueResult();
-	}
-
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public PagedList<User> searchUser(String query, Integer offset, Integer count) {
@@ -276,19 +271,6 @@ public class UserService {
 		});
 
 		return addedAsset;
-	}
-
-	@Transactional
-	public User getCurrentUser() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		if (auth != null && auth.getPrincipal() != null) {
-			User currentUser = (User) auth.getPrincipal();
-			currentUser = userDao.merge(currentUser);
-			return currentUser;
-		} else {
-			String msg = "Cannot get logged in user";
-			throw new UserNotLoggedInException(msg);
-		}
 	}
 
 	// TODO: Try to get it to work with Criteria
@@ -330,10 +312,6 @@ public class UserService {
 
 		emailService.sendResetPasswordEmail(email, generateResetPasswordLink(resetPasswordToken));
 		return user;
-	}
-
-	private String generateResetPasswordLink(String resetPasswordToken) {
-		return generateBaseLink() + "/api/users/resetpasswordwithtoken/" + resetPasswordToken;
 	}
 
 	@Transactional
@@ -393,6 +371,99 @@ public class UserService {
 		}
 
 		return user;
+	}
+
+	@Transactional(readOnly = true)
+	public User findUserById(Long id) {
+		return userDao.find(id);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public List<User> findAll() {
+		Query query = userDao.createNamedQuery("User.findAll");
+		return (List<User>) query.list();
+	}
+
+	@Transactional(readOnly = true)
+	public UserDetails findUserByUsername(String username) throws UsernameNotFoundException {
+
+		UserDetails userDetails = (UserDetails) findByUsername(username);
+
+		if (userDetails == null) {
+			throw new UsernameNotFoundException("The user " + username + " was not found");
+		}
+
+		return userDetails;
+	}
+
+	@Transactional(readOnly = true)
+	public User findByUsername(String username) {
+		Criteria criteria = userDao.getBaseCriteria();
+		User user =
+				(User) criteria.add(Restrictions.eq("username", username)).uniqueResult();
+		return user;
+	}
+
+	@Transactional(readOnly = true)
+	public User findByEmail(String email) {
+
+		User user = (User) userDao.getBaseCriteria()
+										  .add(Restrictions.eq("email", email))
+										  .uniqueResult();
+		return user;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public List<User> findUsersByUsernameWithDifferentId(String username, Long userId) {
+		Query query = userDao.createNamedQuery("User.findUsersWithUsername");
+		query.setParameter("username", username);
+		query.setParameter("userId", userId);
+		return query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public List<User> findUsersByEmailWithDifferentID(String email, Long userId) {
+		Query query = userDao.createNamedQuery("User.findUsersWithEmail");
+		query.setParameter("email", email);
+		query.setParameter("userId", userId);
+		return query.list();
+	}
+
+	private User findUsersWithMetadataValues(String key, String value) {
+		Query query = userDao.createNamedQuery("User.findUsersWithMetadataValues");
+		query.setParameter("metadataKey", key);
+		query.setParameter("metadataValue", value);
+		return (User) query.uniqueResult();
+	}
+
+	private Device findDevicesWithTokenAndType(String token, OSType osType) {
+		Query query = deviceDao.createNamedQuery("Device.findDevicesWithToken");
+		query.setParameter("token", token);
+		query.setParameter("osType", osType);
+		return (Device) query.uniqueResult();
+	}
+
+	/**
+	 * Returns the base server link i.e. http://www.graffitab.com:port
+	 *
+	 * @return
+	 */
+	private String generateBaseLink() {
+		return request.getScheme() + "://" +
+	             request.getServerName() +
+	             ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
+	}
+
+	private String generateResetPasswordLink(String resetPasswordToken) {
+		return generateBaseLink() + "/api/users/resetpassword/" + resetPasswordToken;
+	}
+
+	private String generateUserAccountActivationLink(String userToken) {
+		String activationLink = generateBaseLink() + "/api/users/activate/" + userToken;
+		return activationLink;
 	}
 
 	private void setAuthenticatedUserFromExternalId(User user, String externalId, String accessToken, ExternalProviderType externalProviderType) {

@@ -1,4 +1,4 @@
-package com.graffitab.server.api.user;
+package com.graffitab.server.api.controller.user;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +22,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graffitab.server.api.BaseApiController;
+import com.graffitab.server.api.controller.BaseApiController;
 import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.asset.AddAssetResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
+import com.graffitab.server.api.dto.device.DeviceDto;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
 import com.graffitab.server.api.dto.user.CreateExternalUserResult;
 import com.graffitab.server.api.dto.user.CreateUserResult;
@@ -71,17 +71,12 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
-	public GetUserResult getUser(@PathVariable("id") Long id, HttpServletRequest request) {
+	public GetUserResult getUser(@PathVariable("id") Long id) {
 
 		GetUserResult getUserResult = new GetUserResult();
-		User user = userService.findUserById(id);
 
-		if (user != null) {
-			LOG.info("Returning user with id " + id);
-			getUserResult.setUser(mapper.map(user, UserDto.class));
-		} else {
-			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user with id " + id);
-		}
+		User user = userService.findUserById(id);
+		getUserResult.setUser(mapper.map(user, UserDto.class));
 
 		return getUserResult;
 	}
@@ -103,16 +98,9 @@ public class UserApiController extends BaseApiController {
 	public GetUserResult getUserByUsername(@PathVariable("username") String username) {
 
 		GetUserResult getUserResult = new GetUserResult();
-		User user;
 
-		try {
-			user = (User) userService.findUserByUsername(username);
-
-			getUserResult.setUser(mapper.map(user, UserDto.class));
-		} catch (UsernameNotFoundException e) {
-			LOG.info("Could not find user " + username);
-			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user " + username);
-		}
+		User user = (User) userService.getUserByUsername(username);
+		getUserResult.setUser(mapper.map(user, UserDto.class));
 
 		return getUserResult;
 	}
@@ -128,6 +116,28 @@ public class UserApiController extends BaseApiController {
 		return actionCompletedResult;
 	}
 
+	@RequestMapping(value = "/me/device", method = RequestMethod.POST)
+	@Transactional()
+	public ActionCompletedResult registerDevice(@JsonProperty("device") DeviceDto deviceDto) {
+
+		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
+
+		userService.registerDevice(deviceDto.getToken(), deviceDto.getOsType());
+
+		return actionCompletedResult;
+	}
+
+	@RequestMapping(value = "/me/device", method = RequestMethod.DELETE)
+	@Transactional()
+	public ActionCompletedResult unregisterDevice(@JsonProperty("device") DeviceDto deviceDto) {
+
+		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
+
+		userService.unregisterDevice(deviceDto.getToken(), deviceDto.getOsType());
+
+		return actionCompletedResult;
+	}
+
 	@RequestMapping(value = "/externalprovider/login", method = RequestMethod.POST)
 	@Transactional()
 	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto, HttpServletResponse response) {
@@ -136,8 +146,6 @@ public class UserApiController extends BaseApiController {
 
 		User user = userService.verifyExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
 		getUserResult.setUser(mapper.map(user, UserDto.class));
-
-		// TODO: Login user if they exist.
 
 		return getUserResult;
 	}
@@ -214,7 +222,7 @@ public class UserApiController extends BaseApiController {
 		return resetPasswordResult;
 	}
 
-	@RequestMapping(value = "/resetpasswordwithtoken/{token}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.PUT)
 	public ActionCompletedResult completePasswordReset(@PathVariable(value = "token") String token,
 														@JsonProperty(value = "password") String password) {
 

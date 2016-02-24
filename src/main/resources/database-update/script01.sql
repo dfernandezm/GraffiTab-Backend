@@ -72,3 +72,15 @@ ALTER TABLE gt_user DROP COLUMN cover_id;
 
 --changeset georgi:v100cs13
 ALTER TABLE gt_user DROP COLUMN external_id;
+
+--changeset georgi:v100cs14
+ALTER TABLE device DROP FOREIGN KEY del_device_on_person;
+ALTER TABLE device CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE device MODIFY token varchar(1000) NOT NULL;
+ALTER TABLE device CHANGE os os_type varchar(11) NOT NULL;
+
+--changeset georgi:v100cs15
+ALTER TABLE device ADD CONSTRAINT device_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id)
+
+--changeset georgi:v100cs16
+alter table device add order_key int(11) not null;

@@ -51,6 +51,12 @@
             <element column="metadata_value" type="string"/>
         </map>
 
+		<!-- Bidirectional mapping -->
+        <list name="devices" cascade="all,delete-orphan" table="device">
+            <key column="user_id" not-null="true" />
+            <list-index column="order_key" />
+        	<one-to-many class="com.graffitab.server.persistence.model.Device" />
+        </list>
      </class>
 
      <query name="User.findAll">

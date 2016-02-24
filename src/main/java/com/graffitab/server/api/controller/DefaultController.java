@@ -1,4 +1,4 @@
-package com.graffitab.server.api;
+package com.graffitab.server.api.controller;
 
 import javax.servlet.http.HttpServletRequest;
 

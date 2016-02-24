@@ -43,6 +43,7 @@ public class User implements Identifiable<Long>, UserDetails {
 	private Set<User> followers = new HashSet<>();
 	private Set<User> following = new HashSet<>();
 	private List<Asset> assets = new ArrayList<>();
+	private List<Device> devices = new ArrayList<>();
 	private Boolean followedByCurrentUser = Boolean.FALSE;
 	private Map<String, String> metadataItems = new HashMap<>();
 	private AccountStatus accountStatus = AccountStatus.PENDING_ACTIVATION;
