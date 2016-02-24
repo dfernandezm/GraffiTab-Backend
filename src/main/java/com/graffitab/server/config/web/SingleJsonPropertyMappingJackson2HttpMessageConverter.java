@@ -2,8 +2,6 @@ package com.graffitab.server.config.web;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,6 +28,7 @@ public class SingleJsonPropertyMappingJackson2HttpMessageConverter extends Abstr
     public SinglePropertyJsonDeserializer singlePropertyJsonDeserializer;
 
     private Map<String, SinglePropertyJsonDeserializer> jsonPropertiesToDeserializer = new ConcurrentHashMap<>();
+
 
     public SingleJsonPropertyMappingJackson2HttpMessageConverter() {
         super(new ObjectMapper(), new MediaType("application", "json", DEFAULT_CHARSET),
@@ -70,8 +69,6 @@ public class SingleJsonPropertyMappingJackson2HttpMessageConverter extends Abstr
        	 	newObjectMapper.registerModule(simpleModule);
 
             super.setObjectMapper(newObjectMapper);
-
-            knownJavaTypes.add(javaType);
 
             jsonPropertiesToDeserializer.put(propertyToExtract, singlePropertyJsonDeserializer);
     	}
