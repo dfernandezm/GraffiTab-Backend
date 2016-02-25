@@ -39,6 +39,7 @@ import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
+import com.graffitab.server.util.GuidGenerator;
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -182,13 +183,13 @@ public class UserApiTest {
 
 	    private User createUser() {
 	    	fillTestUser();
-	    	userService.createUser(testUser);
+	    	userService.createUser(testUser, GuidGenerator.generate());
 	    	return testUser;
 	    }
 
 	    private User createUser2() {
 	    	fillTestUser2();
-	    	userService.createUser(testUser2);
+	    	userService.createUser(testUser2, GuidGenerator.generate());
 	    	return testUser2;
 	    }
 

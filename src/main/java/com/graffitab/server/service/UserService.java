@@ -26,6 +26,8 @@ import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.errors.UserNotLoggedInException;
+import com.graffitab.server.api.errors.ValidationErrorException;
+import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.Asset.AssetType;
@@ -61,6 +63,9 @@ public class UserService {
 	private DatastoreService datastoreService;
 
 	@Resource
+	private ValidationService validationService;
+
+	@Resource
 	private PasswordEncoder passwordEncoder;
 
 	@Resource
@@ -68,6 +73,9 @@ public class UserService {
 
 	@Resource
 	private EmailService emailService;
+
+	@Resource
+	private OrikaMapper mapper;
 
 	@Resource
 	private HttpServletRequest request;
@@ -93,6 +101,17 @@ public class UserService {
 		}
 
 		return user;
+	}
+
+	@Transactional(readOnly = true)
+	public User getUserProfile(Long id) {
+		User user = findUserById(id);
+
+		if (user != null) {
+			return user;
+		} else {
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with id " + id);
+		}
 	}
 
 	@Transactional(readOnly = true)
@@ -210,32 +229,67 @@ public class UserService {
 		return user;
 	}
 
-	public void createUser(User user) {
-		final String userToken = GuidGenerator.generate();
+	public User createUser(User user, String userToken) {
+		if (validationService.validateUser(user)) {
+			if (user.getId() == null) {
+				transactionUtils.executeInNewTransaction(() -> {
+					user.setPassword(passwordEncoder.encode(user.getPassword()));
+					user.setGuid(GuidGenerator.generate());
+					user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
+					user.getMetadataItems().put(ACTIVATION_TOKEN_METADATA_KEY, userToken);
+					user.getMetadataItems().put(ACTIVATION_TOKEN_DATE_METADATA_KEY, System.currentTimeMillis() + "");
+					userDao.persist(user);
+				});
 
-		transactionUtils.executeInNewTransaction(() -> {
-			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			user.setGuid(GuidGenerator.generate());
-			user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
-			user.getMetadataItems().put(ACTIVATION_TOKEN_METADATA_KEY, userToken);
-			user.getMetadataItems().put(ACTIVATION_TOKEN_DATE_METADATA_KEY, System.currentTimeMillis() + "");
-			userDao.persist(user);
-		});
+				emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(), generateUserAccountActivationLink(userToken));
 
-		emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(), generateUserAccountActivationLink(userToken));
+				return user;
+			}
+			else {
+				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
+			}
+		}
+		else {
+			throw new ValidationErrorException("Validation error creating user");
+		}
 	}
 
-	public void createExternalUser(User user, final String externalProviderId, String externalProviderToken, ExternalProviderType externalProviderType) {
-		transactionUtils.executeInNewTransaction(() -> {
-			user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
-			user.setGuid(GuidGenerator.generate());
-			user.setAccountStatus(AccountStatus.ACTIVE);
-			user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderId);
-			user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()), externalProviderToken);
-			userDao.persist(user);
-		});
+	public User createExternalUser(User user, final String externalProviderId, String externalProviderToken, ExternalProviderType externalProviderType) {
+		if (validationService.validateUser(user)) {
+			if (user.getId() == null) {
+				transactionUtils.executeInNewTransaction(() -> {
+					user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
+					user.setGuid(GuidGenerator.generate());
+					user.setAccountStatus(AccountStatus.ACTIVE);
+					user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderId);
+					user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()), externalProviderToken);
+					userDao.persist(user);
+				});
 
-		emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
+				emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
+
+				return user;
+			}
+			else {
+				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
+			}
+		}
+		else {
+			throw new ValidationErrorException("Validation error creating user");
+		}
+	}
+
+	@Transactional
+	public User updateUser(User u) {
+		if (validationService.validateUser(u)) {
+			User user = getCurrentUser();
+			mapper.map(u, user);
+
+			return user;
+
+		} else {
+			throw new ValidationErrorException("Validation error updating user");
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -293,6 +347,36 @@ public class UserService {
 		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.getFollowing().contains(u)));
 
 		return users;
+	}
+
+	@Transactional
+	public User follow(Long toFollowId) {
+		User toFollow = findUserById(toFollowId);
+
+		if (toFollow != null) {
+			User currentUser = getCurrentUser();
+
+			currentUser.getFollowing().add(toFollow);
+
+			return toFollow;
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + toFollowId + " not found");
+		}
+	}
+
+	@Transactional
+	public User unfollow(Long toUnfollowId) {
+		User toUnfollow = findUserById(toUnfollowId);
+
+		if (toUnfollow != null) {
+			User currentUser = getCurrentUser();
+
+			currentUser.getFollowing().remove(toUnfollow);
+
+			return toUnfollow;
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + toUnfollowId + " not found");
+		}
 	}
 
 	public User resetPassword(String email) {

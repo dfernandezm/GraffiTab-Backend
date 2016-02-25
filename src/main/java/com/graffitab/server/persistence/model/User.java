@@ -90,10 +90,6 @@ public class User implements Identifiable<Long>, UserDetails {
 		return username;
 	}
 
-	public void follow(User userToFollow) {
-		following.add(userToFollow);
-	}
-
 	public void unfollow(User userToUnfollow) {
 		following.remove(userToUnfollow);
 	}

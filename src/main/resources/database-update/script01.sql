@@ -80,7 +80,44 @@ ALTER TABLE device MODIFY token varchar(1000) NOT NULL;
 ALTER TABLE device CHANGE os os_type varchar(11) NOT NULL;
 
 --changeset georgi:v100cs15
-ALTER TABLE device ADD CONSTRAINT device_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id)
+ALTER TABLE device ADD CONSTRAINT device_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
 
 --changeset georgi:v100cs16
 alter table device add order_key int(11) not null;
+
+--changeset georgi:v100cs17
+ALTER TABLE activity DROP FOREIGN KEY del_activity_on_person;
+ALTER TABLE activity CHANGE userId user_id bigint(20) NOT NULL;
+alter table activity add commenter_id bigint(20);
+alter table activity add commented_item_id bigint(20);
+alter table activity add comment_id bigint(20);
+alter table activity add created_item_id bigint(20);
+alter table activity add creator_id bigint(20);
+alter table activity add followed_user_id bigint(20);
+alter table activity add follower_id bigint(20);
+alter table activity add liked_item_id bigint(20);
+alter table activity add liker_id bigint(20);
+ALTER TABLE activity ADD CONSTRAINT activity_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
+drop table activityComment;
+drop table activityCreateStreamable;
+drop table activityFollow;
+drop table activityLike;
+
+--changeset georgi:v100cs18
+ALTER TABLE notification DROP FOREIGN KEY del_notification_on_person;
+ALTER TABLE notification CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE notification CHANGE isRead is_read int(11) NOT NULL DEFAULT 0;
+alter table notification add commenter_id bigint(20);
+alter table notification add commented_item_id bigint(20);
+alter table notification add comment_id bigint(20);
+alter table notification add follower_id bigint(20);
+alter table notification add liked_item_id bigint(20);
+alter table notification add liker_id bigint(20);
+alter table notification add mentioned_item_id bigint(20);
+alter table notification add mentioner_id bigint(20);
+ALTER TABLE notification ADD CONSTRAINT notification_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
+drop table notificationComment;
+drop table notificationFollow;
+drop table notificationLike;
+drop table notificationMention;
+drop table notificationWelcome;
