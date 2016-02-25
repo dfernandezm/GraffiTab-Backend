@@ -280,12 +280,12 @@ public class UserService {
 	}
 
 	@Transactional
-	public User updateUser(User u) {
-		if (validationService.validateUser(u)) {
-			User user = getCurrentUser();
-			mapper.map(u, user);
+	public User updateUser(User user) {
+		if (validationService.validateUser(user)) {
+			User currentUser = getCurrentUser();
+			mapper.map(user, currentUser);
 
-			return user;
+			return currentUser;
 
 		} else {
 			throw new ValidationErrorException("Validation error updating user");
