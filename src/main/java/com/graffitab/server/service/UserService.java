@@ -139,29 +139,37 @@ public class UserService {
 	}
 
 	@Transactional
-	public void linkExternalProvider(String externalProviderId, String externalProviderToken, ExternalProviderType externalProviderType) {
-		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderToken);
+	public void linkExternalProvider(String externalProviderId, String externalProviderToken,
+			ExternalProviderType externalProviderType) {
+		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
+				externalProviderToken);
 		User currentUser = getCurrentUser();
 
 		// Check if a user with that externalId already exists.
 		if (user != null) {
-			throw new RestApiException(ResultCode.ALREADY_EXISTS, "A user with externalId " + externalProviderId + " already exists");
+			throw new RestApiException(ResultCode.ALREADY_EXISTS,
+					"A user with externalId " + externalProviderId + " already exists");
 		}
 
 		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
 			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
 		}
 
-		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderId);
-		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()), externalProviderToken);
+		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
+				externalProviderId);
+		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
+				externalProviderToken);
 	}
 
 	@Transactional
-	public User verifyExternalProvider(String externalId, String accessToken, ExternalProviderType externalProviderType) {
-		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalId);
+	public User verifyExternalProvider(String externalId, String accessToken,
+			ExternalProviderType externalProviderType) {
+		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
+				externalId);
 
 		if (user == null) {
-			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with externalId " + externalId);
+			throw new EntityNotFoundException(ResultCode.NOT_FOUND,
+					"Could not find user with externalId " + externalId);
 		} else {
 			setAuthenticatedUserFromExternalId(user, externalId, accessToken, externalProviderType);
 		}
@@ -241,40 +249,42 @@ public class UserService {
 					userDao.persist(user);
 				});
 
-				emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(), generateUserAccountActivationLink(userToken));
+//				emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(),
+//						generateUserAccountActivationLink(userToken));
 
 				return user;
+			} else {
+				throw new RestApiException(ResultCode.BAD_REQUEST,
+						"ID has been provided to create endpoint -- This is not allowed");
 			}
-			else {
-				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
-			}
-		}
-		else {
+		} else {
 			throw new ValidationErrorException("Validation error creating user");
 		}
 	}
 
-	public User createExternalUser(User user, final String externalProviderId, String externalProviderToken, ExternalProviderType externalProviderType) {
+	public User createExternalUser(User user, final String externalProviderId, String externalProviderToken,
+			ExternalProviderType externalProviderType) {
 		if (validationService.validateUser(user)) {
 			if (user.getId() == null) {
 				transactionUtils.executeInNewTransaction(() -> {
 					user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
 					user.setGuid(GuidGenerator.generate());
 					user.setAccountStatus(AccountStatus.ACTIVE);
-					user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()), externalProviderId);
-					user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()), externalProviderToken);
+					user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
+							externalProviderId);
+					user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
+							externalProviderToken);
 					userDao.persist(user);
 				});
 
 				emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
 
 				return user;
+			} else {
+				throw new RestApiException(ResultCode.BAD_REQUEST,
+						"ID has been provided to create endpoint -- This is not allowed");
 			}
-			else {
-				throw new RestApiException(ResultCode.BAD_REQUEST, "ID has been provided to create endpoint -- This is not allowed");
-			}
-		}
-		else {
+		} else {
 			throw new ValidationErrorException("Validation error creating user");
 		}
 	}
@@ -310,13 +320,13 @@ public class UserService {
 		return new PagedList<User>(listUsers, total, offset);
 	}
 
-
 	public Asset addAssetToCurrentUser(InputStream assetInputStream, AssetType assetType, long contentLength) {
 
 		Asset assetToAdd = Asset.asset(assetType);
 
-		//TODO: Bring back this when we have new AWS Keys
-		// datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid(), assetType, null);
+		// TODO: Bring back this when we have new AWS Keys
+		// datastoreService.saveAsset(assetInputStream, contentLength,
+		// user.getGuid(), assetToAdd.getGuid(), assetType, null);
 
 		Asset addedAsset = transactionUtils.executeInTransactionWithResult(() -> {
 			User currentUser = getCurrentUser();
@@ -330,17 +340,17 @@ public class UserService {
 	// TODO: Try to get it to work with Criteria
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public PagedList<User> getFollowingOrFollowers(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
+	public PagedList<User> getFollowingOrFollowers(boolean shouldGetFollowers, Long userId, Integer offset,
+			Integer count) {
 		User user = (userId == null) ? getCurrentUser() : findUserById(userId);
 
-		Query query = userDao.createQuery("select f from User u " +
-										  "join u." + (shouldGetFollowers ? "followers" : "following") + " f " +
-										  "where u = :currentUser");
+		Query query = userDao.createQuery("select f from User u " + "join u."
+				+ (shouldGetFollowers ? "followers" : "following") + " f " + "where u = :currentUser");
 		query.setParameter("currentUser", user);
 		query.setFirstResult(offset != null ? offset : 0);
 		query.setMaxResults(count != null ? count : 10);
 
-		PagedList<User> users = new PagedList<>((List<User>)query.list(), offset, count);
+		PagedList<User> users = new PagedList<>((List<User>) query.list(), offset, count);
 
 		User currentUser = getCurrentUser();
 		// Check if the current user is following user u from the list.
@@ -385,7 +395,8 @@ public class UserService {
 			User innerUser = findByEmail(email);
 
 			if (innerUser == null) {
-				throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "User with email: " + email + " not found");
+				throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND,
+						"User with email: " + email + " not found");
 			}
 
 			innerUser.setAccountStatus(AccountStatus.RESET_PASSWORD);
@@ -422,7 +433,7 @@ public class UserService {
 		user.setAccountStatus(AccountStatus.ACTIVE);
 		user.setPassword(passwordEncoder.encode(newPassword));
 
-		//TODO: Logout from all devices
+		// TODO: Logout from all devices
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully reset password for user " + user.getUsername());
@@ -448,7 +459,7 @@ public class UserService {
 
 		user.setPassword(passwordEncoder.encode(newPassword));
 
-		//TODO: Logout from all devices
+		// TODO: Logout from all devices
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully changed password for user " + user.getUsername());
@@ -484,17 +495,14 @@ public class UserService {
 	@Transactional(readOnly = true)
 	public User findByUsername(String username) {
 		Criteria criteria = userDao.getBaseCriteria();
-		User user =
-				(User) criteria.add(Restrictions.eq("username", username)).uniqueResult();
+		User user = (User) criteria.add(Restrictions.eq("username", username)).uniqueResult();
 		return user;
 	}
 
 	@Transactional(readOnly = true)
 	public User findByEmail(String email) {
 
-		User user = (User) userDao.getBaseCriteria()
-										  .add(Restrictions.eq("email", email))
-										  .uniqueResult();
+		User user = (User) userDao.getBaseCriteria().add(Restrictions.eq("email", email)).uniqueResult();
 		return user;
 	}
 
@@ -536,9 +544,8 @@ public class UserService {
 	 * @return
 	 */
 	private String generateBaseLink() {
-		return request.getScheme() + "://" +
-	             request.getServerName() +
-	             ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
+		return request.getScheme() + "://" + request.getServerName()
+				+ ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
 	}
 
 	private String generateResetPasswordLink(String resetPasswordToken) {
@@ -550,7 +557,8 @@ public class UserService {
 		return activationLink;
 	}
 
-	private void setAuthenticatedUserFromExternalId(User user, String externalId, String accessToken, ExternalProviderType externalProviderType) {
+	private void setAuthenticatedUserFromExternalId(User user, String externalId, String accessToken,
+			ExternalProviderType externalProviderType) {
 		ExternalIdAuthenticationToken auth = new ExternalIdAuthenticationToken();
 		auth.setAccessToken(accessToken);
 		auth.setAuthenticated(true);
@@ -559,20 +567,18 @@ public class UserService {
 		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 
-//	Criteria criteria = userDao.getBaseCriteria("u");
-//	criteria.createAlias("u.followers", "f")
-//			.add(Restrictions.eq("u.id", getCurrentUser().getId())).setProjection(Projections.);
-//	PagedList<User> followers = userDao.findPaged(criteria, offset, count);
+	// Criteria criteria = userDao.getBaseCriteria("u");
+	// criteria.createAlias("u.followers", "f")
+	// .add(Restrictions.eq("u.id",
+	// getCurrentUser().getId())).setProjection(Projections.);
+	// PagedList<User> followers = userDao.findPaged(criteria, offset, count);
 
-/*
- List results = session.createCriteria(Domestic.class, "cat")
-  .createAlias("kittens", "kit")
-  .setProjection( Projections.projectionList()
-    .add( Projections.property("cat.name"), "catName" )
-    .add( Projections.property("kit.name"), "kitName" )
-)
-.addOrder( Order.asc("catName") )
-.addOrder( Order.asc("kitName") )
-.list();
-*/
+	/*
+	 * List results = session.createCriteria(Domestic.class, "cat")
+	 * .createAlias("kittens", "kit") .setProjection(
+	 * Projections.projectionList() .add( Projections.property("cat.name"),
+	 * "catName" ) .add( Projections.property("kit.name"), "kitName" ) )
+	 * .addOrder( Order.asc("catName") ) .addOrder( Order.asc("kitName") )
+	 * .list();
+	 */
 }

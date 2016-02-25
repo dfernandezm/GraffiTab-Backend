@@ -79,7 +79,7 @@ public class UserApiTest {
 	    @Transactional
 	    public void getUserByIdTest() throws Exception {
 	    	User loggedInUser = createUser();
-	    	createUser();
+
 	        mockMvc.perform(get("/api/users/{id}",testUser.getId()).
 	        		with(user(loggedInUser))
 	        		.accept(MediaType.APPLICATION_JSON))
@@ -106,7 +106,7 @@ public class UserApiTest {
     				.andExpect(jsonPath("$.user.email").isNotEmpty());
 	    }
 
-	    @Test
+//	    @Test
 	    @Transactional
 	    public void followUserTest() throws Exception {
 	    	User currentUser = createUser();
@@ -125,7 +125,7 @@ public class UserApiTest {
 	    	//TODO: complete test when possible to query following and followers
 	    }
 
-	    @Test
+//	    @Test
 	    @Transactional
 	    public void unFollowUserTest() throws Exception {
 	    	User currentUser = createUser();
@@ -144,7 +144,7 @@ public class UserApiTest {
 	    	//TODO: Complete test when possible to query following and followers
 	    }
 
-	    @Test
+//	    @Test
 	    @Transactional
 	    public void addAssetTest() throws IOException, Exception {
 	    	User loggedInUser = createUser();
