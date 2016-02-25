@@ -121,3 +121,6 @@ drop table notificationFollow;
 drop table notificationLike;
 drop table notificationMention;
 drop table notificationWelcome;
+
+--changeset georgi:v100cs19
+alter table following add order_key int(11) not null;

@@ -249,8 +249,8 @@ public class UserService {
 					userDao.persist(user);
 				});
 
-//				emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(),
-//						generateUserAccountActivationLink(userToken));
+				emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(),
+						generateUserAccountActivationLink(userToken));
 
 				return user;
 			} else {
@@ -354,7 +354,7 @@ public class UserService {
 
 		User currentUser = getCurrentUser();
 		// Check if the current user is following user u from the list.
-		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.getFollowing().contains(u)));
+		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.isFollowing(u)));
 
 		return users;
 	}
@@ -366,7 +366,9 @@ public class UserService {
 		if (toFollow != null) {
 			User currentUser = getCurrentUser();
 
-			currentUser.getFollowing().add(toFollow);
+			if (!currentUser.isFollowing(toFollow)) {
+				currentUser.getFollowing().add(toFollow);
+			}
 
 			return toFollow;
 		} else {

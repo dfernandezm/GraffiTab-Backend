@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -40,8 +38,8 @@ public class User implements Identifiable<Long>, UserDetails {
 	private String email;
 	private String website;
 	private String about;
-	private Set<User> followers = new HashSet<>();
-	private Set<User> following = new HashSet<>();
+	private List<User> followers = new ArrayList<>();
+	private List<User> following = new ArrayList<>();
 	private List<Asset> assets = new ArrayList<>();
 	private List<Device> devices = new ArrayList<>();
 	private Boolean followedByCurrentUser = Boolean.FALSE;
@@ -90,9 +88,14 @@ public class User implements Identifiable<Long>, UserDetails {
 		return username;
 	}
 
-	public void unfollow(User userToUnfollow) {
-		following.remove(userToUnfollow);
+	/**
+	 * @param followee
+	 * @return true if the current user is following the specified user
+	 */
+	public boolean isFollowing(User followee) {
+		return following.contains(followee);
 	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
