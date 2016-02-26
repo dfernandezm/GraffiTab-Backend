@@ -57,36 +57,27 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	public GetUserResult getUser(@PathVariable("id") Long id) {
-
 		GetUserResult getUserResult = new GetUserResult();
-
 		User user = userService.findUserById(id);
 		getUserResult.setUser(mapper.map(user, UserDto.class));
-
 		return getUserResult;
 	}
 
 	@RequestMapping(value = "/username/{username}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	public GetUserResult getUserByUsername(@PathVariable("username") String username) {
-
 		GetUserResult getUserResult = new GetUserResult();
-
 		User user = (User) userService.getUserByUsername(username);
 		getUserResult.setUser(mapper.map(user, UserDto.class));
-
 		return getUserResult;
 	}
 
 	@RequestMapping(value = "/externalprovider/login", method = RequestMethod.POST)
 	@Transactional()
 	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
-
 		GetUserResult getUserResult = new GetUserResult();
-
 		User user = userService.verifyExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
 		getUserResult.setUser(mapper.map(user, UserDto.class));
-
 		return getUserResult;
 	}
 
@@ -94,12 +85,9 @@ public class UserApiController extends BaseApiController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
 	public CreateExternalUserResult createExternalUser(@RequestBody ExternalUserDto externalUserDto) {
-
 		CreateExternalUserResult createExternalUserResult = new CreateExternalUserResult();
-
 		User user = userService.createExternalUser(mapper.map(externalUserDto.getUser(), User.class), externalUserDto.getExternalId(), externalUserDto.getAccessToken(), externalUserDto.getExternalProviderType());
 		createExternalUserResult.setUser(mapper.map(user, UserDto.class));
-
 		return createExternalUserResult;
 	}
 
@@ -107,46 +95,34 @@ public class UserApiController extends BaseApiController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
 	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
-
 		CreateUserResult createUserResult = new CreateUserResult();
-
 		String userToken = GuidGenerator.generate();
 		User user = userService.createUser(mapper.map(userDto, User.class), userToken);
 		createUserResult.setUser(mapper.map(user, UserDto.class));
 		createUserResult.setToken(user.getMetadataItems().get(UserService.ACTIVATION_TOKEN_METADATA_KEY));
-
 		return createUserResult;
 	}
 
 	@RequestMapping(value = "/activate/{token}", method = RequestMethod.GET)
 	@Transactional
 	public ActionCompletedResult activateAccount(@PathVariable("token") String token) {
-
 		ActionCompletedResult activateUserResult = new ActionCompletedResult();
-
 		userService.activateUser(token);
-
 		return activateUserResult;
 	}
 
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
 	public ActionCompletedResult resetPassword(@JsonProperty(value = "email") String email) {
-
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
-
 		userService.resetPassword(email);
-
 		return resetPasswordResult;
 	}
 
 	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.PUT)
 	public ActionCompletedResult completePasswordReset(@PathVariable(value = "token") String token,
 													   @JsonProperty(value = "password") String password) {
-
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
-
 		userService.completePasswordReset(token, password);
-
 		return resetPasswordResult;
 	}
 
@@ -172,36 +148,27 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
 	@Transactional
 	public GetUserProfileResult getUserProfile(@PathVariable("id") Long id) {
-
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
-
 		User user = userService.getUserProfile(id);
 		userProfileResult.setUser(mapper.map(user, UserProfileDto.class));
-
 		return userProfileResult;
 	}
 
 	@RequestMapping(value = {"/{id}/follow"}, method = RequestMethod.POST)
 	@Transactional
 	public GetUserProfileResult follow(@PathVariable("id") Long userId) {
-
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
-
 		User toFollow = userService.follow(userId);
 		userProfileResult.setUser(mapper.map(toFollow, UserProfileDto.class));
-
 		return userProfileResult;
 	}
 
 	@RequestMapping(value = {"/{id}/unfollow"}, method = RequestMethod.POST)
 	@Transactional
 	public GetUserProfileResult unFollow(@PathVariable("id") Long userId) {
-
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
-
 		User toUnfollow = userService.unfollow(userId);
 		userProfileResult.setUser(mapper.map(toUnfollow, UserProfileDto.class));
-
 		return userProfileResult;
 	}
 
@@ -210,7 +177,6 @@ public class UserApiController extends BaseApiController {
 	public ListUsersResult getFollowers(@PathVariable("id") Long userId,
 										@RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {
-
 		return userService.getFollowingOrFollowersResultForUser(true, userId, offset, count);
 	}
 
@@ -219,7 +185,6 @@ public class UserApiController extends BaseApiController {
 	public ListUsersResult getFollowing(@PathVariable("id") Long userId,
 										@RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {
-
 		return userService.getFollowingOrFollowersResultForUser(false, userId, offset, count);
 	}
 

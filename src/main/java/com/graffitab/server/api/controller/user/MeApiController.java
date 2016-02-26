@@ -48,79 +48,58 @@ public class MeApiController {
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	public GetUserResult getMe() {
-
 		GetUserResult getUserResult = new GetUserResult();
-
 		User user = userService.getCurrentUser();
 		getUserResult.setUser(mapper.map(user, UserDto.class));
-
 		return getUserResult;
 	}
 
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
 	@Transactional
 	public UpdateUserResult updateUser(@JsonProperty("user") UserDto userDto) {
-
 		UpdateUserResult updateUserResult = new UpdateUserResult();
-
 		User user = userService.updateUser(mapper.map(userDto, User.class));
 		updateUserResult.setUser(mapper.map(user, UserDto.class));
-
 		return updateUserResult;
 	}
 
 	@RequestMapping(value = "/device", method = RequestMethod.POST)
 	@Transactional()
 	public ActionCompletedResult registerDevice(@JsonProperty("device") DeviceDto deviceDto) {
-
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
-
 		userService.registerDevice(deviceDto.getToken(), deviceDto.getOsType());
-
 		return actionCompletedResult;
 	}
 
 	@RequestMapping(value = "/device", method = RequestMethod.DELETE)
 	@Transactional()
 	public ActionCompletedResult unregisterDevice(@JsonProperty("device") DeviceDto deviceDto) {
-
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
-
 		userService.unregisterDevice(deviceDto.getToken(), deviceDto.getOsType());
-
 		return actionCompletedResult;
 	}
 
 	@RequestMapping(value = "/externalprovider", method = RequestMethod.POST)
 	@Transactional()
 	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
-
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
-
 		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
-
 		return actionCompletedResult;
 	}
 
 	@RequestMapping(value = "/externalprovider", method = RequestMethod.DELETE)
 	@Transactional()
 	public ActionCompletedResult unlinkExternalProvider(@JsonProperty("externalProviderType") ExternalProviderType externalProviderType) {
-
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
-
 		userService.unlinkExternalProvider(externalProviderType);
-
 		return actionCompletedResult;
 	}
 
 	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.POST)
 	@Transactional
 	public ActionCompletedResult changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
-
 		ActionCompletedResult getUserResult = new ActionCompletedResult();
-
 		userService.changePassword(changePasswordDto.getCurrentPassword(), changePasswordDto.getNewPassword());
-
 		return getUserResult;
 	}
 
@@ -138,7 +117,6 @@ public class MeApiController {
 	@Transactional
 	public ListUsersResult getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 													  @RequestParam(value="count", required = false) Integer count) {
-
 		return userService.getFollowingOrFollowersResultForUser(true, null, offset, count);
 	}
 
@@ -146,7 +124,6 @@ public class MeApiController {
 	@Transactional
 	public ListUsersResult getFollowingForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 													  @RequestParam(value="count", required = false) Integer count) {
-
 		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);
 	}
 
