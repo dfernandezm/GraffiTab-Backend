@@ -149,7 +149,7 @@ public class UserApiTest {
 	    public void addAssetTest() throws IOException, Exception {
 	    	User loggedInUser = createUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
-	    	mockMvc.perform(post("/api/users/avatar")
+	    	mockMvc.perform(post("/api/users/me/avatar")
 	    			//.header("Authorization", "Basic " + new String(Base64.encode(authorize.getBytes())))
 	    			.with(user(loggedInUser))
 	                .contentType("application/octet-stream")

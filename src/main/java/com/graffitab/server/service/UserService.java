@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.authentication.ExternalIdAuthenticationToken;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
+import com.graffitab.server.api.dto.user.ListUsersResult;
+import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
@@ -159,6 +161,19 @@ public class UserService {
 				externalProviderId);
 		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
 				externalProviderToken);
+	}
+
+	@Transactional
+	public void unlinkExternalProvider(ExternalProviderType externalProviderType) {
+		User currentUser = getCurrentUser();
+
+		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
+		}
+
+		// User can only have 1 instance of a provider associated with their account, so delete it if it's found.
+		currentUser.getMetadataItems().remove(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()));
+		currentUser.getMetadataItems().remove(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()));
 	}
 
 	@Transactional
@@ -357,6 +372,20 @@ public class UserService {
 		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.isFollowing(u)));
 
 		return users;
+	}
+
+	public ListUsersResult getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
+		PagedList<User> users = getFollowingOrFollowers(shouldGetFollowers, userId, offset, count);
+		ListUsersResult listUsersResult = new ListUsersResult();
+
+		List<UserDto> userDtos = mapper.mapList(users, UserDto.class);
+
+		listUsersResult.setUsers(userDtos);
+		listUsersResult.setTotal(users.getTotal());
+		listUsersResult.setPageSize(users.getCount());
+		listUsersResult.setOffset(users.getOffset());
+
+		return listUsersResult;
 	}
 
 	@Transactional
