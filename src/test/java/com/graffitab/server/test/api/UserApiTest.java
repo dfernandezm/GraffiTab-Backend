@@ -1,5 +1,6 @@
 package com.graffitab.server.test.api;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -9,8 +10,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
+import java.util.Random;
 
 import javax.annotation.Resource;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
@@ -28,23 +38,30 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.subethamail.wiser.Wiser;
+import org.subethamail.wiser.WiserMessage;
 
 import com.graffitab.server.config.spring.MainConfig;
 import com.graffitab.server.config.web.WebConfig;
+import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Asset.AssetType;
+import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
+import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.util.GuidGenerator;
 
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={MainConfig.class, TestDatabaseConfig.class, WebConfig.class})
 @Rollback(value = true)
+@Transactional
 @ActiveProfiles("unit-test")
 public class UserApiTest {
 
@@ -54,20 +71,26 @@ public class UserApiTest {
 	    @Resource
 	    private UserService userService;
 
+		@Resource
+		private HibernateDaoImpl<User, Long> userDao;
+
 	    @Autowired
 	    private Filter springSecurityFilterChain;
 
-	    private static User testUser;
-
-	    private static User testUser2;
+	    private Wiser wiser;
 
 	    private MockMvc mockMvc;
 
+	    private static Integer currentSmtpPort;
+
 	    @Before
-	    public void setUp() {
+	    public void setUp() throws Exception {
 	        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
 	        		                      .addFilters(springSecurityFilterChain)
 	        		                      .build();
+
+	         wiser = startWiser();
+	         replaceEmailSenderService();
 	    }
 
 	    @After
@@ -76,9 +99,9 @@ public class UserApiTest {
 	    }
 
 	    @Test
-	    @Transactional
 	    public void getUserByIdTest() throws Exception {
 	    	User loggedInUser = createUser();
+	    	User testUser = createUser2();
 
 	        mockMvc.perform(get("/api/users/{id}",testUser.getId()).
 	        		with(user(loggedInUser))
@@ -90,7 +113,6 @@ public class UserApiTest {
 	    }
 
 	    @Test
-	    @Transactional
 	    public void createUserTest() throws Exception {
 	    	fillTestUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/user.json");
@@ -104,10 +126,18 @@ public class UserApiTest {
 	                .andExpect(jsonPath("$.user.id").isNotEmpty())
 	                .andExpect(jsonPath("$.user.username").isNotEmpty())
     				.andExpect(jsonPath("$.user.email").isNotEmpty());
+
+	    	pollForEmail(wiser);
+
+	    	List<WiserMessage> wiserMessages = wiser.getMessages();
+	    	assertEquals(wiserMessages.size(), 1);
+	    	WiserMessage message = wiserMessages.get(0);
+	    	assertEquals("Welcome to GraffiTab", message.getMimeMessage().getSubject());
 	    }
 
-//	    @Test
+	    @Test
 	    @Transactional
+	    @Rollback(value = true)
 	    public void followUserTest() throws Exception {
 	    	User currentUser = createUser();
 	    	User userToFollow = createUser2();
@@ -125,8 +155,7 @@ public class UserApiTest {
 	    	//TODO: complete test when possible to query following and followers
 	    }
 
-//	    @Test
-	    @Transactional
+	    @Test
 	    public void unFollowUserTest() throws Exception {
 	    	User currentUser = createUser();
 	    	User userToFollow = createUser2();
@@ -144,13 +173,11 @@ public class UserApiTest {
 	    	//TODO: Complete test when possible to query following and followers
 	    }
 
-//	    @Test
-	    @Transactional
+	    @Test
 	    public void addAssetTest() throws IOException, Exception {
 	    	User loggedInUser = createUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
 	    	mockMvc.perform(post("/api/users/me/avatar")
-	    			//.header("Authorization", "Basic " + new String(Base64.encode(authorize.getBytes())))
 	    			.with(user(loggedInUser))
 	                .contentType("application/octet-stream")
 	                .content(IOUtils.toByteArray(in)))
@@ -162,44 +189,69 @@ public class UserApiTest {
 
 
 	    private User fillTestUser() {
-	    	testUser = new User();
-	    	testUser.setFirstName("a");
-	    	testUser.setLastName("b");
-	    	testUser.setEmail("a@a.com");
-	    	testUser.setUsername("ab");
-	    	testUser.setPassword("pass");
+	    	User testUser = new User();
+	    	testUser.setFirstName("John");
+	    	testUser.setLastName("Doe");
+	    	testUser.setEmail("john.doe@mailinator.com");
+	    	testUser.setUsername("johnd");
+	    	testUser.setPassword("password");
+	    	testUser.setAccountStatus(AccountStatus.ACTIVE);
+	    	testUser.setGuid(GuidGenerator.generate());
 	    	return testUser;
 	    }
 
 		private User fillTestUser2() {
-	    	testUser2 = new User();
-	    	testUser2.setFirstName("b");
-	    	testUser2.setLastName("c");
-	    	testUser2.setEmail("c@c.com");
-	    	testUser2.setUsername("abc");
-	    	testUser2.setPassword("pass2");
+	    	User testUser2 = new User();
+	    	testUser2.setFirstName("Jane");
+	    	testUser2.setLastName("Doe");
+	    	testUser2.setEmail("janedoe@mailinator.com");
+	    	testUser2.setUsername("janed");
+	    	testUser2.setPassword("password2");
+	    	testUser2.setAccountStatus(AccountStatus.ACTIVE);
+	    	testUser2.setGuid(GuidGenerator.generate());
 	    	return testUser2;
 	    }
 
 	    private User createUser() {
-	    	fillTestUser();
-	    	userService.createUser(testUser, GuidGenerator.generate());
+	    	User testUser = fillTestUser();
+	    	userDao.persist(testUser);
 	    	return testUser;
 	    }
 
 	    private User createUser2() {
-	    	fillTestUser2();
-	    	userService.createUser(testUser2, GuidGenerator.generate());
-	    	return testUser2;
+	    	User user = fillTestUser2();
+	    	userDao.persist(user);
+	    	return user;
 	    }
 
-	    public static class TestEmailSenderService implements EmailSenderService {
-			@Override
-			public void sendEmail(Email email) {
-				//TODO: use wiser or something to mock the emailSent
-				//TODO: use ReflectionTestUtils to change emailService
+	    @SuppressWarnings("boxing")
+		protected synchronized Wiser startWiser() throws Exception {
+			if (wiser == null) {
+				currentSmtpPort = getSmtpPort();
+				wiser = new Wiser();
+				wiser.setPort(currentSmtpPort);
+				wiser.start();
 			}
+			// Clear any stored messages.
+			wiser.getMessages().clear();
+			return wiser;
+		}
+
+
+	    private static int getSmtpPort() {
+	    	Random r = new Random();
+	    	int port = new Double(r.nextDouble()*(3121 - 2121) + 3000).intValue();
+	    	return port;
 	    }
+
+	    private void replaceEmailSenderService() throws Exception {
+	    	UserService unwrapped = (UserService) unwrapSpringProxy(userService);
+	    	EmailService emailService = (EmailService) ReflectionTestUtils.getField(unwrapped, "emailService");
+	    	EmailSenderService testEmailSender = new TestEmailSenderService(currentSmtpPort);
+	    	ReflectionTestUtils.setField(emailService, "emailSenderService", testEmailSender);
+	    	ReflectionTestUtils.setField(userService, "emailService", emailService);
+	    }
+
 
 	    /**
 		 * Unwrap the given spring bean, if it's proxied.
@@ -214,4 +266,61 @@ public class UserApiTest {
 			return unwrapped;
 		}
 
+		private List<WiserMessage> pollForEmail(Wiser wiser) {
+			long timeout = 30 * 1000; // Wait 30 seconds for email;
+			long startTime = System.currentTimeMillis();
+			while(wiser.getMessages().size() == 0 && (System.currentTimeMillis() - startTime) < timeout) {
+				System.out.println("Polling for email...");
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+				}
+			}
+
+			return wiser.getMessages();
+		}
+
+
+	public static class TestEmailSenderService implements EmailSenderService {
+
+		private Integer smtpPort;
+
+		public TestEmailSenderService(Integer smtpPort) {
+			this.smtpPort = smtpPort;
+		}
+
+		private void sendUsingJavaMail(Email email) {
+			System.out.println("Sending email -- SMTP port is " + smtpPort);
+			// Get the session object
+			Properties properties = System.getProperties();
+			properties.setProperty("mail.smtp.host", "localhost");
+			properties.put("mail.smtp.port", smtpPort);
+			Session session = Session.getDefaultInstance(properties);
+
+			// Compose the message
+			try {
+				MimeMessage message = new MimeMessage(session);
+				message.setFrom(new InternetAddress(email.getFromAddress()));
+				message.addRecipient(Message.RecipientType.TO,
+						new InternetAddress(email.getRecipients()[0]));
+				message.setSubject(email.getSubject());
+				message.setContent(email.getHtmlBody(),
+						"text/html; charset=utf-8");
+				// Send message
+				Transport.send(message);
+				System.out.println("message sent successfully....");
+
+			} catch (MessagingException mex) {
+				mex.printStackTrace();
+			}
+		}
+
+		@Override
+		public void sendEmail(Email email) {
+			sendUsingJavaMail(email);
+		}
+	}
+
+
+	//TODO:  Amazon S3 Mock
 }

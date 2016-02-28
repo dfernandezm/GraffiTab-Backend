@@ -4,8 +4,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,8 +37,6 @@ import com.graffitab.server.util.GuidGenerator;
 @RestController
 @RequestMapping("/api/users")
 public class UserApiController extends BaseApiController {
-
-	private static Logger LOG = LogManager.getLogger();
 
 	@Resource
 	private UserService userService;
