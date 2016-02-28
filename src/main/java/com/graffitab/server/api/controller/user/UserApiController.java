@@ -30,6 +30,7 @@ import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.api.util.UploadUtils;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.UserService;
 import com.graffitab.server.util.GuidGenerator;
@@ -52,6 +53,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult getUser(@PathVariable("id") Long id) {
 		GetUserResult getUserResult = new GetUserResult();
 		User user = userService.findUserById(id);
@@ -61,6 +63,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = "/username/{username}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult getUserByUsername(@PathVariable("username") String username) {
 		GetUserResult getUserResult = new GetUserResult();
 		User user = (User) userService.getUserByUsername(username);
@@ -69,7 +72,8 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = "/externalprovider/login", method = RequestMethod.POST)
-	@Transactional()
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
 		GetUserResult getUserResult = new GetUserResult();
 		User user = userService.verifyExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
@@ -143,6 +147,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserProfileResult getUserProfile(@PathVariable("id") Long id) {
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
 		User user = userService.getUserProfile(id);
@@ -152,6 +157,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = {"/{id}/follow"}, method = RequestMethod.POST)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserProfileResult follow(@PathVariable("id") Long userId) {
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
 		User toFollow = userService.follow(userId);
@@ -161,6 +167,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = {"/{id}/unfollow"}, method = RequestMethod.POST)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserProfileResult unFollow(@PathVariable("id") Long userId) {
 		GetUserProfileResult userProfileResult = new GetUserProfileResult();
 		User toUnfollow = userService.unfollow(userId);
@@ -170,6 +177,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListUsersResult getFollowers(@PathVariable("id") Long userId,
 										@RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {
@@ -178,6 +186,7 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListUsersResult getFollowing(@PathVariable("id") Long userId,
 										@RequestParam(value="offset", required = false) Integer offset,
 										@RequestParam(value="count", required = false) Integer count) {

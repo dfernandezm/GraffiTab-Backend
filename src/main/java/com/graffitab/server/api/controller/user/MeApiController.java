@@ -30,6 +30,7 @@ import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.Asset.AssetType;
+import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.UserService;
 
@@ -64,7 +65,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = "/device", method = RequestMethod.POST)
-	@Transactional()
+	@Transactional
 	public ActionCompletedResult registerDevice(@JsonProperty("device") DeviceDto deviceDto) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.registerDevice(deviceDto.getToken(), deviceDto.getOsType());
@@ -72,7 +73,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = "/device", method = RequestMethod.DELETE)
-	@Transactional()
+	@Transactional
 	public ActionCompletedResult unregisterDevice(@JsonProperty("device") DeviceDto deviceDto) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.unregisterDevice(deviceDto.getToken(), deviceDto.getOsType());
@@ -80,7 +81,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = "/externalprovider", method = RequestMethod.POST)
-	@Transactional()
+	@Transactional
 	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
@@ -88,7 +89,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = "/externalprovider", method = RequestMethod.DELETE)
-	@Transactional()
+	@Transactional
 	public ActionCompletedResult unlinkExternalProvider(@JsonProperty("externalProviderType") ExternalProviderType externalProviderType) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.unlinkExternalProvider(externalProviderType);
@@ -97,6 +98,7 @@ public class MeApiController {
 
 	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.POST)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
 		ActionCompletedResult getUserResult = new ActionCompletedResult();
 		userService.changePassword(changePasswordDto.getCurrentPassword(), changePasswordDto.getNewPassword());
@@ -104,17 +106,20 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public AddAssetResult addAvatarForUser(HttpServletRequest request) throws IOException {
 		return addAssetToCurrentUser(request, AssetType.AVATAR);
 	}
 
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public AddAssetResult addCoverForUser(HttpServletRequest request) {
 		return addAssetToCurrentUser(request, AssetType.COVER);
 	}
 
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListUsersResult getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 													  @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(true, null, offset, count);
@@ -122,6 +127,7 @@ public class MeApiController {
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListUsersResult getFollowingForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 													  @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);

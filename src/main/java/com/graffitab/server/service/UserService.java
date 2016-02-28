@@ -186,7 +186,7 @@ public class UserService {
 			throw new EntityNotFoundException(ResultCode.NOT_FOUND,
 					"Could not find user with externalId " + externalId);
 		} else {
-			setAuthenticatedUserFromExternalId(user, externalId, accessToken, externalProviderType);
+			authenticateUserFromExternalId(user, externalId, accessToken, externalProviderType);
 		}
 
 		return user;
@@ -588,7 +588,7 @@ public class UserService {
 		return activationLink;
 	}
 
-	private void setAuthenticatedUserFromExternalId(User user, String externalId, String accessToken,
+	private void authenticateUserFromExternalId(User user, String externalId, String accessToken,
 			ExternalProviderType externalProviderType) {
 		ExternalIdAuthenticationToken auth = new ExternalIdAuthenticationToken();
 		auth.setAccessToken(accessToken);
