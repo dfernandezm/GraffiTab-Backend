@@ -255,7 +255,7 @@ public class UserService {
 	public User createUser(User user, String userToken) {
 		if (validationService.validateUser(user)) {
 			if (user.getId() == null) {
-				transactionUtils.executeInNewTransaction(() -> {
+				transactionUtils.executeInTransaction(() -> {
 					user.setPassword(passwordEncoder.encode(user.getPassword()));
 					user.setGuid(GuidGenerator.generate());
 					user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
