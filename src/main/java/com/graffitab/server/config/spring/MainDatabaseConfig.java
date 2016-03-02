@@ -1,13 +1,8 @@
 package com.graffitab.server.config.spring;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,24 +72,7 @@ public class MainDatabaseConfig {
 
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
-
-        List<String> mappingFiles = new ArrayList<>();
-
-        try {
-        	String mappingsDirectory = "hibernate-mappings/";
-
-			// Include all mappings from the mapping folder.
-			List<String> files = IOUtils.readLines(MainDatabaseConfig.class.getClassLoader()
-			        .getResourceAsStream(mappingsDirectory), Charsets.UTF_8);
-
-			files.forEach(file -> mappingFiles.add(mappingsDirectory + file));
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-
-        String[] mappingArray = new String[mappingFiles.size()];
-
-        sessionFactory.setMappingResources(mappingFiles.toArray(mappingArray));
+        sessionFactory.setPackagesToScan("com.graffitab.server.persistence.model");
         sessionFactory.setHibernateProperties(hibernateProperties());
 
         return sessionFactory;

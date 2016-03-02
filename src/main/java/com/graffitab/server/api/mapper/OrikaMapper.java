@@ -3,6 +3,10 @@ package com.graffitab.server.api.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
+
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
@@ -12,12 +16,6 @@ import com.graffitab.server.api.dto.user.UserProfileDto;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
-
-import ma.glasnost.orika.CustomMapper;
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.MappingContext;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 
 @Component
 public class OrikaMapper {
