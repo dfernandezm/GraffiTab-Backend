@@ -30,8 +30,8 @@ import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.Asset.AssetType;
-import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.UserService;
 
 @RestController
@@ -48,6 +48,7 @@ public class MeApiController {
 
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult getMe() {
 		GetUserResult getUserResult = new GetUserResult();
 		User user = userService.getCurrentUser();
@@ -57,6 +58,7 @@ public class MeApiController {
 
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public UpdateUserResult updateUser(@JsonProperty("user") UserDto userDto) {
 		UpdateUserResult updateUserResult = new UpdateUserResult();
 		User user = userService.updateUser(mapper.map(userDto, User.class));
@@ -66,6 +68,7 @@ public class MeApiController {
 
 	@RequestMapping(value = "/device", method = RequestMethod.POST)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult registerDevice(@JsonProperty("device") DeviceDto deviceDto) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.registerDevice(deviceDto.getToken(), deviceDto.getOsType());
@@ -74,6 +77,7 @@ public class MeApiController {
 
 	@RequestMapping(value = "/device", method = RequestMethod.DELETE)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult unregisterDevice(@JsonProperty("device") DeviceDto deviceDto) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.unregisterDevice(deviceDto.getToken(), deviceDto.getOsType());
@@ -82,6 +86,7 @@ public class MeApiController {
 
 	@RequestMapping(value = "/externalprovider", method = RequestMethod.POST)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
@@ -90,6 +95,7 @@ public class MeApiController {
 
 	@RequestMapping(value = "/externalprovider", method = RequestMethod.DELETE)
 	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult unlinkExternalProvider(@JsonProperty("externalProviderType") ExternalProviderType externalProviderType) {
 		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.unlinkExternalProvider(externalProviderType);

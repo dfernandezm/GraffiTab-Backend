@@ -124,3 +124,9 @@ drop table notificationWelcome;
 
 --changeset georgi:v100cs19
 alter table following add order_key int(11) not null;
+
+--changeset georgi:v100cs20
+alter table notification add order_key int(11) not null;
+
+--changeset georgi:v100cs21
+alter table notification change type notification_type varchar(50) NOT NULL;
