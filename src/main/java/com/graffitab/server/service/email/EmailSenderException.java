@@ -11,5 +11,4 @@ public class EmailSenderException extends RuntimeException {
 	public EmailSenderException(String msg, Throwable cause) {
 		super(msg, cause);
 	}
-
 }

@@ -13,6 +13,17 @@ import lombok.extern.log4j.Log4j2;
 @Getter @Setter @Log4j2
 public class Email {
 
+	@Getter
+	public enum EmailType {
+		ACTIVATION("welcome.htm"), ACTIVATION_EXTERNAL("welcome_external.htm"), RESET_PASSWORD("password_reset.htm"), FEEDBACK("feedback.htm");
+
+		private String templateName;
+
+		private EmailType(String templateName) {
+			this.templateName = templateName;
+		}
+	}
+
 	private EmailType emailType;
 	private String subject;
 	private String htmlBody;

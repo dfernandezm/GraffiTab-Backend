@@ -130,3 +130,31 @@ alter table notification add order_key int(11) not null;
 
 --changeset georgi:v100cs21
 alter table notification change type notification_type varchar(50) NOT NULL;
+
+--changeset georgi:v100cs22
+alter table notification change is_read is_read varchar(10) NOT NULL;
+
+--changeset georgi:v100cs23
+alter table notification change date date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL;
+
+--changeset georgi:v100cs24
+alter table notification change date date bigint(20) NOT NULL;
+
+--changeset georgi:v100cs25
+alter table notification change date date TIMESTAMP NOT NULL;
+
+--changeset georgi:v100cs26
+ALTER TABLE notification ADD CONSTRAINT notification_commenter_id FOREIGN KEY (commenter_id) REFERENCES gt_user(id);
+ALTER TABLE notification ADD CONSTRAINT notification_follower_id FOREIGN KEY (follower_id) REFERENCES gt_user(id);
+ALTER TABLE notification ADD CONSTRAINT notification_liker_id FOREIGN KEY (liker_id) REFERENCES gt_user(id);
+ALTER TABLE notification ADD CONSTRAINT notification_mentioner_id FOREIGN KEY (mentioner_id) REFERENCES gt_user(id);
+
+--changeset georgi:v100cs27
+alter table notification change date date bigint(20) NOT NULL;
+
+--changeset georgi:v100cs28
+ALTER TABLE activity ADD CONSTRAINT activity_commenter_id FOREIGN KEY (commenter_id) REFERENCES gt_user(id);
+ALTER TABLE activity ADD CONSTRAINT activity_creator_id FOREIGN KEY (creator_id) REFERENCES gt_user(id);
+ALTER TABLE activity ADD CONSTRAINT activity_followed_user_id FOREIGN KEY (followed_user_id) REFERENCES gt_user(id);
+ALTER TABLE activity ADD CONSTRAINT activity_follower_id FOREIGN KEY (follower_id) REFERENCES gt_user(id);
+ALTER TABLE activity ADD CONSTRAINT activity_liker_id FOREIGN KEY (liker_id) REFERENCES gt_user(id);

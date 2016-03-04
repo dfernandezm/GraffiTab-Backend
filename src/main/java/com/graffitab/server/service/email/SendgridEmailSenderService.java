@@ -10,7 +10,6 @@ import com.sendgrid.SendGrid;
 import com.sendgrid.SendGridException;
 
 @Service
-
 public class SendgridEmailSenderService implements EmailSenderService {
 
 	private static Logger log = LogManager.getLogger();

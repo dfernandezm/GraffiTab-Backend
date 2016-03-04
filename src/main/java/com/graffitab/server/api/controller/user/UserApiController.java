@@ -73,7 +73,6 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = "/externalprovider/login", method = RequestMethod.POST)
 	@Transactional
-	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
 		GetUserResult getUserResult = new GetUserResult();
 		User user = userService.verifyExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());

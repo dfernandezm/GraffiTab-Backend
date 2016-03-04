@@ -26,18 +26,41 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import lombok.Getter;
-import lombok.Setter;
-
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.model.notification.Notification;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by david.
  */
+
+@NamedQueries({
+	@NamedQuery(
+		name = "User.findAll",
+		query = "select u from User u"
+	),
+	@NamedQuery(
+		name = "User.findUsersWithEmail",
+		query = "select u from User u where u.email = :email and u.id != :userId"
+	),
+	@NamedQuery(
+		name = "User.findUsersWithUsername",
+		query = "select u from User u where u.username = :username and u.id != :userId"
+	),
+	@NamedQuery(
+		name = "User.findUsersWithMetadataValues",
+		query = "select u from User u join u.metadataItems mi where index(mi) = :metadataKey and :metadataValue in elements(mi)"
+	)
+})
+
 @Getter
 @Setter
 @Entity
@@ -99,22 +122,26 @@ public class User implements Identifiable<Long>, UserDetails {
 	@OrderColumn(name = "order_key")
 	private List<User> following = new ArrayList<>();
 
-	@OneToMany(targetEntity = Device.class, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "id")
+	@OneToMany(targetEntity = Asset.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "user_id", nullable = false)
 	@OrderColumn(name = "order_key")
 	private List<Asset> assets = new ArrayList<>();
 
 	@OneToMany(targetEntity = Device.class, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "id")
+	@JoinColumn(name = "user_id", nullable = false)
 	@OrderColumn(name = "order_key")
 	private List<Device> devices = new ArrayList<>();
+
+	@OneToMany(targetEntity = Notification.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "user_id", nullable = false)
+	@OrderColumn(name = "order_key")
+	private List<Notification> notifications = new ArrayList<>();
 
 	@ElementCollection
     @MapKeyColumn(name = "metadata_key")
     @Column(name="metadata_value")
     @CollectionTable(name="gt_user_metadata", joinColumns = @JoinColumn(name="user_id"))
 	private Map<String, String> metadataItems = new HashMap<>();
-
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

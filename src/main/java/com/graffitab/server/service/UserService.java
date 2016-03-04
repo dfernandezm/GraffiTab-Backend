@@ -33,12 +33,11 @@ import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.Asset.AssetType;
-import com.graffitab.server.persistence.model.Device;
-import com.graffitab.server.persistence.model.Device.OSType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.email.EmailService;
+import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
@@ -54,9 +53,6 @@ public class UserService {
 
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
-
-	@Resource
-	private HibernateDaoImpl<Device, Long> deviceDao;
 
 	@Resource
 	private PagingService<User> pagingService;
@@ -75,6 +71,9 @@ public class UserService {
 
 	@Resource
 	private EmailService emailService;
+
+	@Resource
+	private NotificationService notificationService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -153,10 +152,6 @@ public class UserService {
 					"A user with externalId " + externalProviderId + " already exists");
 		}
 
-		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
-			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
-		}
-
 		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
 				externalProviderId);
 		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
@@ -166,10 +161,6 @@ public class UserService {
 	@Transactional
 	public void unlinkExternalProvider(ExternalProviderType externalProviderType) {
 		User currentUser = getCurrentUser();
-
-		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
-			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
-		}
 
 		// User can only have 1 instance of a provider associated with their account, so delete it if it's found.
 		currentUser.getMetadataItems().remove(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()));
@@ -193,43 +184,6 @@ public class UserService {
 	}
 
 	@Transactional
-	public void registerDevice(String token, OSType osType) {
-		Device device = findDevicesWithTokenAndType(token, osType);
-		User currentUser = getCurrentUser();
-
-		// Check if a device with that token already exists.
-		if (device != null) {
-			throw new RestApiException(ResultCode.ALREADY_EXISTS, "A device with token " + token + " already exists");
-		}
-
-		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
-			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
-		}
-
-		Device toAdd = new Device();
-		toAdd.setToken(token);
-		toAdd.setOsType(osType);
-		currentUser.getDevices().add(toAdd);
-	}
-
-	@Transactional
-	public void unregisterDevice(String token, OSType osType) {
-		Device device = findDevicesWithTokenAndType(token, osType);
-		User currentUser = getCurrentUser();
-
-		// Check if a device with that token exists.
-		if (device == null) {
-			throw new RestApiException(ResultCode.NOT_FOUND, "A device with token " + token + " was not found");
-		}
-
-		if (currentUser.getAccountStatus() != AccountStatus.ACTIVE) {
-			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
-		}
-
-		currentUser.getDevices().remove(device);
-	}
-
-	@Transactional
 	public User activateUser(String token) {
 		User user = findUsersWithMetadataValues(ACTIVATION_TOKEN_METADATA_KEY, token);
 
@@ -245,10 +199,15 @@ public class UserService {
 		}
 
 		if (user.getAccountStatus() != AccountStatus.PENDING_ACTIVATION) {
-			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "The user is not in the expected state.");
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "Current user is not in the expected state " +
+					AccountStatus.PENDING_ACTIVATION.name());
 		}
 
 		user.setAccountStatus(AccountStatus.ACTIVE);
+
+		// Send notification.
+		notificationService.addWelcomeNotification(user);
+
 		return user;
 	}
 
@@ -290,6 +249,9 @@ public class UserService {
 					user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
 							externalProviderToken);
 					userDao.persist(user);
+
+					// Send notification.
+					notificationService.addWelcomeNotification(user);
 				});
 
 				emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
@@ -395,8 +357,16 @@ public class UserService {
 		if (toFollow != null) {
 			User currentUser = getCurrentUser();
 
+			// Users can't follow themselves.
+			if (currentUser.equals(toFollow)) {
+				throw new RestApiException(ResultCode.BAD_REQUEST, "You cannot follow yourself");
+			}
+
 			if (!currentUser.isFollowing(toFollow)) {
 				currentUser.getFollowing().add(toFollow);
+
+				// Send notification.
+				notificationService.addFollowNotification(toFollow, currentUser);
 			}
 
 			return toFollow;
@@ -437,6 +407,7 @@ public class UserService {
 		});
 
 		emailService.sendResetPasswordEmail(email, generateResetPasswordLink(resetPasswordToken));
+
 		return user;
 	}
 
@@ -457,8 +428,8 @@ public class UserService {
 		}
 
 		if (user.getAccountStatus() != AccountStatus.RESET_PASSWORD) {
-			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE,
-					"The user is not in the expected state: " + user.getAccountStatus());
+			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, "Current user is not in the expected state " +
+					AccountStatus.RESET_PASSWORD.name());
 		}
 
 		user.setAccountStatus(AccountStatus.ACTIVE);
@@ -481,11 +452,6 @@ public class UserService {
 		// Check if the provided password matches the current password.
 		if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
 			throw new RestApiException(ResultCode.INCORRECT_PASSWORD, "The provided password was incorrect.");
-		}
-
-		if (user.getAccountStatus() != AccountStatus.ACTIVE) {
-			throw new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE,
-					"The user is not in the expected state: " + user.getAccountStatus());
 		}
 
 		user.setPassword(passwordEncoder.encode(newPassword));
@@ -560,13 +526,6 @@ public class UserService {
 		query.setParameter("metadataKey", key);
 		query.setParameter("metadataValue", value);
 		return (User) query.uniqueResult();
-	}
-
-	private Device findDevicesWithTokenAndType(String token, OSType osType) {
-		Query query = deviceDao.createNamedQuery("Device.findDevicesWithToken");
-		query.setParameter("token", token);
-		query.setParameter("osType", osType);
-		return (Device) query.uniqueResult();
 	}
 
 	/**
