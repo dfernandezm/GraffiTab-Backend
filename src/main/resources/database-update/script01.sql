@@ -158,3 +158,8 @@ ALTER TABLE activity ADD CONSTRAINT activity_creator_id FOREIGN KEY (creator_id)
 ALTER TABLE activity ADD CONSTRAINT activity_followed_user_id FOREIGN KEY (followed_user_id) REFERENCES gt_user(id);
 ALTER TABLE activity ADD CONSTRAINT activity_follower_id FOREIGN KEY (follower_id) REFERENCES gt_user(id);
 ALTER TABLE activity ADD CONSTRAINT activity_liker_id FOREIGN KEY (liker_id) REFERENCES gt_user(id);
+
+--changeset georgi:v100cs29
+ALTER TABLE asset DROP FOREIGN KEY asset_user_fk;
+ALTER TABLE asset DROP COLUMN user_id;
+ALTER TABLE asset DROP COLUMN order_key;
