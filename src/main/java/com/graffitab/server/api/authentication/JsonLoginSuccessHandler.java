@@ -16,11 +16,15 @@ import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.service.UserSessionService;
 
 public class JsonLoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	@Resource(name = "delegateJacksonHttpMessageConverter")
 	private MappingJackson2HttpMessageConverter jsonConverter;
+
+	@Resource
+	private UserSessionService userSessionService;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request,
@@ -30,6 +34,9 @@ public class JsonLoginSuccessHandler implements AuthenticationSuccessHandler {
 		GetUserResult result = new GetUserResult();
 		UserDto dto = OrikaMapper.get().map((User)authentication.getPrincipal(), UserDto.class);
 		result.setUser(dto);
+
+		// Store session
+		userSessionService.saveOrUpdateSessionData(request.getSession(false));
 
 		response.setStatus(HttpStatus.OK.value());
 		response.setContentType("application/json");

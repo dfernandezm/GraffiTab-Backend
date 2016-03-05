@@ -22,12 +22,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
-import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
 import com.graffitab.server.api.authentication.CustomFailureBasicAuthFilter;
 import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
+import com.graffitab.server.api.authentication.SessionInvalidationFilter;
 import com.graffitab.server.service.GraffiTabUserDetailsService;
 
 
@@ -91,17 +92,18 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		private JsonLoginAuthenticationFilter jsonAuthenticationFilter;
 
+		@Autowired
+		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
+
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
 
         	// We allow anonymous access here (by not disabling it). This means that if a request matches
-        	// and it is not authenticated (anonymous) we let it pass -- this is what we want for login and
-        	// register endpoints
+        	// and it is not authenticated (anonymous) we let it pass -- this is what we want for login
             http.csrf().disable()
                   .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/api/login", "/api/users", "/api/users/resetpassword", "/api/users/externalprovider/**")
-                    .antMatchers(HttpMethod.GET, "/api/users/activate/**")
-                    .antMatchers(HttpMethod.PUT, "/api/users/resetpassword/**")
+                    .antMatchers(HttpMethod.POST, "/api/login")
                     .and()
                     .authorizeRequests()
                     .anyRequest()
@@ -111,17 +113,59 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             	    	.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
 
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            http.exceptionHandling().authenticationEntryPoint(new CommonAuthenticationEntryPoint());
+            http.exceptionHandling().authenticationEntryPoint(commonAuthenticationEntryPoint);
 
         }
 	}
 
 	@Configuration
     @Order(2)
+    public static class PublicEndpointsSecurityConfig extends WebSecurityConfigurerAdapter {
+
+		@Autowired
+		private JsonLoginAuthenticationFilter jsonAuthenticationFilter;
+
+		@Autowired
+		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
+
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+
+        	// We allow anonymous access here (by not disabling it). This means that if a request matches
+        	// and it is not authenticated (anonymous) we let it pass -- this is what we want for login and
+        	// register endpoints
+            http.csrf().disable()
+                  .requestMatchers()
+                    .antMatchers(HttpMethod.POST, "/api/users", "/api/users/resetpassword", "/api/users/externalprovider/**")
+                    .antMatchers(HttpMethod.GET, "/api/users/activate/**")
+                    .antMatchers(HttpMethod.PUT, "/api/users/resetpassword/**")
+                    .and()
+                    .authorizeRequests()
+                    .anyRequest()
+                    .permitAll()
+                    .and()
+            	    .sessionManagement()
+            	    .sessionCreationPolicy(SessionCreationPolicy.NEVER);
+
+            http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            http.exceptionHandling().authenticationEntryPoint(commonAuthenticationEntryPoint);
+
+        }
+	}
+
+	@Configuration
+    @Order(3)
     public static class SessionAndBasicAuthSecurityConfig extends WebSecurityConfigurerAdapter{
 
 		@Autowired
 		private JsonLoginAuthenticationFilter jsonAuthenticationFilter;
+
+		@Autowired
+		private SessionInvalidationFilter invalidateSessionFilter;
+
+		@Autowired
+		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -135,24 +179,27 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
                         .anyRequest().hasAnyRole("ADMIN", "USER")
                     .and()
                     .logout()
-                       .deleteCookies("JSESSIONID").invalidateHttpSession(true)
+                       .deleteCookies("GRAFFITABSESSIONID").invalidateHttpSession(true)
  				       .logoutUrl("/api/logout").logoutSuccessHandler(new OkResponseLogoutHandler());
 
-            // Add the custom filter before the regular one
+            // Add the invalidation session filter after this check, as it could be creating a new session
+            http.addFilterAfter(invalidateSessionFilter, SecurityContextPersistenceFilter.class);
+
+            // Add the custom authentication filter before the regular one
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            AuthenticationEntryPoint commonEntryPoint = new CommonAuthenticationEntryPoint();
+            //AuthenticationEntryPoint commonEntryPoint = new CommonAuthenticationEntryPoint();
             // Add the basic auth filter before the jsonLogin filter (check first)
-            http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager(), commonEntryPoint),
+            http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager(), commonAuthenticationEntryPoint),
             		    JsonLoginAuthenticationFilter.class);
 
             // Common entry points: 401 Unauthorized and access denied handlers
-            http.exceptionHandling().authenticationEntryPoint(commonEntryPoint);
+            http.exceptionHandling().authenticationEntryPoint(commonAuthenticationEntryPoint);
             http.exceptionHandling().accessDeniedHandler(new JsonAccessDeniedHandler());
         }
 	}
 
 	@Configuration
-    @Order(3)
+    @Order(4)
     public static class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {

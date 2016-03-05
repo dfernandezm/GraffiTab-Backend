@@ -158,3 +158,11 @@ ALTER TABLE activity ADD CONSTRAINT activity_creator_id FOREIGN KEY (creator_id)
 ALTER TABLE activity ADD CONSTRAINT activity_followed_user_id FOREIGN KEY (followed_user_id) REFERENCES gt_user(id);
 ALTER TABLE activity ADD CONSTRAINT activity_follower_id FOREIGN KEY (follower_id) REFERENCES gt_user(id);
 ALTER TABLE activity ADD CONSTRAINT activity_liker_id FOREIGN KEY (liker_id) REFERENCES gt_user(id);
+
+--changeset david:v100cs29
+ALTER TABLE session DROP FOREIGN KEY del_session_on_person;
+ALTER TABLE session CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE session CHANGE sessionId session_id VARCHAR(150) DEFAULT NULL;
+ALTER TABLE session ADD content BLOB DEFAULT NULL;
+ALTER TABLE session ADD CONSTRAINT user_session_fk FOREIGN KEY (user_id) REFERENCES gt_user(id);
+ALTER TABLE session ADD version int(11) NOT NULL;
