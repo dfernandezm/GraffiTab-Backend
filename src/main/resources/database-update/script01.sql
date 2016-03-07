@@ -159,7 +159,18 @@ ALTER TABLE activity ADD CONSTRAINT activity_followed_user_id FOREIGN KEY (follo
 ALTER TABLE activity ADD CONSTRAINT activity_follower_id FOREIGN KEY (follower_id) REFERENCES gt_user(id);
 ALTER TABLE activity ADD CONSTRAINT activity_liker_id FOREIGN KEY (liker_id) REFERENCES gt_user(id);
 
---changeset david:v100cs29
+--changeset georgi:v100cs29
+ALTER TABLE asset DROP FOREIGN KEY asset_user_fk;
+ALTER TABLE asset DROP COLUMN user_id;
+ALTER TABLE asset DROP COLUMN order_key;
+
+--changeset georgi:v100cs30
+alter table gt_user add avatar_asset_id bigint(20);
+alter table gt_user add cover_asset_id bigint(20);
+ALTER TABLE gt_user ADD CONSTRAINT gt_user_avatar_asset_id FOREIGN KEY (avatar_asset_id) REFERENCES asset(id);
+ALTER TABLE gt_user ADD CONSTRAINT gt_user_cover_asset_id FOREIGN KEY (cover_asset_id) REFERENCES asset(id);
+
+--changeset david:v100cs31
 ALTER TABLE session DROP FOREIGN KEY del_session_on_person;
 ALTER TABLE session CHANGE userId user_id bigint(20) NOT NULL;
 ALTER TABLE session CHANGE sessionId session_id VARCHAR(150) DEFAULT NULL;

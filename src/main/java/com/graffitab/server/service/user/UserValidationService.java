@@ -1,4 +1,4 @@
-package com.graffitab.server.service;
+package com.graffitab.server.service.user;
 
 import javax.annotation.Resource;
 
@@ -8,7 +8,7 @@ import org.springframework.util.StringUtils;
 import com.graffitab.server.persistence.model.User;
 
 @Service
-public class ValidationService {
+public class UserValidationService {
 
 	@Resource
 	private UserService userService;

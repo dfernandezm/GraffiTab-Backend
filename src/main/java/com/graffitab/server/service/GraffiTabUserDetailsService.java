@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.graffitab.server.service.user.UserService;
+
 public class GraffiTabUserDetailsService implements UserDetailsService {
 
 	@Resource

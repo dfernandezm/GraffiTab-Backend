@@ -5,8 +5,6 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,20 +24,16 @@ import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UpdateUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
-import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.Asset;
-import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.DeviceService;
-import com.graffitab.server.service.UserService;
+import com.graffitab.server.service.user.UserService;
 
 @RestController
 @RequestMapping("/api/users/me")
 public class MeApiController {
-
-	private static Logger LOG = LogManager.getLogger();
 
 	@Resource
 	private UserService userService;
@@ -68,6 +62,40 @@ public class MeApiController {
 		User user = userService.updateUser(mapper.map(userDto, User.class));
 		updateUserResult.setUser(mapper.map(user, UserDto.class));
 		return updateUserResult;
+	}
+
+	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public AddAssetResult updateAvatar(HttpServletRequest request) throws IOException {
+		AddAssetResult editAvatarResult = new AddAssetResult();
+		Asset asset = userService.updateAvatar(request.getInputStream(), request.getContentLengthLong());
+		editAvatarResult.setAsset(mapper.map(asset, AssetDto.class));
+		return editAvatarResult;
+	}
+
+	@RequestMapping(value = {"/avatar"}, method = RequestMethod.DELETE)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ActionCompletedResult deleteAvatar() throws IOException {
+		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
+		userService.deleteAvatar();
+		return actionCompletedResult;
+	}
+
+	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public AddAssetResult updateCover(HttpServletRequest request) throws IOException {
+		AddAssetResult editcoverResult = new AddAssetResult();
+		Asset asset = userService.updateCover(request.getInputStream(), request.getContentLengthLong());
+		editcoverResult.setAsset(mapper.map(asset, AssetDto.class));
+		return editcoverResult;
+	}
+
+	@RequestMapping(value = {"/cover"}, method = RequestMethod.DELETE)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ActionCompletedResult deleteCover() throws IOException {
+		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
+		userService.deleteCover();
+		return actionCompletedResult;
 	}
 
 	@RequestMapping(value = "/device", method = RequestMethod.POST)
@@ -115,18 +143,6 @@ public class MeApiController {
 		return getUserResult;
 	}
 
-	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
-	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public AddAssetResult addAvatarForUser(HttpServletRequest request) throws IOException {
-		return addAssetToCurrentUser(request, AssetType.AVATAR);
-	}
-
-	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
-	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public AddAssetResult addCoverForUser(HttpServletRequest request) {
-		return addAssetToCurrentUser(request, AssetType.COVER);
-	}
-
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
@@ -141,22 +157,5 @@ public class MeApiController {
 	public ListUsersResult getFollowingForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
 													  @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);
-	}
-
-	private AddAssetResult addAssetToCurrentUser(HttpServletRequest request, AssetType assetType) {
-		AddAssetResult result = new AddAssetResult();
-
-		try {
-			long contentLength = request.getContentLengthLong();
-			Asset asset = userService.addAssetToCurrentUser(request.getInputStream(), assetType, contentLength);
-			AssetDto assetDto = mapper.map(asset, AssetDto.class);
-			result.setAsset(assetDto);
-		} catch (IOException e) {
-			String msg = "Error reading InputStream";
-			LOG.error(msg, e);
-			throw new RestApiException(msg);
-		}
-
-		return result;
 	}
 }

@@ -1,4 +1,4 @@
-package com.graffitab.server.service;
+package com.graffitab.server.service.user;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.UserSession;
+import com.graffitab.server.service.ProxyUtilities;
+import com.graffitab.server.service.TransactionUtils;
 
 @Service
 @Log4j2

@@ -32,7 +32,7 @@ import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.PagingService;
-import com.graffitab.server.service.UserService;
+import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
 
 @RestController
