@@ -10,6 +10,7 @@ import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.UserSession;
 import com.graffitab.server.persistence.model.notification.Notification;
 
 @Configuration
@@ -33,6 +34,11 @@ public class DaoConfig {
 	@Bean
 	public HibernateDaoImpl<Notification, Long> notificationDao() {
 		return generateDao(Notification.class);
+	}
+
+	@Bean
+	public HibernateDaoImpl<UserSession, Long> userSessionDao() {
+		return generateDao(UserSession.class);
 	}
 
 	private <T extends Identifiable<K>,K extends Serializable> HibernateDaoImpl<T,K> generateDao(Class<T> entityClass) {

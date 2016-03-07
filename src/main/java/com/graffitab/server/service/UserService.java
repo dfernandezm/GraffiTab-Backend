@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.log4j.Log4j2;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -36,13 +38,12 @@ import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
+import com.graffitab.server.persistence.model.UserSession;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
-
-import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -53,6 +54,9 @@ public class UserService {
 
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
+
+	@Resource
+	private HibernateDaoImpl<UserSession, Long> userSessionDao;
 
 	@Resource
 	private PagingService<User> pagingService;
@@ -117,6 +121,7 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public User getCurrentUser() {
+		// Cache this in a ThreadLocal
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if (auth != null && auth.getPrincipal() != null) {
 			User currentUser = (User) auth.getPrincipal();
@@ -517,7 +522,8 @@ public class UserService {
 		user.setAccountStatus(AccountStatus.ACTIVE);
 		user.setPassword(passwordEncoder.encode(newPassword));
 
-		// TODO: Logout from all devices
+		// Logout from all devices
+		logoutEverywhere(user);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully reset password for user " + user.getUsername());
@@ -538,13 +544,26 @@ public class UserService {
 
 		user.setPassword(passwordEncoder.encode(newPassword));
 
-		// TODO: Logout from all devices
+		// Logout from all devices
+        logoutEverywhere(user);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully changed password for user " + user.getUsername());
 		}
 
 		return user;
+	}
+
+	@Transactional
+	public void logoutEverywhere(User user) {
+
+		Integer deletedSessionCount = userSessionDao
+									  .createNamedQuery("UserSession.deleteAllSessionsForUser")
+									  .setParameter("user", user).executeUpdate();
+
+		if (log.isDebugEnabled()) {
+			log.debug("Deleted {} sessions for user ID {}", deletedSessionCount, user.getId());
+		}
 	}
 
 	@Transactional(readOnly = true)

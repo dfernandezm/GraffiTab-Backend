@@ -169,3 +169,11 @@ alter table gt_user add avatar_asset_id bigint(20);
 alter table gt_user add cover_asset_id bigint(20);
 ALTER TABLE gt_user ADD CONSTRAINT gt_user_avatar_asset_id FOREIGN KEY (avatar_asset_id) REFERENCES asset(id);
 ALTER TABLE gt_user ADD CONSTRAINT gt_user_cover_asset_id FOREIGN KEY (cover_asset_id) REFERENCES asset(id);
+
+--changeset david:v100cs31
+ALTER TABLE session DROP FOREIGN KEY del_session_on_person;
+ALTER TABLE session CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE session CHANGE sessionId session_id VARCHAR(150) DEFAULT NULL;
+ALTER TABLE session ADD content BLOB DEFAULT NULL;
+ALTER TABLE session ADD CONSTRAINT user_session_fk FOREIGN KEY (user_id) REFERENCES gt_user(id);
+ALTER TABLE session ADD version int(11) NOT NULL;
