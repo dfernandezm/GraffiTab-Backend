@@ -297,24 +297,106 @@ public class UserService {
 		return new PagedList<User>(listUsers, total, offset);
 	}
 
-	public Asset addAssetToCurrentUser(InputStream assetInputStream, AssetType assetType, long contentLength) {
+	public Asset updateAvatar(InputStream assetInputStream, long contentLength) {
+		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
 
-		Asset assetToAdd = Asset.asset(assetType);
-
-		// TODO: Bring back this when we have new AWS Keys
-		// datastoreService.saveAsset(assetInputStream, contentLength,
-		// user.getGuid(), assetToAdd.getGuid(), assetType, null);
-
-		Asset addedAsset = transactionUtils.executeInTransactionWithResult(() -> {
+		User user = transactionUtils.executeInTransactionWithResult(() -> {
 			User currentUser = getCurrentUser();
-			currentUser.getAssets().add(assetToAdd);
-			return assetToAdd;
+			return currentUser;
 		});
 
-		return addedAsset;
+		datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid());
+
+		// Delete current avatar from store, if it exists.
+		if (user.getAvatarAsset() != null) {
+			datastoreService.deleteAsset(user.getGuid(), user.getAvatarAsset().getGuid());
+		}
+
+		transactionUtils.executeInTransaction(() -> {
+			User currentUser = getCurrentUser();
+
+			// Delete current avatar from database, if it exists.
+			if (currentUser.getAvatarAsset() != null) {
+				currentUser.setAvatarAsset(null);
+			}
+
+			currentUser.setAvatarAsset(assetToAdd);
+		});
+
+		return assetToAdd;
 	}
 
-	// TODO: Try to get it to work with Criteria
+	public void deleteAvatar() {
+		User user = transactionUtils.executeInTransactionWithResult(() -> {
+			User currentUser = getCurrentUser();
+			return currentUser;
+		});
+
+		// Delete current avatar from store, if it exists.
+		if (user.getAvatarAsset() != null) {
+			datastoreService.deleteAsset(user.getGuid(), user.getAvatarAsset().getGuid());
+		}
+
+		transactionUtils.executeInTransaction(() -> {
+			User currentUser = getCurrentUser();
+
+			// Delete current avatar from database, if it exists.
+			if (currentUser.getAvatarAsset() != null) {
+				currentUser.setAvatarAsset(null);
+			}
+		});
+	}
+
+	public Asset updateCover(InputStream assetInputStream, long contentLength) {
+		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
+
+		User user = transactionUtils.executeInTransactionWithResult(() -> {
+			User currentUser = getCurrentUser();
+			return currentUser;
+		});
+
+		datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid());
+
+		// Delete current cover from store, if it exists.
+		if (user.getCoverAsset() != null) {
+			datastoreService.deleteAsset(user.getGuid(), user.getCoverAsset().getGuid());
+		}
+
+		transactionUtils.executeInTransaction(() -> {
+			User currentUser = getCurrentUser();
+
+			// Delete current cover from database, if it exists.
+			if (currentUser.getCoverAsset() != null) {
+				currentUser.setCoverAsset(null);
+			}
+
+			currentUser.setCoverAsset(assetToAdd);
+		});
+
+		return assetToAdd;
+	}
+
+	public void deleteCover() {
+		User user = transactionUtils.executeInTransactionWithResult(() -> {
+			User currentUser = getCurrentUser();
+			return currentUser;
+		});
+
+		// Delete current cover from store, if it exists.
+		if (user.getCoverAsset() != null) {
+			datastoreService.deleteAsset(user.getGuid(), user.getCoverAsset().getGuid());
+		}
+
+		transactionUtils.executeInTransaction(() -> {
+			User currentUser = getCurrentUser();
+
+			// Delete current cover from database, if it exists.
+			if (currentUser.getCoverAsset() != null) {
+				currentUser.setCoverAsset(null);
+			}
+		});
+	}
+
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public PagedList<User> getFollowingOrFollowers(boolean shouldGetFollowers, Long userId, Integer offset,

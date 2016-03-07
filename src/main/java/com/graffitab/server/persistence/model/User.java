@@ -22,6 +22,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -105,6 +106,14 @@ public class User implements Identifiable<Long>, UserDetails {
 	@Column(name = "status")
 	private AccountStatus accountStatus = AccountStatus.PENDING_ACTIVATION;
 
+	@OneToOne(targetEntity = Asset.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "avatar_asset_id")
+	private Asset avatarAsset;
+
+	@OneToOne(targetEntity = Asset.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "cover_asset_id")
+	private Asset coverAsset;
+
 	@Transient
 	private Boolean followedByCurrentUser = Boolean.FALSE;
 
@@ -121,11 +130,6 @@ public class User implements Identifiable<Long>, UserDetails {
 			   inverseJoinColumns = {@JoinColumn(name = "following_id")})
 	@OrderColumn(name = "order_key")
 	private List<User> following = new ArrayList<>();
-
-	@OneToMany(targetEntity = Asset.class, cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "user_id", nullable = false)
-	@OrderColumn(name = "order_key")
-	private List<Asset> assets = new ArrayList<>();
 
 	@OneToMany(targetEntity = Device.class, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "user_id", nullable = false)

@@ -26,7 +26,7 @@ public class Asset implements Identifiable<Long> {
 	private static final long serialVersionUID = 1L;
 
 	public enum AssetType {
-		AVATAR, COVER, GRAFFITI;
+		IMAGE;
 	}
 
 	@Id

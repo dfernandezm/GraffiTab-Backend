@@ -163,3 +163,9 @@ ALTER TABLE activity ADD CONSTRAINT activity_liker_id FOREIGN KEY (liker_id) REF
 ALTER TABLE asset DROP FOREIGN KEY asset_user_fk;
 ALTER TABLE asset DROP COLUMN user_id;
 ALTER TABLE asset DROP COLUMN order_key;
+
+--changeset georgi:v100cs30
+alter table gt_user add avatar_asset_id bigint(20);
+alter table gt_user add cover_asset_id bigint(20);
+ALTER TABLE gt_user ADD CONSTRAINT gt_user_avatar_asset_id FOREIGN KEY (avatar_asset_id) REFERENCES asset(id);
+ALTER TABLE gt_user ADD CONSTRAINT gt_user_cover_asset_id FOREIGN KEY (cover_asset_id) REFERENCES asset(id);
