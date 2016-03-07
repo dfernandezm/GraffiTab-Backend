@@ -17,7 +17,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.graffitab.server.service.UserSessionService;
+import com.graffitab.server.service.user.UserSessionService;
 
 /**
  *

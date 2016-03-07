@@ -1,4 +1,4 @@
-package com.graffitab.server.service;
+package com.graffitab.server.service.user;
 
 import java.io.InputStream;
 import java.util.List;
@@ -39,6 +39,8 @@ import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.UserSession;
+import com.graffitab.server.service.PagingService;
+import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.store.DatastoreService;
@@ -65,7 +67,7 @@ public class UserService {
 	private DatastoreService datastoreService;
 
 	@Resource
-	private ValidationService validationService;
+	private UserValidationService validationService;
 
 	@Resource
 	private PasswordEncoder passwordEncoder;

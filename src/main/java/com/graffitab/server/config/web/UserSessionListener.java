@@ -8,7 +8,7 @@ import lombok.extern.log4j.Log4j2;
 
 import org.springframework.stereotype.Component;
 
-import com.graffitab.server.service.UserSessionService;
+import com.graffitab.server.service.user.UserSessionService;
 
 @Component
 @Log4j2

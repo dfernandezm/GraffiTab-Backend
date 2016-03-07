@@ -49,10 +49,10 @@ import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
-import com.graffitab.server.service.UserService;
 import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
 import com.graffitab.server.service.email.EmailService;
+import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
 
 @WebAppConfiguration

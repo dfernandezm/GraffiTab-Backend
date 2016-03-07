@@ -12,7 +12,7 @@ import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
-import com.graffitab.server.service.UserService;
+import com.graffitab.server.service.user.UserService;
 
 @Service
 public class NotificationService {

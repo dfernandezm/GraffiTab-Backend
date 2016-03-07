@@ -29,7 +29,7 @@ import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.DeviceService;
-import com.graffitab.server.service.UserService;
+import com.graffitab.server.service.user.UserService;
 
 @RestController
 @RequestMapping("/api/users/me")

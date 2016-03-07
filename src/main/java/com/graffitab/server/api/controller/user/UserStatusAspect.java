@@ -18,7 +18,7 @@ import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
-import com.graffitab.server.service.UserService;
+import com.graffitab.server.service.user.UserService;
 
 @Aspect
 @Component
