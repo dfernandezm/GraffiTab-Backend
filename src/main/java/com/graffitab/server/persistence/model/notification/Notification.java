@@ -28,7 +28,7 @@ import lombok.Setter;
 @Table(name = "notification")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "notification_type", discriminatorType = DiscriminatorType.STRING)
-public class Notification implements Identifiable<Long> {
+public abstract class Notification implements Identifiable<Long> {
 
 	private static final long serialVersionUID = 1L;
 

@@ -35,6 +35,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.notification.Notification;
+import com.graffitab.server.persistence.model.streamable.Streamable;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -146,6 +147,11 @@ public class User implements Identifiable<Long>, UserDetails {
     @Column(name="metadata_value")
     @CollectionTable(name="gt_user_metadata", joinColumns = @JoinColumn(name="user_id"))
 	private Map<String, String> metadataItems = new HashMap<>();
+
+	@OneToMany(targetEntity = Streamable.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "user_id", nullable = false)
+	@OrderColumn(name = "order_key")
+	private List<Streamable> streamables = new ArrayList<>();
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

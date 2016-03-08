@@ -177,3 +177,40 @@ ALTER TABLE session CHANGE sessionId session_id VARCHAR(150) DEFAULT NULL;
 ALTER TABLE session ADD content BLOB DEFAULT NULL;
 ALTER TABLE session ADD CONSTRAINT user_session_fk FOREIGN KEY (user_id) REFERENCES gt_user(id);
 ALTER TABLE session ADD version int(11) NOT NULL;
+
+--changeset david:v100cs32
+ALTER TABLE thumbnail DROP FOREIGN KEY del_thumbnail_on_graffiti;
+drop table video;
+drop table graffiti;
+
+--changeset georgi:v100cs33
+RENAME TABLE thumbnail TO asset_thumbnail;
+ALTER TABLE asset_thumbnail CHANGE graffitiId asset_id bigint(20) NOT NULL;
+alter table asset_thumbnail add guid varchar(40) NOT NULL;
+ALTER TABLE asset_thumbnail DROP COLUMN image;
+ALTER TABLE asset_thumbnail ADD CONSTRAINT thumbnail_asset_id_fk FOREIGN KEY (asset_id) REFERENCES asset(id);
+
+--changeset georgi:v100cs34
+ALTER TABLE streamable DROP FOREIGN KEY del_streamable_on_person;
+ALTER TABLE streamable CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE streamable CHANGE isPrivate is_private int(11) NOT NULL DEFAULT 0;
+ALTER TABLE streamable CHANGE isFlagged is_flagged int(11) NOT NULL DEFAULT 0;
+ALTER TABLE streamable DROP COLUMN width;
+ALTER TABLE streamable DROP COLUMN height;
+alter table streamable add asset_id bigint(20);
+alter table streamable add latitude double;
+alter table streamable add longitude double;
+ALTER TABLE streamable ADD CONSTRAINT streamable_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
+drop table streamableTag;
+drop table streamableVideo;
+
+--changeset georgi:v100cs35
+alter table streamable change is_private is_private varchar(10) NOT NULL;
+alter table streamable change is_flagged is_flagged varchar(10) NOT NULL;
+alter table streamable change asset_id asset_id bigint(20) NOT NULL;
+
+--changeset georgi:v100cs36
+alter table streamable change type streamable_type varchar(50) NOT NULL;
+
+--changeset georgi:v100cs37
+alter table streamable add order_key int(11) not null;
