@@ -22,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.graffitab.server.api.authentication.ExternalIdAuthenticationToken;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UserDto;
@@ -635,15 +634,5 @@ public class UserService {
 	private String generateUserAccountActivationLink(String userToken) {
 		String activationLink = generateBaseLink() + "/api/users/activate/" + userToken;
 		return activationLink;
-	}
-
-	private void authenticateUserFromExternalId(User user, String externalId, String accessToken,
-			ExternalProviderType externalProviderType) {
-		ExternalIdAuthenticationToken auth = new ExternalIdAuthenticationToken();
-		auth.setAccessToken(accessToken);
-		auth.setAuthenticated(true);
-		auth.setExternalId(externalId);
-		auth.setUser(user);
-		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 }
