@@ -17,13 +17,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import com.graffitab.server.persistence.dao.Identifiable;
-import com.graffitab.server.persistence.model.Asset;
-import com.graffitab.server.persistence.util.BooleanToStringConverter;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import org.joda.time.DateTime;
+
+import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.model.Asset;
+import com.graffitab.server.persistence.util.BooleanToStringConverter;
+import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 @Getter
 @Setter
@@ -44,8 +47,9 @@ public abstract class Streamable implements Identifiable<Long> {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
+	@Convert(converter = DateTimeToLongConverter.class)
 	@Column(name = "date", nullable = false)
-	private Long date;
+	private DateTime date;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "streamable_type", nullable = false, insertable = false, updatable = false)
@@ -79,6 +83,6 @@ public abstract class Streamable implements Identifiable<Long> {
 
 	public Streamable(StreamableType streamableType) {
 		this.streamableType = streamableType;
-		this.date = System.currentTimeMillis();
+		this.date = new DateTime();
 	}
 }

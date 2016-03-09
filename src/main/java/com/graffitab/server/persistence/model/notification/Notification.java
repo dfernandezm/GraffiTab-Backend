@@ -14,12 +14,15 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
-import com.graffitab.server.persistence.dao.Identifiable;
-import com.graffitab.server.persistence.util.BooleanToStringConverter;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import org.joda.time.DateTime;
+
+import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.util.BooleanToStringConverter;
+import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 @Getter
 @Setter
@@ -48,8 +51,9 @@ public abstract class Notification implements Identifiable<Long> {
 	@Column(name = "notification_type", nullable = false, insertable = false, updatable = false)
 	private NotificationType notificationType;
 
+	@Convert(converter = DateTimeToLongConverter.class)
 	@Column(name = "date", nullable = false)
-	private Long date;
+	private DateTime date;
 
 	@Override
 	public Long getId() {
@@ -68,6 +72,6 @@ public abstract class Notification implements Identifiable<Long> {
 	public Notification(NotificationType notificationType) {
 		this.isRead = false;
 		this.notificationType = notificationType;
-		this.date = System.currentTimeMillis();
+		this.date = new DateTime();
 	}
 }
