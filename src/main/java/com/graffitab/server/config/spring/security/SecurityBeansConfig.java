@@ -8,6 +8,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
+import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFilter;
 import com.graffitab.server.api.authentication.SessionInvalidationFilter;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.JsonLoginFailureHandler;
@@ -47,6 +48,16 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public SessionInvalidationFilter invalidateSessionFilter() {
 		return new SessionInvalidationFilter(commonAuthenticationEntryPoint());
+	}
+
+	@Bean
+	public ExternalProviderAuthenticationFilter externalProviderAuthenticationFilter() throws Exception {
+		ExternalProviderAuthenticationFilter externalProviderFilter =
+												new ExternalProviderAuthenticationFilter();
+		externalProviderFilter.setAuthenticationManager(authenticationManager());
+		externalProviderFilter.setAuthenticationSuccessHandler(jsonLoginSuccessHandler());
+		externalProviderFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
+		return externalProviderFilter;
 	}
 
 }

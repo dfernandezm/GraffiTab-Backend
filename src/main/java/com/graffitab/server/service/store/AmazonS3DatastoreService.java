@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -50,9 +51,13 @@ public class AmazonS3DatastoreService implements DatastoreService {
 			LOG.debug("Logging into Amazon S3 - AWS Key is {}", awsKey);
 		}
 
-		BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsKey, awsSecret);
-		amazonS3Client = new AmazonS3Client(awsCreds);
-		LOG.info("Successfully logged into Amazon S3");
+		if (StringUtils.hasText(awsKey) && StringUtils.hasText(awsSecret)) {
+			BasicAWSCredentials awsCreds = new BasicAWSCredentials(awsKey, awsSecret);
+			amazonS3Client = new AmazonS3Client(awsCreds);
+			LOG.info("Successfully logged into Amazon S3");
+		} else {
+			LOG.warn("Amazon S3 credentials are null -- The datastore won't work");
+		}
 	}
 
 	@Override

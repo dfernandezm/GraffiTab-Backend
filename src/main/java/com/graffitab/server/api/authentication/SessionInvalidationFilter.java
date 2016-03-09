@@ -58,7 +58,7 @@ public class SessionInvalidationFilter extends GenericFilterBean {
 		}
 
 		if (log.isDebugEnabled()) {
-			log.debug("Invalidating sessions");
+			log.debug("Checking sessions to invalidate...");
 		}
 
 	    HttpSession session = request.getSession(false);

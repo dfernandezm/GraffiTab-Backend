@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
@@ -17,6 +18,7 @@ import org.springframework.security.oauth2.common.util.SerializationUtils;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
+import com.graffitab.server.api.errors.UserNotLoggedInException;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.UserSession;
@@ -35,6 +37,9 @@ public class UserSessionService {
 
 	@Resource
 	private TransactionUtils transactionUtils;
+
+	@Resource
+	private HttpServletRequest httpServletRequest;
 
 	private ExecutorService sessionOperationsExecutor = Executors.newFixedThreadPool(2);
 
@@ -119,6 +124,35 @@ public class UserSessionService {
 			}
 		}
 		return sessionAttributeMap;
+	}
+
+	public void logoutEverywhere(User user) {
+		Integer deletedSessionCount = userSessionDao
+				  .createNamedQuery("UserSession.deleteAllSessionsForUser")
+				  .setParameter("user", user).executeUpdate();
+
+		if (log.isDebugEnabled()) {
+			log.debug("Deleted {} sessions for user ID {}", deletedSessionCount, user.getId());
+		}
+	}
+
+	public void saveOrUpdateCurrentSessionData() {
+		if (httpServletRequest != null) {
+			HttpSession session = httpServletRequest.getSession(false);
+			if (session != null) {
+				if (log.isDebugEnabled()) {
+					log.debug("Persisting session: {}", session.getId());
+				}
+				saveOrUpdateSessionData(session);
+			} else {
+				log.warn("No session for this request -- this should be investigated");
+				throw new UserNotLoggedInException("User is not authenticated or session has not being created");
+			}
+		} else {
+			String msg = "This is not an HTTP request thread";
+			log.warn(msg);
+			throw new IllegalStateException(msg);
+		}
 	}
 
 	//TODO: cleaner thread to expire sessions in the DB

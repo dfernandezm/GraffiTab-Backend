@@ -38,7 +38,6 @@ import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
-import com.graffitab.server.persistence.model.UserSession;
 import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
@@ -58,7 +57,7 @@ public class UserService {
 	private HibernateDaoImpl<User, Long> userDao;
 
 	@Resource
-	private HibernateDaoImpl<UserSession, Long> userSessionDao;
+	private UserSessionService userSessionService;
 
 	@Resource
 	private PagingService<User> pagingService;
@@ -183,9 +182,9 @@ public class UserService {
 		if (user == null) {
 			throw new EntityNotFoundException(ResultCode.NOT_FOUND,
 					"Could not find user with externalId " + externalId);
-		} else {
-			authenticateUserFromExternalId(user, externalId, accessToken, externalProviderType);
 		}
+
+		// The user is effectively authenticated using ExternalProviderAuthenticationFilter
 
 		return user;
 	}
@@ -525,7 +524,7 @@ public class UserService {
 		user.setPassword(passwordEncoder.encode(newPassword));
 
 		// Logout from all devices
-		logoutEverywhere(user);
+		userSessionService.logoutEverywhere(user);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully reset password for user " + user.getUsername());
@@ -547,25 +546,13 @@ public class UserService {
 		user.setPassword(passwordEncoder.encode(newPassword));
 
 		// Logout from all devices
-        logoutEverywhere(user);
+        userSessionService.logoutEverywhere(user);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully changed password for user " + user.getUsername());
 		}
 
 		return user;
-	}
-
-	@Transactional
-	public void logoutEverywhere(User user) {
-
-		Integer deletedSessionCount = userSessionDao
-									  .createNamedQuery("UserSession.deleteAllSessionsForUser")
-									  .setParameter("user", user).executeUpdate();
-
-		if (log.isDebugEnabled()) {
-			log.debug("Deleted {} sessions for user ID {}", deletedSessionCount, user.getId());
-		}
 	}
 
 	@Transactional(readOnly = true)
@@ -659,19 +646,4 @@ public class UserService {
 		auth.setUser(user);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
-
-	// Criteria criteria = userDao.getBaseCriteria("u");
-	// criteria.createAlias("u.followers", "f")
-	// .add(Restrictions.eq("u.id",
-	// getCurrentUser().getId())).setProjection(Projections.);
-	// PagedList<User> followers = userDao.findPaged(criteria, offset, count);
-
-	/*
-	 * List results = session.createCriteria(Domestic.class, "cat")
-	 * .createAlias("kittens", "kit") .setProjection(
-	 * Projections.projectionList() .add( Projections.property("cat.name"),
-	 * "catName" ) .add( Projections.property("kit.name"), "kitName" ) )
-	 * .addOrder( Order.asc("catName") ) .addOrder( Order.asc("kitName") )
-	 * .list();
-	 */
 }

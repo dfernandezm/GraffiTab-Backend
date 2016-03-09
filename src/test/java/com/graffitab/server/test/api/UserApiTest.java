@@ -52,6 +52,7 @@ import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
 import com.graffitab.server.service.email.EmailService;
+import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
 
@@ -89,6 +90,7 @@ public class UserApiTest {
 
 	         wiser = startWiser();
 	         replaceEmailSenderService();
+	         replaceDatastoreService();
 	    }
 
 	    @After
@@ -250,6 +252,10 @@ public class UserApiTest {
 	    	ReflectionTestUtils.setField(userService, "emailService", emailService);
 	    }
 
+	    private void replaceDatastoreService() {
+	    	DatastoreService testDatastoreService = new TestDatastoreService();
+	    	ReflectionTestUtils.setField(userService, "datastoreService", testDatastoreService);
+	    }
 
 	    /**
 		 * Unwrap the given spring bean, if it's proxied.
@@ -320,5 +326,33 @@ public class UserApiTest {
 	}
 
 
-	//TODO:  Amazon S3 Mock
+	public static class TestDatastoreService implements DatastoreService {
+
+		@Override
+		public void saveAsset(InputStream inputStream, long contentLength,
+				String userGuid, String assetGuid) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void updateAsset(InputStream inputStream, long contentLength,
+				String userGuid, String assetGuid) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void deleteAsset(String userGuid, String assetGuid) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public String generateDownloadLink(String userGuid, String assetGuid) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}
 }

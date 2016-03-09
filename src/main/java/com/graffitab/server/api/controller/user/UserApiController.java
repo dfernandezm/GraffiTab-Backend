@@ -19,7 +19,6 @@ import com.graffitab.server.api.controller.BaseApiController;
 import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.user.CreateExternalUserResult;
 import com.graffitab.server.api.dto.user.CreateUserResult;
-import com.graffitab.server.api.dto.user.ExternalProviderDto;
 import com.graffitab.server.api.dto.user.ExternalUserDto;
 import com.graffitab.server.api.dto.user.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.GetUserResult;
@@ -67,15 +66,6 @@ public class UserApiController extends BaseApiController {
 	public GetUserResult getUserByUsername(@PathVariable("username") String username) {
 		GetUserResult getUserResult = new GetUserResult();
 		User user = (User) userService.getUserByUsername(username);
-		getUserResult.setUser(mapper.map(user, UserDto.class));
-		return getUserResult;
-	}
-
-	@RequestMapping(value = "/externalprovider/login", method = RequestMethod.POST)
-	@Transactional
-	public GetUserResult verifyExternalId(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
-		GetUserResult getUserResult = new GetUserResult();
-		User user = userService.verifyExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
 		getUserResult.setUser(mapper.map(user, UserDto.class));
 		return getUserResult;
 	}

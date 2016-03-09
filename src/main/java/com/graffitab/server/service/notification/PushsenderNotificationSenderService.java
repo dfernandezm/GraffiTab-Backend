@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.devsu.push.sender.service.async.AsyncAndroidPushService;
 import com.devsu.push.sender.service.async.AsyncApplePushService;
@@ -43,13 +44,18 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 	}
 
 	@PostConstruct
-	public void setupSendgrid() throws IOException {
+	public void setup() throws IOException {
 		String apnsCertificatePassword = System.getenv(PN_APNS_CERTIFICATE_PASSWORD_ENVVAR_NAME);
 		String gcmKey = System.getenv(PN_GCM_SENDER_KEY_ENVVAR_NAME);
 		log.debug("Setting up Push Sender with GCM API key: {}", gcmKey);
 		log.debug("Loading Push Sender APNS certificate path: {}", PN_APNS_CERTIFICATE_PATH);
-		androidService = new AsyncAndroidPushService(gcmKey);
-		appleService = new AsyncApplePushService(PN_APNS_CERTIFICATE_PATH, apnsCertificatePassword, PN_IS_PRODUCTION_ENVIRONMENT);
+
+		if (StringUtils.hasText(apnsCertificatePassword) && StringUtils.hasText(gcmKey)) {
+			androidService = new AsyncAndroidPushService(gcmKey);
+			appleService = new AsyncApplePushService(PN_APNS_CERTIFICATE_PATH, apnsCertificatePassword, PN_IS_PRODUCTION_ENVIRONMENT);
+		} else {
+			log.warn("apnsCertificatePassword and gcmKey are missing -- push notifications won't work");
+		}
 	}
 
 	@Override

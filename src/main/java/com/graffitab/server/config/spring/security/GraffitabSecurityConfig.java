@@ -25,6 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 import com.graffitab.server.api.authentication.CustomFailureBasicAuthFilter;
+import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFilter;
 import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
@@ -93,6 +94,9 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 		private JsonLoginAuthenticationFilter jsonAuthenticationFilter;
 
 		@Autowired
+		private ExternalProviderAuthenticationFilter externalProviderAuthenticationFilter;
+
+		@Autowired
 		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
 
 
@@ -103,7 +107,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
         	// and it is not authenticated (anonymous) we let it pass -- this is what we want for login
             http.csrf().disable()
                   .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/api/login")
+                    .antMatchers(HttpMethod.POST, "/api/login", "/api/externalprovider/login")
                     .and()
                     .authorizeRequests()
                     .anyRequest()
@@ -113,8 +117,8 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             	    	.sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
 
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            http.addFilterBefore(externalProviderAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             http.exceptionHandling().authenticationEntryPoint(commonAuthenticationEntryPoint);
-
         }
 	}
 
@@ -137,7 +141,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
         	// register endpoints
             http.csrf().disable()
                   .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/api/users", "/api/users/resetpassword", "/api/users/externalprovider/**")
+                    .antMatchers(HttpMethod.POST, "/api/users", "/api/users/resetpassword", "/api/users/externalprovider")
                     .antMatchers(HttpMethod.GET, "/api/users/activate/**")
                     .antMatchers(HttpMethod.PUT, "/api/users/resetpassword/**")
                     .and()
@@ -187,7 +191,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
             // Add the custom authentication filter before the regular one
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-            //AuthenticationEntryPoint commonEntryPoint = new CommonAuthenticationEntryPoint();
+           
             // Add the basic auth filter before the jsonLogin filter (check first)
             http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager(), commonAuthenticationEntryPoint),
             		    JsonLoginAuthenticationFilter.class);
