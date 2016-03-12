@@ -3,19 +3,20 @@ package com.graffitab.server.api.mapper;
 import java.util.ArrayList;
 import java.util.List;
 
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
-
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
-import com.graffitab.server.api.dto.user.ListUsersResult;
+import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserProfileDto;
 import com.graffitab.server.persistence.model.Asset;
-import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.notification.NotificationFollow;
+import com.graffitab.server.persistence.model.notification.NotificationWelcome;
+
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
 
 @Component
 public class OrikaMapper {
@@ -36,6 +37,7 @@ public class OrikaMapper {
 
 	private static void registerMappings() {
 		// By default there automatic mapping is enabled, not need to register every single class
+		// Map user DTOs.
 		mapperFactory.classMap(User.class, UserDto.class)
 			.byDefault()
 		    .register();
@@ -45,23 +47,19 @@ public class OrikaMapper {
 			.byDefault()
 		    .register();
 
-		mapperFactory.classMap(PagedList.class, PagedList.class)
-		.exclude("results")
-		.byDefault()
-		.register();
-
+		// Map asset DTOs.
 		mapperFactory.classMap(Asset.class, AssetDto.class)
-		.exclude("id")
-		.exclude("user")
 		.byDefault()
 		.register();
 
-		mapperFactory.classMap(PagedList.class, ListUsersResult.class)
-		.field("total", "total")
-		.field("offset", "offset")
-		.field("count", "pageSize")
-		.register();
+		// Map notification DTOs.
+		mapperFactory.classMap(NotificationWelcome.class, NotificationDto.class)
+		.byDefault()
+	    .register();
 
+		mapperFactory.classMap(NotificationFollow.class, NotificationDto.class)
+		.byDefault()
+	    .register();
 	}
 
 	private static MapperFacade getMapperFacade() {

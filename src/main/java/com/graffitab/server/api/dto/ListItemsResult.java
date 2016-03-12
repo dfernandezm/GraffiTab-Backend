@@ -5,10 +5,12 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter @Setter
-public class ListResult<T> {
-	private List<T> elements;
+@Getter
+@Setter
+public class ListItemsResult<T> {
+
+	private List<T> items;
 	private Integer total;
 	private Integer offset;
-	private Integer pageSize;
+	private Integer count;
 }

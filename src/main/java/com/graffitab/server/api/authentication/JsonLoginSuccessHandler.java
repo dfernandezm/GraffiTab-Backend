@@ -12,8 +12,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
-import com.graffitab.server.api.dto.user.GetUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.user.UserSessionService;

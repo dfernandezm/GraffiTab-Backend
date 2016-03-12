@@ -6,8 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -22,8 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
-import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
@@ -37,13 +35,16 @@ import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
-import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
+import com.graffitab.server.service.paging.PagingService;
+import com.graffitab.server.service.paging.PagingServiceQueryProvider;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -57,9 +58,6 @@ public class UserService {
 
 	@Resource
 	private UserSessionService userSessionService;
-
-	@Resource
-	private PagingService<User> pagingService;
 
 	@Resource
 	private DatastoreService datastoreService;
@@ -84,6 +82,9 @@ public class UserService {
 
 	@Resource
 	private HttpServletRequest request;
+
+	@Resource
+	private PagingService pagingService;
 
 	public static final String ACTIVATION_TOKEN_METADATA_KEY = "activationToken";
 	public static final String ACTIVATION_TOKEN_DATE_METADATA_KEY = "activationTokenDate";
@@ -402,39 +403,30 @@ public class UserService {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
 	@Transactional
-	public PagedList<User> getFollowingOrFollowers(boolean shouldGetFollowers, Long userId, Integer offset,
-			Integer count) {
-		User user = (userId == null) ? getCurrentUser() : findUserById(userId);
-
-		Query query = userDao.createQuery("select f from User u " + "join u."
-				+ (shouldGetFollowers ? "followers" : "following") + " f " + "where u = :currentUser");
-		query.setParameter("currentUser", user);
-		query.setFirstResult(offset != null ? offset : 0);
-		query.setMaxResults(count != null ? count : 10);
-
-		PagedList<User> users = new PagedList<>((List<User>) query.list(), offset, count);
-
+	public ListItemsResult<UserDto> getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
 		User currentUser = getCurrentUser();
-		// Check if the current user is following user u from the list.
-		users.forEach(u -> u.setFollowedByCurrentUser(currentUser.isFollowing(u)));
+		User requestedUser = (userId == null) ? getCurrentUser() : findUserById(userId);
 
-		return users;
-	}
+		return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, new PagingServiceQueryProvider<User>() {
 
-	public ListUsersResult getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
-		PagedList<User> users = getFollowingOrFollowers(shouldGetFollowers, userId, offset, count);
-		ListUsersResult listUsersResult = new ListUsersResult();
+			@Override
+			public Query getItemSearchQuery() {
+				Query query = userDao.createQuery("select f from User u " + "join u."
+						+ (shouldGetFollowers ? "followers" : "following") + " f " + "where u = :currentUser");
+				query.setParameter("currentUser", requestedUser);
 
-		List<UserDto> userDtos = mapper.mapList(users, UserDto.class);
+				return query;
+			}
 
-		listUsersResult.setUsers(userDtos);
-		listUsersResult.setTotal(users.getTotal());
-		listUsersResult.setPageSize(users.getCount());
-		listUsersResult.setOffset(users.getOffset());
+			@Override
+			public List<User> getAugmentedItemsList(List<User> items) {
+				// Check if the current user is following user u from the list.
+				items.forEach(u -> u.setFollowedByCurrentUser(currentUser.isFollowing(u)));
 
-		return listUsersResult;
+				return items;
+			}
+		});
 	}
 
 	@Transactional

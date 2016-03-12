@@ -12,6 +12,7 @@ import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.UserSession;
 import com.graffitab.server.persistence.model.notification.Notification;
+import com.graffitab.server.persistence.model.streamable.Streamable;
 
 @Configuration
 public class DaoConfig {
@@ -39,6 +40,11 @@ public class DaoConfig {
 	@Bean
 	public HibernateDaoImpl<UserSession, Long> userSessionDao() {
 		return generateDao(UserSession.class);
+	}
+
+	@Bean
+	public HibernateDaoImpl<Streamable, Long> streamableDao() {
+		return generateDao(Streamable.class);
 	}
 
 	private <T extends Identifiable<K>,K extends Serializable> HibernateDaoImpl<T,K> generateDao(Class<T> entityClass) {

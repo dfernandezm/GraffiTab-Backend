@@ -4,31 +4,38 @@ import java.io.IOException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.dto.ActionCompletedResult;
-import com.graffitab.server.api.dto.asset.AddAssetResult;
+import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
+import com.graffitab.server.api.dto.asset.result.AddAssetResult;
 import com.graffitab.server.api.dto.device.DeviceDto;
+import com.graffitab.server.api.dto.notification.NotificationDto;
+import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
-import com.graffitab.server.api.dto.user.GetUserResult;
-import com.graffitab.server.api.dto.user.ListUsersResult;
-import com.graffitab.server.api.dto.user.UpdateUserResult;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.DeviceService;
+import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.user.UserService;
 
 @RestController
@@ -37,6 +44,9 @@ public class MeApiController {
 
 	@Resource
 	private UserService userService;
+
+	@Resource
+	private NotificationService notificationService;
 
 	@Resource
 	private DeviceService deviceService;
@@ -54,11 +64,19 @@ public class MeApiController {
 		return getUserResult;
 	}
 
+	@RequestMapping(value = {"/notifications"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<NotificationDto> listUsers(@RequestParam(value="offset", required = false) Integer offset,
+									 		 @RequestParam(value="count", required = false) Integer count) {
+		return notificationService.getNotificationsResult(offset, count);
+	}
+
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public UpdateUserResult updateUser(@JsonProperty("user") UserDto userDto) {
-		UpdateUserResult updateUserResult = new UpdateUserResult();
+	public GetUserResult updateUser(@JsonProperty("user") UserDto userDto) {
+		GetUserResult updateUserResult = new GetUserResult();
 		User user = userService.updateUser(mapper.map(userDto, User.class));
 		updateUserResult.setUser(mapper.map(user, UserDto.class));
 		return updateUserResult;
@@ -146,16 +164,26 @@ public class MeApiController {
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListUsersResult getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
-													  @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
+													  		   @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(true, null, offset, count);
 	}
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListUsersResult getFollowingForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
-													  @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowingForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
+													  		   @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);
+	}
+
+	// TODO:
+	@RequestMapping(value = "/streamables", method = RequestMethod.POST)
+	@ResponseBody
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public boolean createStreamable(@RequestPart("properties") StreamableGraffitiDto streamableDto,
+									@RequestPart("file") @NotNull @NotBlank MultipartFile file) {
+		System.out.println(streamableDto);
+	    return true;
 	}
 }

@@ -1,7 +1,5 @@
 package com.graffitab.server.api.controller.user;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import org.springframework.http.HttpStatus;
@@ -17,20 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.controller.BaseApiController;
 import com.graffitab.server.api.dto.ActionCompletedResult;
-import com.graffitab.server.api.dto.user.CreateExternalUserResult;
-import com.graffitab.server.api.dto.user.CreateUserResult;
+import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalUserDto;
-import com.graffitab.server.api.dto.user.GetUserProfileResult;
-import com.graffitab.server.api.dto.user.GetUserResult;
-import com.graffitab.server.api.dto.user.ListUsersResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserProfileDto;
+import com.graffitab.server.api.dto.user.result.CreateUserResult;
+import com.graffitab.server.api.dto.user.result.GetUserProfileResult;
+import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.api.util.UploadUtils;
-import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
-import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
 
@@ -40,9 +35,6 @@ public class UserApiController extends BaseApiController {
 
 	@Resource
 	private UserService userService;
-
-	@Resource
-	private PagingService<User> pagingService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -73,8 +65,8 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/externalprovider"}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
-	public CreateExternalUserResult createExternalUser(@RequestBody ExternalUserDto externalUserDto) {
-		CreateExternalUserResult createExternalUserResult = new CreateExternalUserResult();
+	public GetUserResult createExternalUser(@RequestBody ExternalUserDto externalUserDto) {
+		GetUserResult createExternalUserResult = new GetUserResult();
 		User user = userService.createExternalUser(mapper.map(externalUserDto.getUser(), User.class), externalUserDto.getExternalId(), externalUserDto.getAccessToken(), externalUserDto.getExternalProviderType());
 		createExternalUserResult.setUser(mapper.map(user, UserDto.class));
 		return createExternalUserResult;
@@ -115,25 +107,6 @@ public class UserApiController extends BaseApiController {
 		return resetPasswordResult;
 	}
 
-	// Maybe not needed - get all the users page by page
-	@RequestMapping(value = {""}, method = RequestMethod.GET, produces={"application/json"})
-	@Transactional
-	public ListUsersResult listUsers(@RequestParam(value="offset", required = false) Integer offset,
-									 @RequestParam(value="count", required = false) Integer count) {
-
-		ListUsersResult listUsersResult = new ListUsersResult();
-
-		PagedList<User> users =  pagingService.findAllPaged(offset, count);
-
-		List<UserDto> userDtos = mapper.mapList(users, UserDto.class);
-		listUsersResult.setUsers(userDtos);
-		listUsersResult.setTotal(users.getTotal());
-		listUsersResult.setPageSize(users.getCount());
-		listUsersResult.setOffset(users.getOffset());
-
-		return listUsersResult;
-	}
-
 	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
@@ -167,18 +140,18 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListUsersResult getFollowers(@PathVariable("id") Long userId,
-										@RequestParam(value="offset", required = false) Integer offset,
-										@RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowers(@PathVariable("id") Long userId,
+												 @RequestParam(value="offset", required = false) Integer offset,
+												 @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(true, userId, offset, count);
 	}
 
 	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListUsersResult getFollowing(@PathVariable("id") Long userId,
-										@RequestParam(value="offset", required = false) Integer offset,
-										@RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowing(@PathVariable("id") Long userId,
+												 @RequestParam(value="offset", required = false) Integer offset,
+												 @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, userId, offset, count);
 	}
 

@@ -1,4 +1,6 @@
-package com.graffitab.server.api.dto.user;
+package com.graffitab.server.api.dto.user.result;
+
+import com.graffitab.server.api.dto.user.UserDto;
 
 import lombok.Data;
 
