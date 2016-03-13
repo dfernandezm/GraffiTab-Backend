@@ -24,17 +24,23 @@ import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.asset.result.AddAssetResult;
 import com.graffitab.server.api.dto.device.DeviceDto;
 import com.graffitab.server.api.dto.notification.NotificationDto;
+import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
+import com.graffitab.server.api.dto.streamable.result.AddStreamableResult;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.result.GetUserResult;
+import com.graffitab.server.api.errors.RestApiException;
+import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
+import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.service.DeviceService;
+import com.graffitab.server.service.StreamableService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.user.UserService;
 
@@ -44,6 +50,9 @@ public class MeApiController {
 
 	@Resource
 	private UserService userService;
+
+	@Resource
+	private StreamableService streamableService;
 
 	@Resource
 	private NotificationService notificationService;
@@ -177,13 +186,19 @@ public class MeApiController {
 		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);
 	}
 
-	// TODO:
-	@RequestMapping(value = "/streamables", method = RequestMethod.POST)
+	@RequestMapping(value = "/streamables/graffiti", method = RequestMethod.POST)
 	@ResponseBody
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public boolean createStreamable(@RequestPart("properties") StreamableGraffitiDto streamableDto,
-									@RequestPart("file") @NotNull @NotBlank MultipartFile file) {
-		System.out.println(streamableDto);
-	    return true;
+	public AddStreamableResult createGraffiti(@RequestPart("properties") StreamableGraffitiDto streamableDto,
+											  @RequestPart("file") @NotNull @NotBlank MultipartFile file) {
+		try {
+			AddStreamableResult addStreamableResult = new AddStreamableResult();
+			Streamable streamable = streamableService.createStreamableGraffiti(streamableDto, file.getInputStream(), file.getSize());
+			addStreamableResult.setStreamable(mapper.map(streamable, StreamableDto.class));
+			return addStreamableResult;
+		} catch (IOException e) {
+			throw new RestApiException(ResultCode.BAD_REQUEST,
+					"File stream could not be read.");
+		}
 	}
 }

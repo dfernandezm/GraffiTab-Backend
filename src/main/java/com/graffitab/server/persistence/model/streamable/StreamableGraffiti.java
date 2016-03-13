@@ -21,14 +21,26 @@ public class StreamableGraffiti extends Streamable {
 	@Column(name = "longitude")
 	private Double longitude;
 
+	@Column(name = "roll")
+	private Double roll;
+
+	@Column(name = "yaw")
+	private Double yaw;
+
+	@Column(name = "pitch")
+	private Double pitch;
+
 	public StreamableGraffiti() {
 		super(StreamableType.GRAFFITI);
 	}
 
-	public StreamableGraffiti(Double latitude, Double longitude) {
+	public StreamableGraffiti(Double latitude, Double longitude, Double roll, Double yaw, Double pitch) {
 		super(StreamableType.GRAFFITI);
 
 		this.latitude = latitude;
 		this.longitude = longitude;
+		this.roll = roll;
+		this.yaw = yaw;
+		this.pitch = pitch;
 	}
 }

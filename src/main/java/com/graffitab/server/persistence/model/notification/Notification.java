@@ -14,15 +14,15 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.util.BooleanToStringConverter;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

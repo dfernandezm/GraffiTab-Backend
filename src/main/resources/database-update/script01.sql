@@ -214,3 +214,8 @@ alter table streamable change type streamable_type varchar(50) NOT NULL;
 
 --changeset georgi:v100cs37
 alter table streamable add order_key int(11) not null;
+
+--changeset georgi:v100cs38
+alter table streamable add roll DOUBLE;
+alter table streamable add yaw DOUBLE;
+alter table streamable add pitch DOUBLE;

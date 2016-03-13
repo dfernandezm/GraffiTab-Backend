@@ -7,12 +7,14 @@ import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.notification.NotificationDto;
+import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserProfileDto;
 import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
+import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -58,6 +60,11 @@ public class OrikaMapper {
 	    .register();
 
 		mapperFactory.classMap(NotificationFollow.class, NotificationDto.class)
+		.byDefault()
+	    .register();
+
+		// Map notification DTOs.
+		mapperFactory.classMap(StreamableGraffiti.class, StreamableDto.class)
 		.byDefault()
 	    .register();
 	}

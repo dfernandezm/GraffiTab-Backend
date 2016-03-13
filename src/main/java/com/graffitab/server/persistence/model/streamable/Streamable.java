@@ -14,19 +14,21 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.Asset;
+import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.util.BooleanToStringConverter;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -46,6 +48,10 @@ public abstract class Streamable implements Identifiable<Long> {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
+
+	@ManyToOne(targetEntity = User.class)
+	@JoinColumn(name = "user_id", insertable = false, updatable = false)
+	private User user;
 
 	@Convert(converter = DateTimeToLongConverter.class)
 	@Column(name = "date", nullable = false)
@@ -84,5 +90,7 @@ public abstract class Streamable implements Identifiable<Long> {
 	public Streamable(StreamableType streamableType) {
 		this.streamableType = streamableType;
 		this.date = new DateTime();
+		this.isFlagged = false;
+		this.isPrivate = false;
 	}
 }

@@ -1,0 +1,30 @@
+package com.graffitab.server.api.dto.streamable;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.graffitab.server.persistence.model.Asset;
+import com.graffitab.server.persistence.model.User;
+
+import lombok.Data;
+
+@Data
+@JsonInclude(Include.NON_NULL)
+public class StreamableDto {
+
+	private Long id;
+	private User user;
+	private String date;
+
+	@JsonProperty(value = "type")
+	private String streamableType;
+
+	private Boolean isPrivate;
+	private Boolean isFlagged;
+	private Asset asset;
+	private Double latitude;
+	private Double longitude;
+	private Double roll;
+	private Double yaw;
+	private Double pitch;
+}

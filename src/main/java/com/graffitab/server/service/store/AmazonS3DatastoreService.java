@@ -20,7 +20,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.graffitab.server.service.TransactionUtils;
-import com.graffitab.server.service.UploadJobService;
 
 @Service
 public class AmazonS3DatastoreService implements DatastoreService {
@@ -38,9 +37,6 @@ public class AmazonS3DatastoreService implements DatastoreService {
 
 	@Resource
 	private TransactionUtils transactionUtils;
-
-	@Resource
-	private UploadJobService uploadJobService;
 
 	@PostConstruct
 	public void setupClient() {
