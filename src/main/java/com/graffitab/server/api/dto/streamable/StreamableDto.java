@@ -3,7 +3,7 @@ package com.graffitab.server.api.dto.streamable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.graffitab.server.persistence.model.Asset;
+import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.persistence.model.User;
 
 import lombok.Data;
@@ -21,7 +21,7 @@ public class StreamableDto {
 
 	private Boolean isPrivate;
 	private Boolean isFlagged;
-	private Asset asset;
+	private AssetDto asset;
 	private Double latitude;
 	private Double longitude;
 	private Double roll;

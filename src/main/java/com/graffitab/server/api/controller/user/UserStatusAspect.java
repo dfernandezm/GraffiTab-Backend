@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -19,6 +17,8 @@ import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j2;
 
 @Aspect
 @Component

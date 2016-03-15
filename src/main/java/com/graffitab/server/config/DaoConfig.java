@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.dao.Identifiable;
-import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.UserSession;
+import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 

@@ -26,13 +26,16 @@ public class JsonLoginSuccessHandler implements AuthenticationSuccessHandler {
 	@Resource
 	private UserSessionService userSessionService;
 
+	@Resource
+	private OrikaMapper mapper;
+
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request,
 			HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
 
 		GetUserResult result = new GetUserResult();
-		UserDto dto = OrikaMapper.get().map((User)authentication.getPrincipal(), UserDto.class);
+		UserDto dto = mapper.map((User)authentication.getPrincipal(), UserDto.class);
 		result.setUser(dto);
 
 		// Store session

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
-import com.graffitab.server.persistence.model.Asset;
-import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 import com.graffitab.server.service.store.DatastoreService;
@@ -34,12 +34,7 @@ public class StreamableService {
 	public Streamable createStreamableGraffiti(StreamableGraffitiDto streamableGraffitiDto, InputStream assetInputStream, long contentLength) {
 		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
 
-		User user = transactionUtils.executeInTransactionWithResult(() -> {
-			User currentUser = userService.getCurrentUser();
-			return currentUser;
-		});
-
-		datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid());
+		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
 
 		Streamable streamable = transactionUtils.executeInTransactionWithResult(() -> {
 			User currentUser = userService.getCurrentUser();

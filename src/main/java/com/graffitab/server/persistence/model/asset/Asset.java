@@ -1,4 +1,4 @@
-package com.graffitab.server.persistence.model;
+package com.graffitab.server.persistence.model.asset;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

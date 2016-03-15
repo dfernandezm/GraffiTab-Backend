@@ -21,8 +21,8 @@ import javax.persistence.Table;
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
-import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.util.BooleanToStringConverter;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 

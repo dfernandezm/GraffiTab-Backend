@@ -24,11 +24,11 @@ import com.graffitab.server.service.TransactionUtils;
 @Service
 public class AmazonS3DatastoreService implements DatastoreService {
 
-	private static Logger LOG = LogManager.getLogger();
+	public static String BUCKET_NAME = "graffitab-eu1"; // Single bucket for now
+	public static String SUFFIX = "/";
+	public static String ASSETS_ROOT_KEY = "assets";
 
-	private static String BUCKET_NAME = "graffitab-eu1"; // Single bucket for now
-	private static String SUFFIX = "/";
-	private static String USERS_ROOT_KEY = "users";
+	private static Logger LOG = LogManager.getLogger();
 
 	private String AWS_SECRET_ENVVAR_NAME = "AWS_SECRET_KEY";
 	private String AWS_KEY_ENVVAR_NAME = "AWS_ACCESS_KEY";
@@ -57,10 +57,10 @@ public class AmazonS3DatastoreService implements DatastoreService {
 	}
 
 	@Override
-	public void saveAsset(InputStream inputStream, long contentLength, String userGuid, String assetGuid) {
+	public void saveAsset(InputStream inputStream, long contentLength, String assetGuid) {
 		LOG.debug("About to save asset " + assetGuid);
 
-		String key = generateKey(userGuid, assetGuid);
+		String key = generateKey(assetGuid);
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Starting upload to Amazon S3, key is {}", key);
@@ -74,20 +74,20 @@ public class AmazonS3DatastoreService implements DatastoreService {
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Upload finished, ETag is {}", result.getETag());
-			LOG.debug("Download link is {}", generateDownloadLink(userGuid, assetGuid));
+			LOG.debug("Download link is {}", generateDownloadLink(assetGuid));
 		}
 	}
 
 	@Override
-	public void updateAsset(InputStream inputStream, long contentLength, String userGuid, String assetGuid) {
-		saveAsset(inputStream, contentLength, userGuid, assetGuid);
+	public void updateAsset(InputStream inputStream, long contentLength, String assetGuid) {
+		saveAsset(inputStream, contentLength, assetGuid);
 	}
 
 	@Override
-	public void deleteAsset(String userGuid, String assetGuid) {
+	public void deleteAsset(String assetGuid) {
 		LOG.debug("About to delete asset " + assetGuid);
 
-		String key = generateKey(userGuid, assetGuid);
+		String key = generateKey(assetGuid);
 
 		amazonS3Client.deleteObject(new DeleteObjectRequest(BUCKET_NAME, key));
 
@@ -97,16 +97,15 @@ public class AmazonS3DatastoreService implements DatastoreService {
 	}
 
 	@Override
-	public String generateDownloadLink(String userGuid, String assetGuid) {
-		return "http://" + BUCKET_NAME + ".s3.amazonaws.com/" + generateKey(userGuid, assetGuid);
+	public String generateDownloadLink(String assetGuid) {
+		return "http://" + BUCKET_NAME + ".s3.amazonaws.com/" + generateKey(assetGuid);
 	}
 
-	private String generateKey(String userGuid, String assetGuid) {
-		return USERS_ROOT_KEY + "/" + userGuid + "/" + assetGuid;
+	private static String generateKey(String assetGuid) {
+		return ASSETS_ROOT_KEY + "/" + assetGuid;
 	}
 
-	// Unused for now.
-
+	@SuppressWarnings("unused")
 	private static void createFolderInBucket(String folderName, AmazonS3Client amazonS3Client) {
 
 		// create meta-data for your folder and set content-length to 0
@@ -129,6 +128,7 @@ public class AmazonS3DatastoreService implements DatastoreService {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void createFolderInBucket(String folderName) {
 
 		// create meta-data for your folder and set content-length to 0

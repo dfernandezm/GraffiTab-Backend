@@ -30,11 +30,11 @@ import com.graffitab.server.api.errors.UserNotLoggedInException;
 import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
-import com.graffitab.server.persistence.model.Asset;
-import com.graffitab.server.persistence.model.Asset.AssetType;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
+import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
@@ -311,11 +311,11 @@ public class UserService {
 			return currentUser;
 		});
 
-		datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid());
+		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
 
 		// Delete current avatar from store, if it exists.
 		if (user.getAvatarAsset() != null) {
-			datastoreService.deleteAsset(user.getGuid(), user.getAvatarAsset().getGuid());
+			datastoreService.deleteAsset(user.getAvatarAsset().getGuid());
 		}
 
 		transactionUtils.executeInTransaction(() -> {
@@ -340,7 +340,7 @@ public class UserService {
 
 		// Delete current avatar from store, if it exists.
 		if (user.getAvatarAsset() != null) {
-			datastoreService.deleteAsset(user.getGuid(), user.getAvatarAsset().getGuid());
+			datastoreService.deleteAsset(user.getAvatarAsset().getGuid());
 		}
 
 		transactionUtils.executeInTransaction(() -> {
@@ -361,11 +361,11 @@ public class UserService {
 			return currentUser;
 		});
 
-		datastoreService.saveAsset(assetInputStream, contentLength, user.getGuid(), assetToAdd.getGuid());
+		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
 
 		// Delete current cover from store, if it exists.
 		if (user.getCoverAsset() != null) {
-			datastoreService.deleteAsset(user.getGuid(), user.getCoverAsset().getGuid());
+			datastoreService.deleteAsset(user.getCoverAsset().getGuid());
 		}
 
 		transactionUtils.executeInTransaction(() -> {
@@ -390,7 +390,7 @@ public class UserService {
 
 		// Delete current cover from store, if it exists.
 		if (user.getCoverAsset() != null) {
-			datastoreService.deleteAsset(user.getGuid(), user.getCoverAsset().getGuid());
+			datastoreService.deleteAsset(user.getCoverAsset().getGuid());
 		}
 
 		transactionUtils.executeInTransaction(() -> {

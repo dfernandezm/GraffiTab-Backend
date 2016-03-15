@@ -329,30 +329,27 @@ public class UserApiTest {
 	public static class TestDatastoreService implements DatastoreService {
 
 		@Override
-		public void saveAsset(InputStream inputStream, long contentLength,
-				String userGuid, String assetGuid) {
+		public void saveAsset(InputStream inputStream, long contentLength, String assetGuid) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void updateAsset(InputStream inputStream, long contentLength,
-				String userGuid, String assetGuid) {
+		public void updateAsset(InputStream inputStream, long contentLength, String assetGuid) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public void deleteAsset(String userGuid, String assetGuid) {
+		public void deleteAsset(String assetGuid) {
 			// TODO Auto-generated method stub
 
 		}
 
 		@Override
-		public String generateDownloadLink(String userGuid, String assetGuid) {
+		public String generateDownloadLink(String assetGuid) {
 			// TODO Auto-generated method stub
 			return null;
 		}
-
 	}
 }

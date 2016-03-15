@@ -31,13 +31,15 @@ import com.graffitab.server.api.dto.user.ChangePasswordDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.dto.user.UserProfileDto;
+import com.graffitab.server.api.dto.user.result.GetUserProfileResult;
 import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.mapper.OrikaMapper;
-import com.graffitab.server.persistence.model.Asset;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
+import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.service.DeviceService;
 import com.graffitab.server.service.StreamableService;
@@ -73,18 +75,28 @@ public class MeApiController {
 		return getUserResult;
 	}
 
+	@RequestMapping(value = {"/profile"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public GetUserProfileResult getProfile() {
+		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+		User user = userService.getUserProfile(userService.getCurrentUser().getId());
+		userProfileResult.setUser(mapper.map(user, UserProfileDto.class));
+		return userProfileResult;
+	}
+
 	@RequestMapping(value = {"/notifications"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<NotificationDto> listUsers(@RequestParam(value="offset", required = false) Integer offset,
-									 		 @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<NotificationDto> getMyNotifications(@RequestParam(value="offset", required = false) Integer offset,
+									 		 		  		   @RequestParam(value="count", required = false) Integer count) {
 		return notificationService.getNotificationsResult(offset, count);
 	}
 
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserResult updateUser(@JsonProperty("user") UserDto userDto) {
+	public GetUserResult update(@JsonProperty("user") UserDto userDto) {
 		GetUserResult updateUserResult = new GetUserResult();
 		User user = userService.updateUser(mapper.map(userDto, User.class));
 		updateUserResult.setUser(mapper.map(user, UserDto.class));
@@ -173,16 +185,16 @@ public class MeApiController {
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<UserDto> getFollowersForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
-													  		   @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowers(@RequestParam(value="offset", required = false) Integer offset,
+												 @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(true, null, offset, count);
 	}
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<UserDto> getFollowingForCurrentUser(@RequestParam(value="offset", required = false) Integer offset,
-													  		   @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowing(@RequestParam(value="offset", required = false) Integer offset,
+												 @RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);
 	}
 

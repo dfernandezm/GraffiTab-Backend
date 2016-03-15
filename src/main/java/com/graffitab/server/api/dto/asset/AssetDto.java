@@ -11,4 +11,6 @@ public class AssetDto {
 
 	@JsonProperty("type")
 	private String assetType;
+
+	private String link;
 }
