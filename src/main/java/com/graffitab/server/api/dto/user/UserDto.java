@@ -26,7 +26,7 @@ public class UserDto {
 	private String about;
 	private Boolean followedByCurrentUser = Boolean.FALSE;
 
-	@JsonProperty("asset")
+	@JsonProperty("avatar")
 	private AssetDto avatarAsset;
 
 	@JsonProperty("cover")
