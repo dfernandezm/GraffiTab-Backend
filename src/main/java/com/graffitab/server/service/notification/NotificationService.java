@@ -1,7 +1,5 @@
 package com.graffitab.server.service.notification;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,9 +15,10 @@ import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
+import com.graffitab.server.persistence.model.notification.NotificationLike;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
+import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.service.paging.PagingService;
-import com.graffitab.server.service.paging.PagingServiceQueryProvider;
 import com.graffitab.server.service.user.UserService;
 
 @Service
@@ -46,30 +45,11 @@ public class NotificationService {
 	public ListItemsResult<NotificationDto> getNotificationsResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 
-		return pagingService.getPagedItemsResult(Notification.class, NotificationDto.class, offset, count, new PagingServiceQueryProvider<Notification>() {
+		Query query = notificationDao.createQuery("select n from User u " + "join u.notifications"
+				+ " n where u = :currentUser");
+		query.setParameter("currentUser", currentUser);
 
-			@Override
-			public Query getItemSearchQuery() {
-				Query query = notificationDao.createQuery("select n from User u " + "join u.notifications"
-						+ " n where u = :currentUser");
-				query.setParameter("currentUser", currentUser);
-
-				return query;
-			}
-
-			@Override
-			public List<Notification> getAugmentedItemsList(List<Notification> items) {
-				// Check if the current user is following user u from the list.
-				for (Notification notification : items) {
-					if (notification instanceof NotificationFollow) {
-						User follower = ((NotificationFollow) notification).getFollower();
-						follower.setFollowedByCurrentUser(currentUser.isFollowing(follower));
-					}
-				}
-
-				return items;
-			}
-		});
+		return pagingService.getPagedItemsResult(Notification.class, NotificationDto.class, offset, count, query);
 	}
 
 	@Transactional
@@ -83,6 +63,14 @@ public class NotificationService {
 	@Transactional
 	public void addFollowNotification(User user, User follower) {
 		Notification notification = new NotificationFollow(follower);
+		user.getNotifications().add(notification);
+
+		sendNotificationAsync(user, notification);
+	}
+
+	@Transactional
+	public void addLikeNotification(User user, User liker, Streamable likedStreamable) {
+		Notification notification = new NotificationLike(liker, likedStreamable);
 		user.getNotifications().add(notification);
 
 		sendNotificationAsync(user, notification);

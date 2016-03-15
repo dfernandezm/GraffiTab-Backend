@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.dto.asset.AssetDto;
-import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.api.dto.user.UserDto;
 
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import lombok.Data;
 public class StreamableDto {
 
 	private Long id;
-	private User user;
+	private UserDto user;
 	private String date;
 
 	@JsonProperty(value = "type")

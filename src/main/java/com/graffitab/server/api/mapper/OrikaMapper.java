@@ -9,12 +9,18 @@ import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.notification.NotificationDto;
+import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableDto;
+import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
-import com.graffitab.server.api.dto.user.UserProfileDto;
+import com.graffitab.server.api.mapper.notification.NotificationFollowMapper;
+import com.graffitab.server.api.mapper.notification.NotificationLikeMapper;
+import com.graffitab.server.api.mapper.user.FullUserMapper;
+import com.graffitab.server.api.mapper.user.UserMapper;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
+import com.graffitab.server.persistence.model.notification.NotificationLike;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 
@@ -29,7 +35,19 @@ public class OrikaMapper {
 	private AssetMapper assetMapper;
 
 	@Resource
-	private UserProfileMapper userProfileMapper;
+	private UserMapper userMapper;
+
+	@Resource
+	private FullUserMapper fullUserMapper;
+
+	@Resource
+	private FullStreamableMapper fullStreamableMapper;
+
+	@Resource
+	private NotificationFollowMapper notificationFollowMapper;
+
+	@Resource
+	private NotificationLikeMapper notificationLikeMapper;
 
 	private MapperFactory mapperFactory;
 	private MapperFacade mapperFacade;
@@ -57,12 +75,13 @@ public class OrikaMapper {
 		// Map user DTOs.
 		mapperFactory.classMap(User.class, UserDto.class)
 		.byDefault()
+		.customize(userMapper)
 	    .register();
 
-		mapperFactory.classMap(User.class, UserProfileDto.class)
+		mapperFactory.classMap(User.class, FullUserDto.class)
 		.use(User.class, UserDto.class)
 		.byDefault()
-		.customize(userProfileMapper)
+		.customize(fullUserMapper)
 	    .register();
 
 		// Map asset DTOs.
@@ -78,11 +97,23 @@ public class OrikaMapper {
 
 		mapperFactory.classMap(NotificationFollow.class, NotificationDto.class)
 		.byDefault()
+		.customize(notificationFollowMapper)
 	    .register();
 
-		// Map notification DTOs.
+		mapperFactory.classMap(NotificationLike.class, NotificationDto.class)
+		.byDefault()
+		.customize(notificationLikeMapper)
+	    .register();
+
+		// Map streamable DTOs.
 		mapperFactory.classMap(StreamableGraffiti.class, StreamableDto.class)
 		.byDefault()
+	    .register();
+
+		mapperFactory.classMap(StreamableGraffiti.class, FullStreamableDto.class)
+		.use(StreamableGraffiti.class, StreamableDto.class)
+		.byDefault()
+		.customize(fullStreamableMapper)
 	    .register();
 	}
 
@@ -105,5 +136,3 @@ public class OrikaMapper {
 		return mappedList;
 	}
 }
-
-

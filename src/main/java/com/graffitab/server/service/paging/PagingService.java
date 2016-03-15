@@ -22,7 +22,7 @@ public class PagingService {
 	private OrikaMapper mapper;
 
 	@Transactional
-	public <T, K> ListItemsResult<K> getPagedItemsResult(Class<T> targetClass, Class<K> targetDtoClass, Integer offset, Integer count, PagingServiceQueryProvider<T> queryProvider) {
+	public <T, K> ListItemsResult<K> getPagedItemsResult(Class<T> targetClass, Class<K> targetDtoClass, Integer offset, Integer count, Query query) {
 		offset = offset != null ? offset : 0;
 		count = count != null ? count : PAGE_SIZE_DEFAULT_VALUE;
 
@@ -31,8 +31,7 @@ public class PagingService {
 			count = PAGE_SIZE_MAX_VALUE;
 
 		// Get list of entities.
-		PagedList<T> items = getItems(queryProvider.getItemSearchQuery(), offset, count);
-		items = (PagedList<T>) queryProvider.getAugmentedItemsList(items);
+		PagedList<T> items = getItems(query, offset, count);
 
 		// Map to list of DTOs.
 		List<K> itemDtos = mapper.mapList(items, targetDtoClass);

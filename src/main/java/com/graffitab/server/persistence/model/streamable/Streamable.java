@@ -1,5 +1,8 @@
 package com.graffitab.server.persistence.model.streamable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -14,10 +17,15 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
@@ -29,6 +37,13 @@ import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+@NamedQueries({
+	@NamedQuery(
+		name = "Streamable.findAll",
+		query = "select s from Streamable s"
+	)
+})
 
 @Getter
 @Setter
@@ -73,6 +88,13 @@ public abstract class Streamable implements Identifiable<Long> {
 	@JoinColumn(name = "asset_id")
 	private Asset asset;
 
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "likes",
+			   joinColumns = {@JoinColumn(name = "streamable_id")},
+			   inverseJoinColumns = {@JoinColumn(name = "user_id")})
+	@OrderColumn(name = "order_key")
+	private List<User> likers = new ArrayList<>();
+
 	@Override
 	public Long getId() {
 		return id;
@@ -92,5 +114,13 @@ public abstract class Streamable implements Identifiable<Long> {
 		this.date = new DateTime();
 		this.isFlagged = false;
 		this.isPrivate = false;
+	}
+
+	/**
+	 * @param liker
+	 * @return true if the current user likes the specified streamable
+	 */
+	public boolean isLikedBy(User liker) {
+		return likers.contains(liker);
 	}
 }

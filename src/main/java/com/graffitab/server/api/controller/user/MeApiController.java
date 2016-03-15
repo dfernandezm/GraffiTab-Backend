@@ -21,18 +21,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
-import com.graffitab.server.api.dto.asset.result.AddAssetResult;
+import com.graffitab.server.api.dto.asset.result.CreateAssetResult;
 import com.graffitab.server.api.dto.device.DeviceDto;
 import com.graffitab.server.api.dto.notification.NotificationDto;
-import com.graffitab.server.api.dto.streamable.StreamableDto;
+import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
-import com.graffitab.server.api.dto.streamable.result.AddStreamableResult;
+import com.graffitab.server.api.dto.streamable.result.CreateStreamableResult;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
+import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
-import com.graffitab.server.api.dto.user.UserProfileDto;
-import com.graffitab.server.api.dto.user.result.GetUserProfileResult;
+import com.graffitab.server.api.dto.user.result.GetFullUserResult;
 import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
@@ -78,10 +78,10 @@ public class MeApiController {
 	@RequestMapping(value = {"/profile"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserProfileResult getProfile() {
-		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+	public GetFullUserResult getProfile() {
+		GetFullUserResult userProfileResult = new GetFullUserResult();
 		User user = userService.getUserProfile(userService.getCurrentUser().getId());
-		userProfileResult.setUser(mapper.map(user, UserProfileDto.class));
+		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
 		return userProfileResult;
 	}
 
@@ -105,8 +105,8 @@ public class MeApiController {
 
 	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public AddAssetResult updateAvatar(HttpServletRequest request) throws IOException {
-		AddAssetResult editAvatarResult = new AddAssetResult();
+	public CreateAssetResult updateAvatar(HttpServletRequest request) throws IOException {
+		CreateAssetResult editAvatarResult = new CreateAssetResult();
 		Asset asset = userService.updateAvatar(request.getInputStream(), request.getContentLengthLong());
 		editAvatarResult.setAsset(mapper.map(asset, AssetDto.class));
 		return editAvatarResult;
@@ -122,8 +122,8 @@ public class MeApiController {
 
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public AddAssetResult updateCover(HttpServletRequest request) throws IOException {
-		AddAssetResult editcoverResult = new AddAssetResult();
+	public CreateAssetResult updateCover(HttpServletRequest request) throws IOException {
+		CreateAssetResult editcoverResult = new CreateAssetResult();
 		Asset asset = userService.updateCover(request.getInputStream(), request.getContentLengthLong());
 		editcoverResult.setAsset(mapper.map(asset, AssetDto.class));
 		return editcoverResult;
@@ -201,12 +201,12 @@ public class MeApiController {
 	@RequestMapping(value = "/streamables/graffiti", method = RequestMethod.POST)
 	@ResponseBody
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public AddStreamableResult createGraffiti(@RequestPart("properties") StreamableGraffitiDto streamableDto,
+	public CreateStreamableResult createGraffiti(@RequestPart("properties") StreamableGraffitiDto streamableDto,
 											  @RequestPart("file") @NotNull @NotBlank MultipartFile file) {
 		try {
-			AddStreamableResult addStreamableResult = new AddStreamableResult();
+			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
 			Streamable streamable = streamableService.createStreamableGraffiti(streamableDto, file.getInputStream(), file.getSize());
-			addStreamableResult.setStreamable(mapper.map(streamable, StreamableDto.class));
+			addStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 			return addStreamableResult;
 		} catch (IOException e) {
 			throw new RestApiException(ResultCode.BAD_REQUEST,

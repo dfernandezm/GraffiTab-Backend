@@ -219,3 +219,22 @@ alter table streamable add order_key int(11) not null;
 alter table streamable add roll DOUBLE;
 alter table streamable add yaw DOUBLE;
 alter table streamable add pitch DOUBLE;
+
+--changeset georgi:v100cs39
+ALTER TABLE likes DROP FOREIGN KEY del_like_on_item;
+ALTER TABLE likes DROP FOREIGN KEY del_like_on_person;
+ALTER TABLE likes CHANGE itemId streamable_id bigint(20) NOT NULL;
+ALTER TABLE likes CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE likes ADD CONSTRAINT likes_streamable_fk FOREIGN KEY (streamable_id) REFERENCES streamable (id);
+ALTER TABLE likes ADD CONSTRAINT likes_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
+
+--changeset georgi:v100cs40
+alter table likes add order_key int(11) not null;
+
+--changeset georgi:v100cs41
+ALTER TABLE activity ADD CONSTRAINT activity_commented_item_fk FOREIGN KEY (commented_item_id) REFERENCES streamable(id);
+ALTER TABLE activity ADD CONSTRAINT activity_created_item_fk FOREIGN KEY (created_item_id) REFERENCES streamable(id);
+ALTER TABLE activity ADD CONSTRAINT activity_liked_item_fk FOREIGN KEY (liked_item_id) REFERENCES streamable(id);
+ALTER TABLE notification ADD CONSTRAINT notification_commented_item_fk FOREIGN KEY (commented_item_id) REFERENCES streamable(id);
+ALTER TABLE notification ADD CONSTRAINT notification_liked_item_fk FOREIGN KEY (liked_item_id) REFERENCES streamable(id);
+ALTER TABLE notification ADD CONSTRAINT notification_mentioned_item_fk FOREIGN KEY (mentioned_item_id) REFERENCES streamable(id);

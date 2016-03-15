@@ -39,7 +39,6 @@ import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
-import com.graffitab.server.service.paging.PagingServiceQueryProvider;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
@@ -405,28 +404,13 @@ public class UserService {
 
 	@Transactional
 	public ListItemsResult<UserDto> getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
-		User currentUser = getCurrentUser();
 		User requestedUser = (userId == null) ? getCurrentUser() : findUserById(userId);
 
-		return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, new PagingServiceQueryProvider<User>() {
+		Query query = userDao.createQuery("select f from User u " + "join u."
+				+ (shouldGetFollowers ? "followers" : "following") + " f " + "where u = :currentUser");
+		query.setParameter("currentUser", requestedUser);
 
-			@Override
-			public Query getItemSearchQuery() {
-				Query query = userDao.createQuery("select f from User u " + "join u."
-						+ (shouldGetFollowers ? "followers" : "following") + " f " + "where u = :currentUser");
-				query.setParameter("currentUser", requestedUser);
-
-				return query;
-			}
-
-			@Override
-			public List<User> getAugmentedItemsList(List<User> items) {
-				// Check if the current user is following user u from the list.
-				items.forEach(u -> u.setFollowedByCurrentUser(currentUser.isFollowing(u)));
-
-				return items;
-			}
-		});
+		return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);
 	}
 
 	@Transactional

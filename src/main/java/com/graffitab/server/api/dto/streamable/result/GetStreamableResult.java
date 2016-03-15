@@ -2,12 +2,10 @@ package com.graffitab.server.api.dto.streamable.result;
 
 import com.graffitab.server.api.dto.streamable.StreamableDto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class AddStreamableResult {
+@Data
+public class GetStreamableResult {
 
 	private StreamableDto streamable;
 }

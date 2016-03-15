@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserProfileDto extends UserDto {
+public class FullUserDto extends UserDto {
 
 	private Integer followersCount;
 	private Integer followingCount;

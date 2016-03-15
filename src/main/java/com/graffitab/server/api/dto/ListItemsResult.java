@@ -2,11 +2,9 @@ package com.graffitab.server.api.dto;
 
 import java.util.List;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class ListItemsResult<T> {
 
 	private List<T> items;

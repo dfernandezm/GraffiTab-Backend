@@ -3,6 +3,7 @@ package com.graffitab.server.api.dto.notification;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.user.UserDto;
 
 import lombok.Data;
@@ -18,4 +19,6 @@ public class NotificationDto {
 	private String notificationType;
 
 	private UserDto follower;
+	private UserDto liker;
+	private FullStreamableDto likedStreamable;
 }

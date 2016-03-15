@@ -18,12 +18,11 @@ import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
-import com.graffitab.server.api.dto.user.UserProfileDto;
+import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.result.CreateUserResult;
-import com.graffitab.server.api.dto.user.result.GetUserProfileResult;
+import com.graffitab.server.api.dto.user.result.GetFullUserResult;
 import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
-import com.graffitab.server.api.util.UploadUtils;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.service.user.UserService;
@@ -38,9 +37,6 @@ public class UserApiController extends BaseApiController {
 
 	@Resource
 	private OrikaMapper mapper;
-
-	@Resource
-	private UploadUtils uploadUtils;
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
@@ -110,30 +106,30 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserProfileResult getUserProfile(@PathVariable("id") Long id) {
-		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+	public GetFullUserResult getUserProfile(@PathVariable("id") Long id) {
+		GetFullUserResult userProfileResult = new GetFullUserResult();
 		User user = userService.getUserProfile(id);
-		userProfileResult.setUser(mapper.map(user, UserProfileDto.class));
+		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
 		return userProfileResult;
 	}
 
-	@RequestMapping(value = {"/{id}/follow"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.POST)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserProfileResult follow(@PathVariable("id") Long userId) {
-		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+	public GetFullUserResult follow(@PathVariable("id") Long userId) {
+		GetFullUserResult userProfileResult = new GetFullUserResult();
 		User toFollow = userService.follow(userId);
-		userProfileResult.setUser(mapper.map(toFollow, UserProfileDto.class));
+		userProfileResult.setUser(mapper.map(toFollow, FullUserDto.class));
 		return userProfileResult;
 	}
 
-	@RequestMapping(value = {"/{id}/unfollow"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.DELETE)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserProfileResult unFollow(@PathVariable("id") Long userId) {
-		GetUserProfileResult userProfileResult = new GetUserProfileResult();
+	public GetFullUserResult unFollow(@PathVariable("id") Long userId) {
+		GetFullUserResult userProfileResult = new GetFullUserResult();
 		User toUnfollow = userService.unfollow(userId);
-		userProfileResult.setUser(mapper.map(toUnfollow, UserProfileDto.class));
+		userProfileResult.setUser(mapper.map(toUnfollow, FullUserDto.class));
 		return userProfileResult;
 	}
 
