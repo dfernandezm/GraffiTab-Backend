@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.devsu.push.sender.service.async.AsyncAndroidPushService;
-import com.devsu.push.sender.service.async.AsyncApplePushService;
 import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.Device.OSType;
 import com.graffitab.server.persistence.model.User;
@@ -24,7 +23,7 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 	private static Logger log = LogManager.getLogger();
 
 	private AsyncAndroidPushService androidService;
-	private AsyncApplePushService appleService;
+	private GraffitabAsyncApplePushService appleService;
 
 	private String PN_APNS_DEV_PASSWORD_ENVVAR_NAME = "PN_APNS_DEV_PASSWORD";
 	private String PN_APNS_PROD_PASSWORD_ENVVAR_NAME = "PN_APNS_PROD_PASSWORD";
@@ -34,14 +33,14 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 	private static String PN_APNS_CERTIFICATE_PATH;
 	private String PN_APNS_CERTIFICATE_PASSWORD_ENVVAR_NAME = PN_IS_PRODUCTION_ENVIRONMENT ? PN_APNS_PROD_PASSWORD_ENVVAR_NAME : PN_APNS_DEV_PASSWORD_ENVVAR_NAME;
 
-	static {
-		try {
-			Resource resource = new ClassPathResource("certificates/APNS_Certificate_" + (PN_IS_PRODUCTION_ENVIRONMENT ? "Prod" : "Dev") + ".p12");
-			PN_APNS_CERTIFICATE_PATH = resource.getFile().getPath();
-		} catch (IOException e) {
-			log.error("Error reading APNS certificate", e);
-		}
-	}
+//	static {
+//		try {
+//			Resource resource = new ClassPathResource("certificates/APNS_Certificate_" + (PN_IS_PRODUCTION_ENVIRONMENT ? "Prod" : "Dev") + ".p12");
+//			PN_APNS_CERTIFICATE_PATH = resource.getFile().getPath();
+//		} catch (IOException e) {
+//			log.error("Error reading APNS certificate", e);
+//		}
+//	}
 
 	@PostConstruct
 	public void setup() throws IOException {
@@ -52,7 +51,12 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 
 		if (StringUtils.hasText(apnsCertificatePassword) && StringUtils.hasText(gcmKey)) {
 			androidService = new AsyncAndroidPushService(gcmKey);
-			appleService = new AsyncApplePushService(PN_APNS_CERTIFICATE_PATH, apnsCertificatePassword, PN_IS_PRODUCTION_ENVIRONMENT);
+			try {
+				Resource resource = new ClassPathResource("certificates/APNS_Certificate_" + (PN_IS_PRODUCTION_ENVIRONMENT ? "Prod" : "Dev") + ".p12");
+				appleService = new GraffitabAsyncApplePushService(resource.getInputStream(), apnsCertificatePassword, PN_IS_PRODUCTION_ENVIRONMENT);
+			} catch (IOException e) {
+				log.error("Error reading APNS certificate", e);
+			}
 		} else {
 			log.warn("apnsCertificatePassword and gcmKey are missing -- push notifications won't work");
 		}

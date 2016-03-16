@@ -15,7 +15,7 @@ import com.graffitab.server.api.authentication.JsonLoginFailureHandler;
 import com.graffitab.server.api.authentication.JsonLoginSuccessHandler;
 
 @Configuration
-@Order(5) // one more than the latest block
+@Order(5) // one more than the latest block in GraffitabSecurityConfig
 public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
