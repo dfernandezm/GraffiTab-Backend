@@ -4,10 +4,13 @@ import java.io.InputStream;
 
 import javax.annotation.Resource;
 
+import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
+import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
@@ -17,6 +20,7 @@ import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 import com.graffitab.server.service.notification.NotificationService;
+import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
 
@@ -34,6 +38,9 @@ public class StreamableService {
 
 	@Resource
 	private TransactionUtils transactionUtils;
+
+	@Resource
+	private PagingService pagingService;
 
 	@Resource
 	private HibernateDaoImpl<Streamable, Long> streamableDao;
@@ -93,6 +100,21 @@ public class StreamableService {
 			return toUnlike;
 		} else {
 			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + toUnlikeId + " not found");
+		}
+	}
+
+	@Transactional
+	public ListItemsResult<UserDto> getLikersResult(Long streamableId, Integer offset, Integer count) {
+		Streamable streamable = findStreamableById(streamableId);
+
+		if (streamable != null) {
+			Query query = streamableDao.createQuery("select u from Streamable s " + "join s.likers"
+					+ " u where s = :currentStreamable");
+			query.setParameter("currentStreamable", streamable);
+
+			return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);
+		} else {
+			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
 		}
 	}
 
