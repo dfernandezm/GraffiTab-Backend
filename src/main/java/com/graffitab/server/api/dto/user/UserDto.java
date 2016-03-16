@@ -17,10 +17,7 @@ public class UserDto {
 	private String username;
 	private String firstName;
 	private String lastName;
-
-	@JsonIgnore
 	private String password;
-
 	private String email;
 	private String website;
 	private String about;
@@ -31,4 +28,14 @@ public class UserDto {
 
 	@JsonProperty("cover")
 	private AssetDto coverAsset;
+
+	@JsonIgnore
+	public String getPassword() {
+		return password;
+	}
+
+	@JsonProperty
+	public void setPassword(String password) {
+		this.password = password;
+	}
 }

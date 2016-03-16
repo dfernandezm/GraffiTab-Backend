@@ -17,8 +17,8 @@ import com.graffitab.server.api.controller.BaseApiController;
 import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalUserDto;
-import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.FullUserDto;
+import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.result.CreateUserResult;
 import com.graffitab.server.api.dto.user.result.GetFullUserResult;
 import com.graffitab.server.api.dto.user.result.GetUserResult;
@@ -75,7 +75,6 @@ public class UserApiController extends BaseApiController {
 		CreateUserResult createUserResult = new CreateUserResult();
 		String userToken = GuidGenerator.generate();
 		User user = userService.createUser(mapper.map(userDto, User.class), userToken);
-		createUserResult.setUser(mapper.map(user, UserDto.class));
 		createUserResult.setToken(user.getMetadataItems().get(UserService.ACTIVATION_TOKEN_METADATA_KEY));
 		return createUserResult;
 	}

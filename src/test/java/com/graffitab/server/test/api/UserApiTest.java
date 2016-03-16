@@ -2,6 +2,7 @@ package com.graffitab.server.test.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -123,9 +124,7 @@ public class UserApiTest {
 	                .content(json))
 	                .andExpect(status().is(201))
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
-	                .andExpect(jsonPath("$.user.id").isNotEmpty())
-	                .andExpect(jsonPath("$.user.username").isNotEmpty())
-    				.andExpect(jsonPath("$.user.email").isNotEmpty());
+	                .andExpect(jsonPath("$.token").isNotEmpty());
 
 	    	pollForEmail(wiser);
 
@@ -142,7 +141,7 @@ public class UserApiTest {
 	    	User currentUser = createUser();
 	    	User userToFollow = createUser2();
 
-	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/follow")
+	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
 	    			.with(user(currentUser)))
 	                .andExpect(status().is(200))
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
@@ -161,12 +160,12 @@ public class UserApiTest {
 	    	User userToFollow = createUser2();
 
 	    	// Follow first
-	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/follow")
+	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
 	    			.with(user(currentUser)))
 	                .andExpect(status().is(200));
 
 	    	// Unfollow afterwards
-	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/unfollow")
+	    	mockMvc.perform(delete("/api/users/" + userToFollow.getId() + "/followers")
 	    			.with(user(currentUser)))
 	                .andExpect(status().is(200));
 
