@@ -108,8 +108,11 @@ public class StreamableService {
 		Streamable streamable = findStreamableById(streamableId);
 
 		if (streamable != null) {
-			Query query = streamableDao.createQuery("select u from Streamable s " + "join s.likers"
-					+ " u where s = :currentStreamable");
+			Query query = streamableDao.createQuery(
+					"select u "
+				  + "from Streamable s "
+				  + "join s.likers u "
+				  + "where s = :currentStreamable");
 			query.setParameter("currentStreamable", streamable);
 
 			return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);

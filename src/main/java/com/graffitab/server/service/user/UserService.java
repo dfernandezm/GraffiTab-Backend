@@ -406,8 +406,11 @@ public class UserService {
 	public ListItemsResult<UserDto> getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
 		User requestedUser = (userId == null) ? getCurrentUser() : findUserById(userId);
 
-		Query query = userDao.createQuery("select f from User u " + "join u."
-				+ (shouldGetFollowers ? "followers" : "following") + " f " + "where u = :currentUser");
+		Query query = userDao.createQuery(
+				"select f "
+			  + "from User u "
+			  + "join u." + (shouldGetFollowers ? "followers" : "following") + " f "
+			  + "where u = :currentUser");
 		query.setParameter("currentUser", requestedUser);
 
 		return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);

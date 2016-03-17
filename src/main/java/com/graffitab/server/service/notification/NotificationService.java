@@ -45,8 +45,11 @@ public class NotificationService {
 	public ListItemsResult<NotificationDto> getNotificationsResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 
-		Query query = notificationDao.createQuery("select n from User u " + "join u.notifications"
-				+ " n where u = :currentUser");
+		Query query = notificationDao.createQuery(
+				"select n "
+			  + "from User u "
+			  + "join u.notifications n "
+			  + "where u = :currentUser");
 		query.setParameter("currentUser", currentUser);
 
 		return pagingService.getPagedItemsResult(Notification.class, NotificationDto.class, offset, count, query);
