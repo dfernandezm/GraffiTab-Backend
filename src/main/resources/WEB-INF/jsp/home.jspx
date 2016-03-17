@@ -4,7 +4,7 @@
 <html>
 	<jsp:output doctype-root-element="html"
 		doctype-system="about:legacy-compat" />
-	<jsp:directive.page contentType="text/html;charset=UTF-8" />
+	<jsp:directive.page contentType="text/html;charset=UTF-8"  session="false" />
 
 	<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />

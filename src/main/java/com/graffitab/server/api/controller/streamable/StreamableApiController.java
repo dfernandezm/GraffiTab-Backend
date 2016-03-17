@@ -9,12 +9,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.controller.user.UserStatusRequired;
+import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.ListItemsResult;
+import com.graffitab.server.api.dto.comment.CommentDto;
+import com.graffitab.server.api.dto.comment.result.CreateCommentResult;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.result.GetFullStreamableResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
+import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.service.StreamableService;
@@ -62,9 +67,55 @@ public class StreamableApiController {
 	@RequestMapping(value = {"/{id}/likes"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<UserDto> getLikers(@PathVariable("id") Long streamableId,
-													  @RequestParam(value="offset", required = false) Integer offset,
-									 		 		  @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getLikers(
+			@PathVariable("id") Long streamableId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
 		return streamableService.getLikersResult(streamableId, offset, count);
+	}
+
+	@RequestMapping(value = {"/{id}/comments"}, method = RequestMethod.POST)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public CreateCommentResult postComment(
+			@PathVariable("id") Long streamableId,
+			@JsonProperty("comment") CommentDto commentDto) {
+		CreateCommentResult createCommentResult = new CreateCommentResult();
+		Comment comment = streamableService.postComment(streamableId, commentDto.getText());
+		createCommentResult.setComment(mapper.map(comment, CommentDto.class));
+		return createCommentResult;
+	}
+
+	@RequestMapping(value = {"/{id}/comments/{commentId}"}, method = RequestMethod.DELETE)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ActionCompletedResult deleteComment(
+			@PathVariable("id") Long streamableId,
+			@PathVariable("commentId") Long commentId) {
+		streamableService.deleteComment(streamableId, commentId);
+		return new ActionCompletedResult();
+	}
+
+	@RequestMapping(value = {"/{id}/comments/{commentId}"}, method = RequestMethod.PUT)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public CreateCommentResult editComment(
+			@PathVariable("id") Long streamableId,
+			@PathVariable("commentId") Long commentId,
+			@JsonProperty("comment") CommentDto commentDto) {
+		CreateCommentResult createCommentResult = new CreateCommentResult();
+		Comment comment = streamableService.editComment(streamableId, commentId, commentDto.getText());
+		createCommentResult.setComment(mapper.map(comment, CommentDto.class));
+		return createCommentResult;
+	}
+
+	@RequestMapping(value = {"/{id}/comments"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<CommentDto> getComments(
+			@PathVariable("id") Long streamableId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getCommentsResult(streamableId, offset, count);
 	}
 }

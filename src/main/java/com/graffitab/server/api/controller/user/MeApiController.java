@@ -88,8 +88,9 @@ public class MeApiController {
 	@RequestMapping(value = {"/notifications"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<NotificationDto> getMyNotifications(@RequestParam(value="offset", required = false) Integer offset,
-									 		 		  		   @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<NotificationDto> getMyNotifications(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
 		return notificationService.getNotificationsResult(offset, count);
 	}
 
@@ -185,24 +186,27 @@ public class MeApiController {
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<UserDto> getFollowers(@RequestParam(value="offset", required = false) Integer offset,
-												 @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowers(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(true, null, offset, count);
 	}
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<UserDto> getFollowing(@RequestParam(value="offset", required = false) Integer offset,
-												 @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowing(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);
 	}
 
 	@RequestMapping(value = "/streamables/graffiti", method = RequestMethod.POST)
 	@ResponseBody
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateStreamableResult createGraffiti(@RequestPart("properties") StreamableGraffitiDto streamableDto,
-											  @RequestPart("file") @NotNull @NotBlank MultipartFile file) {
+	public CreateStreamableResult createGraffiti(
+			@RequestPart("properties") StreamableGraffitiDto streamableDto,
+			@RequestPart("file") @NotNull @NotBlank MultipartFile file) {
 		try {
 			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
 			Streamable streamable = streamableService.createStreamableGraffiti(streamableDto, file.getInputStream(), file.getSize());

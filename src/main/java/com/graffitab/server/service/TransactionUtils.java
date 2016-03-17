@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -43,14 +44,28 @@ public class TransactionUtils {
 	}
 
 	public <T> T executeInTransactionWithResult(Callable<T> callableWithResult) {
-		return transactionTemplate.execute((transactionStatus) -> {
-			try  {
-				return callableWithResult.call();
-			} catch (Throwable t) {
-				LOG.error("Error executing transaction with result", t);
-				throw new RuntimeException(t);
+		return transactionTemplate.execute(new TransactionCallback<T>() {
+
+			@Override
+			public T doInTransaction(TransactionStatus status) {
+				try  {
+					return callableWithResult.call();
+				} catch (Throwable t) {
+					LOG.error("Error executing transaction with result", t);
+					throw new RuntimeException(t);
+				}
 			}
 		});
+
+		// This has a problem sometimes when doing an insert to the database. Need to investigate.
+//		return transactionTemplate.execute((transactionStatus) -> {
+//			try  {
+//				return callableWithResult.call();
+//			} catch (Throwable t) {
+//				LOG.error("Error executing transaction with result", t);
+//				throw new RuntimeException(t);
+//			}
+//		});
 	}
 
 	public void executeInNewTransaction(Runnable runnable) {

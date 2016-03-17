@@ -12,8 +12,10 @@ import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
+import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.notification.Notification;
+import com.graffitab.server.persistence.model.notification.NotificationComment;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
 import com.graffitab.server.persistence.model.notification.NotificationLike;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
@@ -74,6 +76,14 @@ public class NotificationService {
 	@Transactional
 	public void addLikeNotification(User user, User liker, Streamable likedStreamable) {
 		Notification notification = new NotificationLike(liker, likedStreamable);
+		user.getNotifications().add(notification);
+
+		sendNotificationAsync(user, notification);
+	}
+
+	@Transactional
+	public void addCommentNotification(User user, User commenter, Streamable commentedStreamable, Comment comment) {
+		Notification notification = new NotificationComment(commenter, commentedStreamable, comment);
 		user.getNotifications().add(notification);
 
 		sendNotificationAsync(user, notification);

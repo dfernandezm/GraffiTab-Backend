@@ -238,3 +238,22 @@ ALTER TABLE activity ADD CONSTRAINT activity_liked_item_fk FOREIGN KEY (liked_it
 ALTER TABLE notification ADD CONSTRAINT notification_commented_item_fk FOREIGN KEY (commented_item_id) REFERENCES streamable(id);
 ALTER TABLE notification ADD CONSTRAINT notification_liked_item_fk FOREIGN KEY (liked_item_id) REFERENCES streamable(id);
 ALTER TABLE notification ADD CONSTRAINT notification_mentioned_item_fk FOREIGN KEY (mentioned_item_id) REFERENCES streamable(id);
+
+--changeset georgi:v100cs42
+ALTER TABLE comment DROP FOREIGN KEY del_comment_on_item;
+ALTER TABLE comment DROP FOREIGN KEY del_comment_on_person;
+ALTER TABLE comment CHANGE itemId streamable_id bigint(20) NOT NULL;
+ALTER TABLE comment CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE comment ADD CONSTRAINT comments_streamable_fk FOREIGN KEY (streamable_id) REFERENCES streamable (id);
+ALTER TABLE comment ADD CONSTRAINT comments_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
+alter table comment add order_key int(11) not null;
+
+--changeset georgi:v100cs43
+ALTER TABLE likes RENAME TO gt_like;
+
+--changeset georgi:v100cs44
+ALTER TABLE activity ADD CONSTRAINT activity_comment_fk FOREIGN KEY (comment_id) REFERENCES comment(id);
+ALTER TABLE notification ADD CONSTRAINT notification_comment_fk FOREIGN KEY (comment_id) REFERENCES comment(id);
+
+--changeset georgi:v100cs45
+alter table comment add edit_date bigint(20);

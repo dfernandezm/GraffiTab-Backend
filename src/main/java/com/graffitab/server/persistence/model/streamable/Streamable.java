@@ -20,6 +20,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
@@ -29,6 +30,7 @@ import org.hibernate.annotations.NamedQuery;
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.util.BooleanToStringConverter;
@@ -89,11 +91,16 @@ public abstract class Streamable implements Identifiable<Long> {
 	private Asset asset;
 
 	@ManyToMany(cascade = CascadeType.ALL)
-	@JoinTable(name = "likes",
+	@JoinTable(name = "gt_like",
 			   joinColumns = {@JoinColumn(name = "streamable_id")},
 			   inverseJoinColumns = {@JoinColumn(name = "user_id")})
 	@OrderColumn(name = "order_key")
 	private List<User> likers = new ArrayList<>();
+
+	@OneToMany(targetEntity = Comment.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "streamable_id", nullable = false)
+	@OrderColumn(name = "order_key")
+	private List<Comment> comments = new ArrayList<>();
 
 	@Override
 	public Long getId() {

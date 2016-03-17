@@ -8,17 +8,21 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
+import com.graffitab.server.api.dto.comment.CommentDto;
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.mapper.notification.NotificationCommentMapper;
 import com.graffitab.server.api.mapper.notification.NotificationFollowMapper;
 import com.graffitab.server.api.mapper.notification.NotificationLikeMapper;
 import com.graffitab.server.api.mapper.user.FullUserMapper;
 import com.graffitab.server.api.mapper.user.UserMapper;
+import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.notification.NotificationComment;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
 import com.graffitab.server.persistence.model.notification.NotificationLike;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
@@ -48,6 +52,9 @@ public class OrikaMapper {
 
 	@Resource
 	private NotificationLikeMapper notificationLikeMapper;
+
+	@Resource
+	private NotificationCommentMapper notificationCommentMapper;
 
 	private MapperFactory mapperFactory;
 	private MapperFacade mapperFacade;
@@ -105,6 +112,11 @@ public class OrikaMapper {
 		.customize(notificationLikeMapper)
 	    .register();
 
+		mapperFactory.classMap(NotificationComment.class, NotificationDto.class)
+		.byDefault()
+		.customize(notificationCommentMapper)
+	    .register();
+
 		// Map streamable DTOs.
 		mapperFactory.classMap(StreamableGraffiti.class, StreamableDto.class)
 		.byDefault()
@@ -115,6 +127,11 @@ public class OrikaMapper {
 		.byDefault()
 		.customize(fullStreamableMapper)
 	    .register();
+
+		// Map comment DTOs.
+		mapperFactory.classMap(Comment.class, CommentDto.class)
+		.byDefault()
+		.register();
 	}
 
 	public <T,K> T map(K source, Class<T> destinationClass) {

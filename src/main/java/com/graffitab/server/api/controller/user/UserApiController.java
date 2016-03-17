@@ -95,8 +95,9 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.PUT)
-	public ActionCompletedResult completePasswordReset(@PathVariable(value = "token") String token,
-													   @JsonProperty(value = "password") String password) {
+	public ActionCompletedResult completePasswordReset(
+			@PathVariable(value = "token") String token,
+			@JsonProperty(value = "password") String password) {
 		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
 		userService.completePasswordReset(token, password);
 		return resetPasswordResult;
@@ -135,18 +136,20 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<UserDto> getFollowers(@PathVariable("id") Long userId,
-												 @RequestParam(value="offset", required = false) Integer offset,
-												 @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowers(
+			@PathVariable("id") Long userId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(true, userId, offset, count);
 	}
 
 	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<UserDto> getFollowing(@PathVariable("id") Long userId,
-												 @RequestParam(value="offset", required = false) Integer offset,
-												 @RequestParam(value="count", required = false) Integer count) {
+	public ListItemsResult<UserDto> getFollowing(
+			@PathVariable("id") Long userId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, userId, offset, count);
 	}
 

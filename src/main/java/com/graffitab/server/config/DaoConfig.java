@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.UserSession;
@@ -45,6 +46,11 @@ public class DaoConfig {
 	@Bean
 	public HibernateDaoImpl<Streamable, Long> streamableDao() {
 		return generateDao(Streamable.class);
+	}
+
+	@Bean
+	public HibernateDaoImpl<Comment, Long> commentDao() {
+		return generateDao(Comment.class);
 	}
 
 	private <T extends Identifiable<K>,K extends Serializable> HibernateDaoImpl<T,K> generateDao(Class<T> entityClass) {
