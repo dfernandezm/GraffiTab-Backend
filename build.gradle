@@ -318,7 +318,7 @@ task buildClient(type:Exec) {
 
   doLast {
 	  // delete('Graffitab-Frontend/build-client.sh')
-	   println "[client-build] Copying built file to public folder"
+	  println "[client-build] Copying built file to public folder"
 	  copy {
         from 'GraffiTab-Frontend'
         into 'src/main/resources/public'
@@ -327,7 +327,7 @@ task buildClient(type:Exec) {
   }
 
   workingDir 'GraffiTab-Frontend'
-  commandLine 'npm run build'
+  commandLine = ['npm', 'run', 'build']
 }
 
 task stage(type:Copy) {
