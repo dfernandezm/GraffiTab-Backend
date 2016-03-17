@@ -322,12 +322,12 @@ task buildClient(type:Exec) {
 	  copy {
         from 'GraffiTab-Frontend'
         into 'src/main/resources/public'
-        include 'bundle.js'
+        include 'build/public/assets/main.js'
       }
   }
 
   workingDir 'GraffiTab-Frontend'
-  commandLine './build.sh'
+  commandLine 'npm run build'
 }
 
 task stage(type:Copy) {
@@ -358,4 +358,3 @@ task devBuild() {
 
 // Spring Boot
 bootRun.dependsOn processResources
-
