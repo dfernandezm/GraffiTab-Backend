@@ -257,3 +257,7 @@ ALTER TABLE notification ADD CONSTRAINT notification_comment_fk FOREIGN KEY (com
 
 --changeset georgi:v100cs45
 alter table comment add edit_date bigint(20);
+
+--changeset georgi:v100cs46
+ALTER TABLE asset_thumbnail DROP FOREIGN KEY thumbnail_asset_id_fk;
+drop table asset_thumbnail;
