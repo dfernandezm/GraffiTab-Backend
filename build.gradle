@@ -327,7 +327,7 @@ task buildClient(type:Exec) {
   }
 
   workingDir 'GraffiTab-Frontend'
-  commandLine = ['npm', 'run', 'build']
+  commandLine './build.sh'
 }
 
 task stage(type:Copy) {
