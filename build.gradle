@@ -212,11 +212,12 @@ liquibase {
   runList = 'main'
 }
 
-
 processResources {
-    filter(ReplaceTokens, tokens: config)
+ from('src/main/resources') {
+        exclude '**/*.p12'
+        filter(ReplaceTokens, tokens: config)
+   }
 }
-
 
 /**
  This can be passed from the command line like -Penv=value
