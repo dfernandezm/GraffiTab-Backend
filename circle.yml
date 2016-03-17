@@ -4,6 +4,9 @@ checkout:
     - git submodule update --init
 
 machine:
+  node:
+    version:
+      5.6
   java:
     version:
       oraclejdk8
