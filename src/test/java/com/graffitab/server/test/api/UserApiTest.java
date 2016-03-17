@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
@@ -50,6 +51,7 @@ import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
+import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
 import com.graffitab.server.service.email.EmailService;
@@ -172,20 +174,20 @@ public class UserApiTest {
 	    	//TODO: Complete test when possible to query following and followers
 	    }
 
-//	    @Test
-//	    public void addAssetTest() throws IOException, Exception {
-//	    	User loggedInUser = createUser();
-//	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
-//	    	mockMvc.perform(post("/api/users/me/avatar")
-//	    			.with(user(loggedInUser))
-//	                .contentType("application/octet-stream")
-//	                .content(IOUtils.toByteArray(in)))
-//	                .andExpect(status().is(200))
-//	                .andExpect(content().contentType("application/json;charset=UTF-8"))
-//	                .andExpect(jsonPath("$.asset.guid").isNotEmpty())
-//	                .andExpect(jsonPath("$.asset.type").value(AssetType.AVATAR.name()));
-//	    }
-
+	    @Test
+	    public void addAssetTest() throws IOException, Exception {
+	    	User loggedInUser = createUser();
+	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
+	    	mockMvc.perform(post("/api/users/me/avatar")
+	    			.with(user(loggedInUser))
+	                .contentType("application/octet-stream")
+	                .content(IOUtils.toByteArray(in)))
+	                .andExpect(status().is(200))
+	                .andExpect(content().contentType("application/json;charset=UTF-8"))
+	                .andExpect(jsonPath("$.asset.guid").isNotEmpty())
+	                .andExpect(jsonPath("$.asset.type").value(AssetType.IMAGE.name()))
+	                .andExpect(jsonPath("$.asset.link").isNotEmpty());
+	    }
 
 	    private User fillTestUser() {
 	    	User testUser = new User();
@@ -251,9 +253,10 @@ public class UserApiTest {
 	    	ReflectionTestUtils.setField(userService, "emailService", emailService);
 	    }
 
-	    private void replaceDatastoreService() {
+	    private void replaceDatastoreService() throws Exception {
 	    	DatastoreService testDatastoreService = new TestDatastoreService();
-	    	ReflectionTestUtils.setField(userService, "datastoreService", testDatastoreService);
+	    	UserService unwrapped = (UserService) unwrapSpringProxy(userService);
+	    	ReflectionTestUtils.setField(unwrapped, "datastoreService", testDatastoreService);
 	    }
 
 	    /**

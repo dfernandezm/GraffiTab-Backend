@@ -153,7 +153,6 @@ public class UserApiController extends BaseApiController {
 		return userService.getFollowingOrFollowersResultForUser(false, userId, offset, count);
 	}
 
-	//TODO: * fullProfile /api/users/me
 	//TODO: Most active users -> /api/users/mostactive page by page
 	//TODO: getSocialFriends -> /api/users/socialfriends page by page
 }
