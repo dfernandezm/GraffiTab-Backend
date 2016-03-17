@@ -313,7 +313,7 @@ task buildClient(type:Exec) {
 
   doFirst {
     println "[client-build] Deleting any prebuilt files..."
-    delete('src/main/resources/public/bundle.js')
+    delete('src/main/resources/public/main.js')
   }
 
   doLast {
