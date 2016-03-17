@@ -18,7 +18,7 @@
 
 	<body>
         <div class="content"></div>
-		<script src="/public/bundle.js" type="text/javascript"><!-- hell --></script>
+		<script src="/public/main.js" type="text/javascript"><!-- hell --></script>
 	</body>
 
 </html>

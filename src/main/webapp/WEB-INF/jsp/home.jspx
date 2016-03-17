@@ -10,7 +10,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=8" />
 
 	<link rel="stylesheet" type="text/css" media="screen" href="public/main.css" />
-    <script src="public/bundle.js" type="text/javascript"><!-- hell --></script>
+    <script src="public/main.js" type="text/javascript"><!-- hell --></script>
 
 
 	<title>Graffitab</title>
