@@ -261,3 +261,9 @@ alter table comment add edit_date bigint(20);
 --changeset georgi:v100cs46
 ALTER TABLE asset_thumbnail DROP FOREIGN KEY thumbnail_asset_id_fk;
 drop table asset_thumbnail;
+
+--changeset georgi:v100cs47
+ALTER TABLE location DROP FOREIGN KEY del_location_on_person;
+ALTER TABLE location CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE location ADD CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
+alter table location add order_key int(11) not null;
