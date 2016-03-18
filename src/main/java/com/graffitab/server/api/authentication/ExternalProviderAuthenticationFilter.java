@@ -7,8 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,6 +21,8 @@ import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.service.user.UserService;
 
+import lombok.extern.log4j.Log4j2;
+
 @Log4j2
 public class ExternalProviderAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -34,7 +34,7 @@ public class ExternalProviderAuthenticationFilter extends AbstractAuthentication
 
 
 	public ExternalProviderAuthenticationFilter() {
-		super(new AntPathRequestMatcher("/api/externalprovider/login", "POST"));
+		super(new AntPathRequestMatcher("/api/externalproviders/login", "POST"));
 	}
 
 	//FIXME: repeated code from JsonLoginFilter

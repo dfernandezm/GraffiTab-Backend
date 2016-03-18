@@ -1,4 +1,4 @@
-package com.graffitab.server.service;
+package com.graffitab.server.service.user;
 
 import javax.annotation.Resource;
 
@@ -11,7 +11,6 @@ import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.Device.OSType;
-import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.persistence.model.User;
 
 @Service

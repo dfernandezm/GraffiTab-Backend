@@ -9,6 +9,7 @@ import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.Device;
+import com.graffitab.server.persistence.model.Location;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.UserSession;
 import com.graffitab.server.persistence.model.asset.Asset;
@@ -51,6 +52,11 @@ public class DaoConfig {
 	@Bean
 	public HibernateDaoImpl<Comment, Long> commentDao() {
 		return generateDao(Comment.class);
+	}
+
+	@Bean
+	public HibernateDaoImpl<Location, Long> locationDao() {
+		return generateDao(Location.class);
 	}
 
 	private <T extends Identifiable<K>,K extends Serializable> HibernateDaoImpl<T,K> generateDao(Class<T> entityClass) {

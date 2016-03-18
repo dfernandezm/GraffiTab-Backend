@@ -19,7 +19,7 @@ curl -i -H "Content-Type: application/json" --cookie "GRAFFITABSESSIONID=DB93559
  * Provide the externalId, accessToken??, externalProvider type and, if found, the underlying user is logged in
 
 ```
-curl -i -H "Content-Type: application/json" -X POST -d '{ "externalProvider":{ "externalId":"123456789", "accessToken":"hsadoaoi98a7sdiausdi", "externalProviderType":"TWITTER"}}' http://localhost:8091/api/externalprovider/login
+curl -i -H "Content-Type: application/json" -X POST -d '{ "externalProvider":{ "externalId":"123456789", "accessToken":"hsadoaoi98a7sdiausdi", "externalProviderType":"TWITTER"}}' http://localhost:8091/api/externalproviders/login
 ```
 
 ## Basic Authentication

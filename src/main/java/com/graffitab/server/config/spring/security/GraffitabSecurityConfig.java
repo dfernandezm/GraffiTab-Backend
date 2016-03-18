@@ -107,7 +107,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
         	// and it is not authenticated (anonymous) we let it pass -- this is what we want for login
             http.csrf().disable()
                   .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/api/login", "/api/externalprovider/login")
+                    .antMatchers(HttpMethod.POST, "/api/login", "/api/externalproviders/login")
                     .and()
                     .authorizeRequests()
                     .anyRequest()
@@ -141,7 +141,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
         	// register endpoints
             http.csrf().disable()
                   .requestMatchers()
-                    .antMatchers(HttpMethod.POST, "/api/users", "/api/users/resetpassword", "/api/users/externalprovider")
+                    .antMatchers(HttpMethod.POST, "/api/users", "/api/users/resetpassword", "/api/users/externalproviders")
                     .antMatchers(HttpMethod.GET, "/api/users/activate/**")
                     .antMatchers(HttpMethod.PUT, "/api/users/resetpassword/**")
                     .and()
@@ -191,7 +191,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
             // Add the custom authentication filter before the regular one
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-           
+
             // Add the basic auth filter before the jsonLogin filter (check first)
             http.addFilterBefore(new CustomFailureBasicAuthFilter(authenticationManager(), commonAuthenticationEntryPoint),
             		    JsonLoginAuthenticationFilter.class);

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.comment.CommentDto;
+import com.graffitab.server.api.dto.location.LocationDto;
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableDto;
@@ -20,6 +21,7 @@ import com.graffitab.server.api.mapper.notification.NotificationLikeMapper;
 import com.graffitab.server.api.mapper.user.FullUserMapper;
 import com.graffitab.server.api.mapper.user.UserMapper;
 import com.graffitab.server.persistence.model.Comment;
+import com.graffitab.server.persistence.model.Location;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.notification.NotificationComment;
@@ -130,6 +132,11 @@ public class OrikaMapper {
 
 		// Map comment DTOs.
 		mapperFactory.classMap(Comment.class, CommentDto.class)
+		.byDefault()
+		.register();
+
+		// Map comment DTOs.
+		mapperFactory.classMap(Location.class, LocationDto.class)
 		.byDefault()
 		.register();
 	}

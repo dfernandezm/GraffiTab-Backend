@@ -154,6 +154,11 @@ public class User implements Identifiable<Long>, UserDetails {
 	@OrderColumn(name = "order_key")
 	private List<Streamable> streamables = new ArrayList<>();
 
+	@OneToMany(targetEntity = Location.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "user_id", nullable = false)
+	@OrderColumn(name = "order_key")
+	private List<Location> locations = new ArrayList<>();
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		GrantedAuthority g = new SimpleGrantedAuthority("ROLE_USER");

@@ -25,8 +25,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.NamedQueries;
-import org.hibernate.annotations.NamedQuery;
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
@@ -39,13 +37,6 @@ import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-@NamedQueries({
-	@NamedQuery(
-		name = "Streamable.findAll",
-		query = "select s from Streamable s"
-	)
-})
 
 @Getter
 @Setter

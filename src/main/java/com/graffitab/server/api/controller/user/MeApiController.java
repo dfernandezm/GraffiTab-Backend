@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +24,8 @@ import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.asset.result.CreateAssetResult;
 import com.graffitab.server.api.dto.device.DeviceDto;
+import com.graffitab.server.api.dto.location.LocationDto;
+import com.graffitab.server.api.dto.location.result.CreateLocationResult;
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
@@ -37,13 +40,15 @@ import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.mapper.OrikaMapper;
+import com.graffitab.server.persistence.model.Location;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.streamable.Streamable;
-import com.graffitab.server.service.DeviceService;
-import com.graffitab.server.service.StreamableService;
 import com.graffitab.server.service.notification.NotificationService;
+import com.graffitab.server.service.streamable.StreamableService;
+import com.graffitab.server.service.user.DeviceService;
+import com.graffitab.server.service.user.LocationService;
 import com.graffitab.server.service.user.UserService;
 
 @RestController
@@ -61,6 +66,9 @@ public class MeApiController {
 
 	@Resource
 	private DeviceService deviceService;
+
+	@Resource
+	private LocationService locationService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -116,9 +124,8 @@ public class MeApiController {
 	@RequestMapping(value = {"/avatar"}, method = RequestMethod.DELETE)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult deleteAvatar() throws IOException {
-		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.deleteAvatar();
-		return actionCompletedResult;
+		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
@@ -133,45 +140,79 @@ public class MeApiController {
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.DELETE)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult deleteCover() throws IOException {
-		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.deleteCover();
-		return actionCompletedResult;
+		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = "/device", method = RequestMethod.POST)
+	@RequestMapping(value = "/locations", method = RequestMethod.POST)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public CreateLocationResult createLocation(@JsonProperty("location") LocationDto locationDto) {
+		CreateLocationResult createLocationResult = new CreateLocationResult();
+		Location location = locationService.createLocation(locationDto.getAddress(), locationDto.getLatitude(), locationDto.getLongitude());
+		createLocationResult.setLocation(mapper.map(location, LocationDto.class));
+		return createLocationResult;
+	}
+
+	@RequestMapping(value = "/locations/{id}", method = RequestMethod.PUT)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public CreateLocationResult editLocation(
+			@PathVariable("id") Long locationId,
+			@JsonProperty("location") LocationDto locationDto) {
+		CreateLocationResult createLocationResult = new CreateLocationResult();
+		Location location = locationService.editLocation(locationId, locationDto.getAddress(), locationDto.getLatitude(), locationDto.getLongitude());
+		createLocationResult.setLocation(mapper.map(location, LocationDto.class));
+		return createLocationResult;
+	}
+
+	@RequestMapping(value = "/locations/{id}", method = RequestMethod.DELETE)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ActionCompletedResult deleteLocation(@PathVariable("id") Long locationId) {
+		locationService.deleteLocation(locationId);
+		return new ActionCompletedResult();
+	}
+
+	@RequestMapping(value = {"/locations"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<LocationDto> getLocations(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return locationService.getLocationsResult(offset, count);
+	}
+
+	@RequestMapping(value = "/devices", method = RequestMethod.POST)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult registerDevice(@JsonProperty("device") DeviceDto deviceDto) {
-		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		deviceService.registerDevice(deviceDto.getToken(), deviceDto.getOsType());
-		return actionCompletedResult;
+		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = "/device", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/devices", method = RequestMethod.DELETE)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult unregisterDevice(@JsonProperty("device") DeviceDto deviceDto) {
-		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		deviceService.unregisterDevice(deviceDto.getToken(), deviceDto.getOsType());
-		return actionCompletedResult;
+		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = "/externalprovider", method = RequestMethod.POST)
+	@RequestMapping(value = "/externalproviders", method = RequestMethod.POST)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
-		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
-		return actionCompletedResult;
+		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = "/externalprovider", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/externalproviders", method = RequestMethod.DELETE)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult unlinkExternalProvider(@JsonProperty("externalProviderType") ExternalProviderType externalProviderType) {
-		ActionCompletedResult actionCompletedResult = new ActionCompletedResult();
 		userService.unlinkExternalProvider(externalProviderType);
-		return actionCompletedResult;
+		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.POST)

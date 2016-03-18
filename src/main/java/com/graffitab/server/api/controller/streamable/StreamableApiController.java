@@ -22,7 +22,8 @@ import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.streamable.Streamable;
-import com.graffitab.server.service.StreamableService;
+import com.graffitab.server.service.streamable.CommentService;
+import com.graffitab.server.service.streamable.StreamableService;
 
 @RestController
 @RequestMapping("/api/streamables")
@@ -30,6 +31,9 @@ public class StreamableApiController {
 
 	@Resource
 	private StreamableService streamableService;
+
+	@Resource
+	private CommentService commentService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -81,7 +85,7 @@ public class StreamableApiController {
 			@PathVariable("id") Long streamableId,
 			@JsonProperty("comment") CommentDto commentDto) {
 		CreateCommentResult createCommentResult = new CreateCommentResult();
-		Comment comment = streamableService.postComment(streamableId, commentDto.getText());
+		Comment comment = commentService.postComment(streamableId, commentDto.getText());
 		createCommentResult.setComment(mapper.map(comment, CommentDto.class));
 		return createCommentResult;
 	}
@@ -92,7 +96,7 @@ public class StreamableApiController {
 	public ActionCompletedResult deleteComment(
 			@PathVariable("id") Long streamableId,
 			@PathVariable("commentId") Long commentId) {
-		streamableService.deleteComment(streamableId, commentId);
+		commentService.deleteComment(streamableId, commentId);
 		return new ActionCompletedResult();
 	}
 
@@ -104,7 +108,7 @@ public class StreamableApiController {
 			@PathVariable("commentId") Long commentId,
 			@JsonProperty("comment") CommentDto commentDto) {
 		CreateCommentResult createCommentResult = new CreateCommentResult();
-		Comment comment = streamableService.editComment(streamableId, commentId, commentDto.getText());
+		Comment comment = commentService.editComment(streamableId, commentId, commentDto.getText());
 		createCommentResult.setComment(mapper.map(comment, CommentDto.class));
 		return createCommentResult;
 	}
@@ -116,6 +120,6 @@ public class StreamableApiController {
 			@PathVariable("id") Long streamableId,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getCommentsResult(streamableId, offset, count);
+		return commentService.getCommentsResult(streamableId, offset, count);
 	}
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
-import com.graffitab.server.service.StreamableService;
+import com.graffitab.server.service.streamable.StreamableService;
 
 import ma.glasnost.orika.CustomMapper;
 import ma.glasnost.orika.MappingContext;
