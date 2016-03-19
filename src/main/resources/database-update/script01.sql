@@ -267,3 +267,12 @@ ALTER TABLE location DROP FOREIGN KEY del_location_on_person;
 ALTER TABLE location CHANGE userId user_id bigint(20) NOT NULL;
 ALTER TABLE location ADD CONSTRAINT user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
 alter table location add order_key int(11) not null;
+
+--changeset georgi:v100cs48
+ALTER TABLE homeStream RENAME TO feed;
+ALTER TABLE feed DROP FOREIGN KEY del_homeStream_on_person;
+ALTER TABLE feed CHANGE userId user_id bigint(20) NOT NULL;
+ALTER TABLE feed CHANGE itemId streamable_id bigint(20) NOT NULL;
+ALTER TABLE feed ADD CONSTRAINT feed_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id);
+ALTER TABLE feed ADD CONSTRAINT feed_streamable_fk FOREIGN KEY (streamable_id) REFERENCES streamable (id);
+alter table feed add order_key int(11) not null;

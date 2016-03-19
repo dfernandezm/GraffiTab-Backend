@@ -159,6 +159,13 @@ public class User implements Identifiable<Long>, UserDetails {
 	@OrderColumn(name = "order_key")
 	private List<Location> locations = new ArrayList<>();
 
+	@ManyToMany(cascade = CascadeType.ALL)
+	@JoinTable(name = "feed",
+			   joinColumns = {@JoinColumn(name = "user_id")},
+			   inverseJoinColumns = {@JoinColumn(name = "streamable_id")})
+	@OrderColumn(name = "order_key")
+	private List<Streamable> feed = new ArrayList<>();
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		GrantedAuthority g = new SimpleGrantedAuthority("ROLE_USER");
