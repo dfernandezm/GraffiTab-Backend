@@ -5,6 +5,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.converter.ConverterFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
+
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
@@ -31,10 +36,6 @@ import com.graffitab.server.persistence.model.notification.NotificationMention;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 import com.graffitab.server.persistence.model.user.User;
-
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
 
 @Component
 public class OrikaMapper {
@@ -85,6 +86,11 @@ public class OrikaMapper {
 	}
 
 	private void registerMappings() {
+
+		// Converters
+		ConverterFactory converterFactory = mapperFactory.getConverterFactory();
+		converterFactory.registerConverter(new DateTimeToStringConverter());
+
 		// By default there automatic mapping is enabled, not need to register every single class
 		// Map user DTOs.
 		mapperFactory.classMap(User.class, UserDto.class)
@@ -110,6 +116,8 @@ public class OrikaMapper {
 	    .register();
 
 		mapperFactory.classMap(NotificationFollow.class, NotificationDto.class)
+		//.fieldMap("date", "date").converter("dateTimeToStringConverter")
+		//.add()
 		.byDefault()
 		.customize(notificationFollowMapper)
 	    .register();

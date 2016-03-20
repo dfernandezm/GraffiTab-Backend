@@ -59,7 +59,7 @@ def hibernateVersion = "4.3.5.Final"
 def c3p0Version = "0.9.1.2"
 def tilesVersion = "3.0.0"
 def mysqlVersion = "5.1.27"
-def jacksonVersion = "2.3.0"
+def jacksonVersion = "2.7.3"
 def junitVersion = "4.11"
 def commonsCodecVersion = "1.8"
 def commonsIoVersion = "2.4"
@@ -175,6 +175,8 @@ dependencies {
    compile 'org.springframework.boot:spring-boot-starter-security'
    compile 'org.springframework.boot:spring-boot-starter-aop'
    compile "com.sendgrid:sendgrid-java:$sendgridVersion"
+   compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jacksonVersion"
+
 
    testCompile 'org.springframework.boot:spring-boot-starter-test'
    testCompile 'org.springframework.security:spring-security-test:4.0.3.RELEASE'

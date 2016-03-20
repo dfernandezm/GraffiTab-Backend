@@ -22,7 +22,8 @@ import com.graffitab.server.config.web.WebConfig;
 		  }
 
 		)
-// Need to import the Security Configuration here, in the main context, otherwise the filterChain in web.xml fails
 @Import(value={WebConfig.class})
 @Order(1)
-public class MainConfig { }
+public class MainConfig {
+
+}
