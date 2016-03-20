@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
+import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.errors.RestApiException;
@@ -45,6 +46,9 @@ public class StreamableService {
 
 	@Resource
 	private HibernateDaoImpl<Streamable, Long> streamableDao;
+
+	@Resource
+	private HibernateDaoImpl<User, Long> userDao;
 
 	public Streamable createStreamableGraffiti(StreamableGraffitiDto streamableGraffitiDto, InputStream assetInputStream, long contentLength) {
 		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
@@ -119,6 +123,24 @@ public class StreamableService {
 			return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);
 		} else {
 			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
+		}
+	}
+
+	@Transactional
+	public ListItemsResult<StreamableDto> getUserStreamables(Long userId, Integer offset, Integer count) {
+		User user = userService.findUserById(userId);
+
+		if (user != null) {
+			Query query = userDao.createQuery(
+					"select s "
+				  + "from User u "
+				  + "join u.streamables s "
+				  + "where u = :currentUser");
+			query.setParameter("currentUser", user);
+
+			return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
 	}
 

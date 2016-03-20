@@ -28,6 +28,7 @@ import com.graffitab.server.api.dto.location.LocationDto;
 import com.graffitab.server.api.dto.location.result.CreateLocationResult;
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
+import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.streamable.result.CreateStreamableResult;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
@@ -257,5 +258,14 @@ public class MeApiController {
 			throw new RestApiException(ResultCode.BAD_REQUEST,
 					"File stream could not be read.");
 		}
+	}
+
+	@RequestMapping(value = {"/streamables"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getStreamables(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getUserStreamables(userService.getCurrentUser().getId(), offset, count);
 	}
 }

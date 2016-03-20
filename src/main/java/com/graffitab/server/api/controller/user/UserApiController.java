@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.controller.BaseApiController;
 import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.ListItemsResult;
+import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.user.ExternalUserDto;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
@@ -25,6 +26,7 @@ import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
+import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
 
@@ -34,6 +36,9 @@ public class UserApiController extends BaseApiController {
 
 	@Resource
 	private UserService userService;
+
+	@Resource
+	private StreamableService streamableService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -151,6 +156,16 @@ public class UserApiController extends BaseApiController {
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
 		return userService.getFollowingOrFollowersResultForUser(false, userId, offset, count);
+	}
+
+	@RequestMapping(value = {"/{id}/streamables"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getStreamables(
+			@PathVariable("id") Long userId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getUserStreamables(userId, offset, count);
 	}
 
 	//TODO: Most active users -> /api/users/mostactive page by page

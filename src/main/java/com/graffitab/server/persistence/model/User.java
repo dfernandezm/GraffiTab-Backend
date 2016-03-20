@@ -213,6 +213,7 @@ public class User implements Identifiable<Long>, UserDetails {
 	 * @return true if the current user is following the specified user
 	 */
 	public boolean isFollowing(User followee) {
+		// TODO: Evaluate using a query.
 		return following.contains(followee);
 	}
 
