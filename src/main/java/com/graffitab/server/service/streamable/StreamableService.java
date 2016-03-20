@@ -1,6 +1,9 @@
 package com.graffitab.server.service.streamable;
 
 import java.io.InputStream;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
@@ -24,8 +27,12 @@ import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.store.DatastoreService;
+import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
 
+import lombok.extern.log4j.Log4j;
+
+@Log4j
 @Service
 public class StreamableService {
 
@@ -50,6 +57,8 @@ public class StreamableService {
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
 
+	private ExecutorService executor = Executors.newFixedThreadPool(2);
+
 	public Streamable createStreamableGraffiti(StreamableGraffitiDto streamableGraffitiDto, InputStream assetInputStream, long contentLength) {
 		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
 
@@ -57,16 +66,21 @@ public class StreamableService {
 
 		Streamable streamable = transactionUtils.executeInTransactionWithResult(() -> {
 			User currentUser = userService.getCurrentUser();
+			userService.merge(currentUser);
 			Streamable streamableGraffiti = new StreamableGraffiti(streamableGraffitiDto.getLatitude(),
 														   streamableGraffitiDto.getLongitude(),
 														   streamableGraffitiDto.getRoll(),
 														   streamableGraffitiDto.getYaw(),
 														   streamableGraffitiDto.getPitch());
 			streamableGraffiti.setAsset(assetToAdd);
+			streamableGraffiti.setUser(currentUser);
 			currentUser.getStreamables().add(streamableGraffiti);
+			Streamable persisted = streamableDao.persist(streamableGraffiti);
 
-			return streamableGraffiti;
+			return persisted;
 		});
+
+		addStreamableToFollowersStream(streamable);
 
 		return streamable;
 	}
@@ -170,5 +184,50 @@ public class StreamableService {
 	@Transactional(readOnly = true)
 	public Streamable findStreamableById(Long id) {
 		return streamableDao.find(id);
+	}
+
+	private void addStreamableToFollowersStream(Streamable streamable) {
+
+		executor.submit(() -> {
+			User currentUser = streamable.getUser();
+			log.debug("About to add streamable " + streamable + " to followers of user " + streamable.getUser());
+			try {
+				RunAsUser.set(currentUser);
+				// Get list of followers.
+				@SuppressWarnings("unchecked")
+				List<Long> followeesIds = transactionUtils.executeInTransactionWithResult(() -> {
+					Query query = userDao.createQuery(
+							"select f.id "
+						  + "from User u "
+						  + "join u.followers f "
+						  + "where u = :currentUser");
+					query.setParameter("currentUser", currentUser);
+
+					List<Long> ids = (List<Long>) query.list();
+
+					return ids;
+				});
+
+				// We want to add the streamable to the user's feed as well.
+				followeesIds.add(currentUser.getId());
+
+				log.debug("Adding streamable to " + followeesIds.size() + " followers");
+
+				// For each follower, add the item to their feed.
+				followeesIds.forEach(userId -> {
+					transactionUtils.executeInTransaction(() -> {
+						Streamable innerStreamable = findStreamableById(streamable.getId());
+						User follower = userService.findUserById(userId);
+						follower.getFeed().add(innerStreamable);
+					});
+				});
+
+				log.debug("Finished adding streamable to followers' feed");
+			} catch (Throwable t) {
+				log.error("Error updating followers feed", t);
+			} finally {
+				RunAsUser.clear();
+			}
+		});
 	}
 }
