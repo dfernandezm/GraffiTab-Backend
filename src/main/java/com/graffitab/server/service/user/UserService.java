@@ -6,8 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
@@ -45,6 +43,8 @@ import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -546,6 +546,18 @@ public class UserService {
 		}
 
 		return user;
+	}
+
+	@Transactional
+	public ListItemsResult<UserDto> getMostActiveUsers(Integer offset, Integer count) {
+		Query query = userDao.createQuery(
+				"select u "
+			  + "from User u "
+			  + "left join u.streamables s "
+			  + "group by u.id "
+			  + "order by count(s) desc");
+
+		return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);
 	}
 
 	@Transactional(readOnly = true)

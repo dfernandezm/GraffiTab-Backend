@@ -168,6 +168,15 @@ public class UserApiController extends BaseApiController {
 		return streamableService.getUserStreamables(userId, offset, count);
 	}
 
+	@RequestMapping(value = {"/mostactive"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<UserDto> getMostActiveUsers(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return userService.getMostActiveUsers(offset, count);
+	}
+
 	//TODO: Most active users -> /api/users/mostactive page by page
 	//TODO: getSocialFriends -> /api/users/socialfriends page by page
 }
