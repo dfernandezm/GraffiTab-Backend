@@ -132,4 +132,13 @@ public class StreamableApiController {
 			@RequestParam(value="count", required = false) Integer count) {
 		return streamableService.getNewestStreamables(offset, count);
 	}
+
+	@RequestMapping(value = {"/popular"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getPopularStreamables(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getPopularStreamables(offset, count);
+	}
 }

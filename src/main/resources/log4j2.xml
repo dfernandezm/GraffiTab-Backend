@@ -39,6 +39,16 @@
 			<appender-ref ref="STANDARD_CONSOLE" />
 		</logger>
 
+		<logger name="org.hibernate" level="info" additivity="false">
+            <appender-ref ref="FILE_APPENDER" />
+            <appender-ref ref="STANDARD_CONSOLE" />
+        </logger>
+
+        <logger name="org.hibernate.SQL" level="info" additivity="false">
+            <appender-ref ref="FILE_APPENDER" />
+            <appender-ref ref="STANDARD_CONSOLE" />
+        </logger>
+
 		<root level="warn">
 			<appender-ref ref="FILE_APPENDER" />
 			<appender-ref ref="STANDARD_CONSOLE" />

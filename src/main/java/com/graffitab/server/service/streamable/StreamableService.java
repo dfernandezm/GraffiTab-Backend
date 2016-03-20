@@ -155,6 +155,18 @@ public class StreamableService {
 		return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
+	@Transactional
+	public ListItemsResult<StreamableDto> getPopularStreamables(Integer offset, Integer count) {
+		Query query = streamableDao.createQuery(
+				"select s "
+			  + "from Streamable s "
+			  + "left join s.likers l "
+			  + "group by s.id "
+			  + "order by count(l) desc");
+
+		return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+	}
+
 	@Transactional(readOnly = true)
 	public Streamable findStreamableById(Long id) {
 		return streamableDao.find(id);
