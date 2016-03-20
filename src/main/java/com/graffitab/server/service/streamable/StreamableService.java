@@ -144,6 +144,16 @@ public class StreamableService {
 		}
 	}
 
+	@Transactional
+	public ListItemsResult<StreamableDto> getNewestStreamables(Integer offset, Integer count) {
+		Query query = streamableDao.createQuery(
+				"select s "
+			  + "from Streamable s "
+			  + "order by s.date desc");
+
+		return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+	}
+
 	@Transactional(readOnly = true)
 	public Streamable findStreamableById(Long id) {
 		return streamableDao.find(id);

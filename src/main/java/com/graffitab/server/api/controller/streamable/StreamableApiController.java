@@ -16,6 +16,7 @@ import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.comment.CommentDto;
 import com.graffitab.server.api.dto.comment.result.CreateCommentResult;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
+import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.result.GetFullStreamableResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
@@ -121,5 +122,14 @@ public class StreamableApiController {
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
 		return commentService.getCommentsResult(streamableId, offset, count);
+	}
+
+	@RequestMapping(value = {"/newest"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getNewestStreamables(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getNewestStreamables(offset, count);
 	}
 }
