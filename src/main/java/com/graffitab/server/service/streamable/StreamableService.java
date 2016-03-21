@@ -132,14 +132,14 @@ public class StreamableService {
 				  + "where s = :currentStreamable");
 			query.setParameter("currentStreamable", streamable);
 
-			return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);
+			return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
 		} else {
 			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
 		}
 	}
 
 	@Transactional
-	public ListItemsResult<StreamableDto> getUserStreamables(Long userId, Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getUserStreamablesResult(Long userId, Integer offset, Integer count) {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
@@ -147,27 +147,28 @@ public class StreamableService {
 					"select s "
 				  + "from User u "
 				  + "join u.streamables s "
-				  + "where u = :currentUser");
+				  + "where u = :currentUser "
+				  + "order by s.date desc");
 			query.setParameter("currentUser", user);
 
-			return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
 	}
 
 	@Transactional
-	public ListItemsResult<StreamableDto> getNewestStreamables(Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getNewestStreamablesResult(Integer offset, Integer count) {
 		Query query = streamableDao.createQuery(
 				"select s "
 			  + "from Streamable s "
 			  + "order by s.date desc");
 
-		return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
 	@Transactional
-	public ListItemsResult<StreamableDto> getPopularStreamables(Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getPopularStreamablesResult(Integer offset, Integer count) {
 		Query query = streamableDao.createQuery(
 				"select s "
 			  + "from Streamable s "
@@ -175,11 +176,11 @@ public class StreamableService {
 			  + "group by s.id "
 			  + "order by count(l) desc");
 
-		return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
 	@Transactional
-	public ListItemsResult<StreamableDto> getUserFeed(Long userId, Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getUserFeedResult(Long userId, Integer offset, Integer count) {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
@@ -191,10 +192,79 @@ public class StreamableService {
 				  + "order by f.date desc");
 			query.setParameter("currentUser", user);
 
-			return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
+	}
+
+	@Transactional
+	public Streamable flag(Long streamableId) {
+		Streamable streamable = findStreamableById(streamableId);
+
+		if (streamable != null) {
+			streamable.setIsFlagged(true);
+
+			// TODO: Potentially send an email to support saying that a streamable has been flagged and include it's ID and asset link.
+
+			return streamable;
+		} else {
+			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
+		}
+	}
+
+	@Transactional
+	public Streamable makePublicOrPrivate(Long streamableId, boolean isPrivate) {
+		Streamable streamable = findStreamableById(streamableId);
+
+		if (streamable != null) {
+			User currentUser = userService.getCurrentUser();
+
+			if (currentUser.equals(streamable.getUser())) {
+				streamable.setIsPrivate(isPrivate);
+			}
+			else {
+				throw new RestApiException(ResultCode.USER_NOT_OWNER, "The streamable with id " + streamableId + " cannot be changed by user with id " + currentUser.getId());
+			}
+
+			return streamable;
+		} else {
+			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
+		}
+	}
+
+	@Transactional
+	public ListItemsResult<StreamableDto> getLikedStreamablesForUserResult(Long userId, Integer offset, Integer count) {
+		User user = userService.findUserById(userId);
+
+		if (user != null) {
+			Query query = streamableDao.createQuery(
+					"select s "
+				  + "from Streamable s "
+				  + "join s.likers u "
+				  + "where u = :currentUser "
+				  + "order by s.date desc");
+			query.setParameter("currentUser", user);
+
+			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
+		}
+	}
+
+	@Transactional
+	public ListItemsResult<StreamableDto> getPrivateStreamablesResult(Integer offset, Integer count) {
+		User currentUser = userService.getCurrentUser();
+
+		Query query = userDao.createQuery(
+				"select s "
+			  + "from User u "
+			  + "join u.streamables s "
+			  + "where u = :currentUser and s.isPrivate = 'Y' "
+			  + "order by s.date desc");
+		query.setParameter("currentUser", currentUser);
+
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
 	@Transactional(readOnly = true)

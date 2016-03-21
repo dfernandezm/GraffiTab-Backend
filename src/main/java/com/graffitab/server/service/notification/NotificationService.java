@@ -54,7 +54,7 @@ public class NotificationService {
 			  + "where u = :currentUser");
 		query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItemsResult(Notification.class, NotificationDto.class, offset, count, query);
+		return pagingService.getPagedItems(Notification.class, NotificationDto.class, offset, count, query);
 	}
 
 	@Transactional

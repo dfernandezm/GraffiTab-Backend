@@ -130,7 +130,7 @@ public class StreamableApiController {
 	public ListItemsResult<StreamableDto> getNewestStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getNewestStreamables(offset, count);
+		return streamableService.getNewestStreamablesResult(offset, count);
 	}
 
 	@RequestMapping(value = {"/popular"}, method = RequestMethod.GET)
@@ -139,6 +139,16 @@ public class StreamableApiController {
 	public ListItemsResult<StreamableDto> getPopularStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getPopularStreamables(offset, count);
+		return streamableService.getPopularStreamablesResult(offset, count);
+	}
+
+	@RequestMapping(value = {"/{id}/flag"}, method = RequestMethod.POST)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public GetFullStreamableResult flag(@PathVariable("id") Long streamableId) {
+		GetFullStreamableResult getFullStreamableResult = new GetFullStreamableResult();
+		Streamable streamable = streamableService.flag(streamableId);
+		getFullStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
+		return getFullStreamableResult;
 	}
 }

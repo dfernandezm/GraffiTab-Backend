@@ -145,7 +145,7 @@ public class UserApiController extends BaseApiController {
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersResultForUser(true, userId, offset, count);
+		return userService.getFollowingOrFollowersForUserResult(true, userId, offset, count);
 	}
 
 	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
@@ -155,7 +155,7 @@ public class UserApiController extends BaseApiController {
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersResultForUser(false, userId, offset, count);
+		return userService.getFollowingOrFollowersForUserResult(false, userId, offset, count);
 	}
 
 	@RequestMapping(value = {"/{id}/streamables"}, method = RequestMethod.GET)
@@ -165,7 +165,7 @@ public class UserApiController extends BaseApiController {
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserStreamables(userId, offset, count);
+		return streamableService.getUserStreamablesResult(userId, offset, count);
 	}
 
 	@RequestMapping(value = {"/{id}/feed"}, method = RequestMethod.GET)
@@ -175,7 +175,7 @@ public class UserApiController extends BaseApiController {
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserFeed(userId, offset, count);
+		return streamableService.getUserFeedResult(userId, offset, count);
 	}
 
 	@RequestMapping(value = {"/mostactive"}, method = RequestMethod.GET)
@@ -184,9 +184,16 @@ public class UserApiController extends BaseApiController {
 	public ListItemsResult<UserDto> getMostActiveUsers(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getMostActiveUsers(offset, count);
+		return userService.getMostActiveUsersResult(offset, count);
 	}
 
-	//TODO: Most active users -> /api/users/mostactive page by page
-	//TODO: getSocialFriends -> /api/users/socialfriends page by page
+	@RequestMapping(value = {"/{id}/liked"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
+			@PathVariable("id") Long userId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getLikedStreamablesForUserResult(userId, offset, count);
+	}
 }

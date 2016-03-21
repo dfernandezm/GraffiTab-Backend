@@ -123,7 +123,7 @@ public class CommentService {
 				  + "where s = :currentStreamable");
 			query.setParameter("currentStreamable", streamable);
 
-			return pagingService.getPagedItemsResult(Comment.class, CommentDto.class, offset, count, query);
+			return pagingService.getPagedItems(Comment.class, CommentDto.class, offset, count, query);
 		} else {
 			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
 		}

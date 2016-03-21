@@ -84,7 +84,7 @@ public class LocationService {
 			  + "where u = :currentUser");
 		query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItemsResult(Location.class, LocationDto.class, offset, count, query);
+		return pagingService.getPagedItems(Location.class, LocationDto.class, offset, count, query);
 	}
 
 	@Transactional(readOnly = true)

@@ -22,7 +22,7 @@ public class PagingService {
 	private OrikaMapper mapper;
 
 	@Transactional
-	public <T, K> ListItemsResult<K> getPagedItemsResult(Class<T> targetClass, Class<K> targetDtoClass, Integer offset, Integer count, Query query) {
+	public <T, K> ListItemsResult<K> getPagedItems(Class<T> targetClass, Class<K> targetDtoClass, Integer offset, Integer count, Query query) {
 		offset = offset != null ? offset : 0;
 		count = count != null ? count : PAGE_SIZE_DEFAULT_VALUE;
 

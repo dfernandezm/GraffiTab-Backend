@@ -415,7 +415,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public ListItemsResult<UserDto> getFollowingOrFollowersResultForUser(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
+	public ListItemsResult<UserDto> getFollowingOrFollowersForUserResult(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
 		User requestedUser = (userId == null) ? getCurrentUser() : findUserById(userId);
 
 		Query query = userDao.createQuery(
@@ -425,7 +425,7 @@ public class UserService {
 			  + "where u = :currentUser");
 		query.setParameter("currentUser", requestedUser);
 
-		return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);
+		return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
 	}
 
 	@Transactional
@@ -549,7 +549,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public ListItemsResult<UserDto> getMostActiveUsers(Integer offset, Integer count) {
+	public ListItemsResult<UserDto> getMostActiveUsersResult(Integer offset, Integer count) {
 		Query query = userDao.createQuery(
 				"select u "
 			  + "from User u "
@@ -557,7 +557,7 @@ public class UserService {
 			  + "group by u.id "
 			  + "order by count(s) desc");
 
-		return pagingService.getPagedItemsResult(User.class, UserDto.class, offset, count, query);
+		return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
 	}
 
 	@Transactional(readOnly = true)

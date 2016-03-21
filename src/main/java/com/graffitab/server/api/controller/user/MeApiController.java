@@ -31,6 +31,7 @@ import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.streamable.result.CreateStreamableResult;
+import com.graffitab.server.api.dto.streamable.result.GetFullStreamableResult;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
@@ -231,7 +232,7 @@ public class MeApiController {
 	public ListItemsResult<UserDto> getFollowers(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersResultForUser(true, null, offset, count);
+		return userService.getFollowingOrFollowersForUserResult(true, null, offset, count);
 	}
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
@@ -240,7 +241,7 @@ public class MeApiController {
 	public ListItemsResult<UserDto> getFollowing(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersResultForUser(false, null, offset, count);
+		return userService.getFollowingOrFollowersForUserResult(false, null, offset, count);
 	}
 
 	@RequestMapping(value = "/streamables/graffiti", method = RequestMethod.POST)
@@ -266,7 +267,36 @@ public class MeApiController {
 	public ListItemsResult<StreamableDto> getStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserStreamables(userService.getCurrentUser().getId(), offset, count);
+		return streamableService.getUserStreamablesResult(userService.getCurrentUser().getId(), offset, count);
+	}
+
+	@RequestMapping(value = {"/streamables/{id}/private"}, method = RequestMethod.POST)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public GetFullStreamableResult makePublic(@PathVariable("id") Long streamableId) {
+		GetFullStreamableResult getFullStreamableResult = new GetFullStreamableResult();
+		Streamable streamable = streamableService.makePublicOrPrivate(streamableId, true);
+		getFullStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
+		return getFullStreamableResult;
+	}
+
+	@RequestMapping(value = {"/streamables/{id}/private"}, method = RequestMethod.DELETE)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public GetFullStreamableResult makePrivate(@PathVariable("id") Long streamableId) {
+		GetFullStreamableResult getFullStreamableResult = new GetFullStreamableResult();
+		Streamable streamable = streamableService.makePublicOrPrivate(streamableId, false);
+		getFullStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
+		return getFullStreamableResult;
+	}
+
+	@RequestMapping(value = {"/streamables/private"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getPrivateStreamables(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getPrivateStreamablesResult(offset, count);
 	}
 
 	@RequestMapping(value = {"/feed"}, method = RequestMethod.GET)
@@ -275,6 +305,15 @@ public class MeApiController {
 	public ListItemsResult<StreamableDto> getFeed(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserFeed(userService.getCurrentUser().getId(), offset, count);
+		return streamableService.getUserFeedResult(userService.getCurrentUser().getId(), offset, count);
+	}
+
+	@RequestMapping(value = {"/liked"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getLikedStreamablesForUserResult(userService.getCurrentUser().getId(), offset, count);
 	}
 }
