@@ -72,6 +72,7 @@ public class StreamableService {
 														   streamableGraffitiDto.getYaw(),
 														   streamableGraffitiDto.getPitch());
 			streamableGraffiti.setAsset(assetToAdd);
+			streamableGraffiti.setUser(currentUser);
 			currentUser.getStreamables().add(streamableGraffiti);
 			return streamableGraffiti;
 		});
