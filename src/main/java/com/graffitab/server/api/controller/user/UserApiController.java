@@ -196,4 +196,14 @@ public class UserApiController extends BaseApiController {
 			@RequestParam(value="count", required = false) Integer count) {
 		return streamableService.getLikedStreamablesForUserResult(userId, offset, count);
 	}
+
+	@RequestMapping(value = {"/search"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<UserDto> searchUsers(
+			@RequestParam(value="query", required = true) String query,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return userService.searchUsersResult(query, offset, count);
+	}
 }

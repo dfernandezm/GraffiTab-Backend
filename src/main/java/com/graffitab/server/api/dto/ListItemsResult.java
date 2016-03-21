@@ -8,7 +8,7 @@ import lombok.Data;
 public class ListItemsResult<T> {
 
 	private List<T> items;
-	private Integer total;
+	private Integer resultsCount;
 	private Integer offset;
-	private Integer count;
+	private Integer maxResultsCount;
 }

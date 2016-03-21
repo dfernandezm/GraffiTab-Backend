@@ -39,8 +39,8 @@ public class PagingService {
 		// Build result list.
 		ListItemsResult<K> listItemsResult = new ListItemsResult<>();
 		listItemsResult.setItems(itemDtos);
-		listItemsResult.setTotal(items.getTotal());
-		listItemsResult.setCount(items.getCount());
+		listItemsResult.setResultsCount(items.getResultsCount());
+		listItemsResult.setMaxResultsCount(items.getMaxResultsCount());
 		listItemsResult.setOffset(items.getOffset());
 
 		return listItemsResult;

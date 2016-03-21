@@ -8,9 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
-import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +27,6 @@ import com.graffitab.server.api.errors.UserNotLoggedInException;
 import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
-import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.User.AccountStatus;
 import com.graffitab.server.persistence.model.asset.Asset;
@@ -306,22 +302,37 @@ public class UserService {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public PagedList<User> searchUser(String query, Integer offset, Integer count) {
-		// By username, first name, lastName
-		Criterion usernameRestriction = Restrictions.like("username", query, MatchMode.ANYWHERE);
-		Criterion firstNameRestriction = Restrictions.like("firstName", query, MatchMode.ANYWHERE);
-		Criterion lastNameRestriction = Restrictions.like("lastName", query, MatchMode.ANYWHERE);
-		Criterion orRestriction = Restrictions.or(usernameRestriction, firstNameRestriction, lastNameRestriction);
+	public ListItemsResult<UserDto> searchUsersResult(String userQuery, Integer offset, Integer count) {
+		// By username, first name, lastName.
+		// TODO: Need to escape the characters to prevent SQL injection here.
+		userQuery = "%" + userQuery + "%";
 
-		Integer total = (Integer) userDao.getSession().createCriteria(User.class).add(orRestriction)
-				.setProjection(Projections.rowCount()).uniqueResult();
+		Query query = userDao.createQuery(
+				"select u "
+			  + "from User u "
+			  + "where u.username like :username "
+			  + "or u.firstName like :firstName "
+			  + "or u.lastName like :lastName");
+		query.setParameter("username", userQuery);
+		query.setParameter("firstName", userQuery);
+		query.setParameter("lastName", userQuery);
 
-		List<User> listUsers = (List<User>) userDao.getSession().createCriteria(User.class).add(orRestriction)
-				.setFirstResult(offset).setMaxResults(count).list();
+		return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
 
-		return new PagedList<User>(listUsers, total, offset);
+		// Example with Criteria.
+//		Criterion usernameRestriction = Restrictions.like("username", query, MatchMode.ANYWHERE);
+//		Criterion firstNameRestriction = Restrictions.like("firstName", query, MatchMode.ANYWHERE);
+//		Criterion lastNameRestriction = Restrictions.like("lastName", query, MatchMode.ANYWHERE);
+//		Criterion orRestriction = Restrictions.or(usernameRestriction, firstNameRestriction, lastNameRestriction);
+//
+//		Integer total = (Integer) userDao.getSession().createCriteria(User.class).add(orRestriction)
+//				.setProjection(Projections.rowCount()).uniqueResult();
+//
+//		List<User> listUsers = (List<User>) userDao.getSession().createCriteria(User.class).add(orRestriction)
+//				.setFirstResult(offset).setMaxResults(count).list();
+//
+//		return new PagedList<User>(listUsers, total, offset);
 	}
 
 	public Asset updateAvatar(InputStream assetInputStream, long contentLength) {

@@ -15,28 +15,28 @@ public class PagedList<T> extends ArrayList<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	@JsonProperty("total")
-	private Integer total;
+	@JsonProperty("resultsCount")
+	private Integer resultsCount;
 
 	@JsonProperty("offset")
 	private Integer offset;
 
-	@JsonProperty("count")
-	private Integer count = PagingService.PAGE_SIZE_DEFAULT_VALUE;
+	@JsonProperty("maxResultsCount")
+	private Integer maxResultsCount = PagingService.PAGE_SIZE_DEFAULT_VALUE;
 
-	public PagedList(List<T> resultsList, Integer offset, Integer count) {
+	public PagedList(List<T> resultsList, Integer offset, Integer maxResultsCount) {
 		super(resultsList);
 
-		this.total = resultsList.size();
+		this.resultsCount = resultsList.size();
 		this.offset = offset;
-		this.count = count;
+		this.maxResultsCount = maxResultsCount;
 	}
 
 	public PagedList() {
 		super();
 
-		this.total = 0;
+		this.resultsCount = 0;
 		this.offset = 0;
-		this.count = PagingService.PAGE_SIZE_DEFAULT_VALUE;
+		this.maxResultsCount = PagingService.PAGE_SIZE_DEFAULT_VALUE;
 	}
 }
