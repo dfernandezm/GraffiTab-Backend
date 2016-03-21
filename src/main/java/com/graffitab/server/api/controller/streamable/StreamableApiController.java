@@ -151,4 +151,15 @@ public class StreamableApiController {
 		getFullStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 		return getFullStreamableResult;
 	}
+
+	@RequestMapping(value = {"/searchlocation"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> searchStreamablesAtLocation(
+			@RequestParam(value="neLatitude", required = true) Double neLatitude,
+			@RequestParam(value="neLongitude", required = true) Double neLongitude,
+			@RequestParam(value="swLatitude", required = true) Double swLatitude,
+			@RequestParam(value="swLongitude", required = true) Double swLongitude) {
+		return streamableService.searchStreamablesAtLocationResult(neLatitude, neLongitude, swLatitude, swLongitude);
+	}
 }

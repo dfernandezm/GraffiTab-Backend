@@ -267,6 +267,23 @@ public class StreamableService {
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
+	@Transactional
+	public ListItemsResult<StreamableDto> searchStreamablesAtLocationResult(Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
+		Query query = streamableDao.createQuery(
+				"select s "
+			  + "from Streamable s "
+			  + "where s.latitude is not null and s.longitude is not null " // Check that the streamable has a location.
+			  + "and s.latitude <= :neLatitude and s.latitude >= :swLatitude " // Check that the streamable is inside the required GPS rectangle.
+			  + "and s.longitude >= :neLongitude and s.longitude <= :swLongitude "
+			  + "order by s.date desc");
+		query.setParameter("neLatitude", neLatitude);
+		query.setParameter("swLatitude", swLatitude);
+		query.setParameter("neLongitude", neLongitude);
+		query.setParameter("swLongitude", swLongitude);
+
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
+	}
+
 	@Transactional(readOnly = true)
 	public Streamable findStreamableById(Long id) {
 		return streamableDao.find(id);
