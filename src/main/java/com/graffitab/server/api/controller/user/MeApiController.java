@@ -268,4 +268,13 @@ public class MeApiController {
 			@RequestParam(value="count", required = false) Integer count) {
 		return streamableService.getUserStreamables(userService.getCurrentUser().getId(), offset, count);
 	}
+
+	@RequestMapping(value = {"/feed"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getFeed(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getUserFeed(userService.getCurrentUser().getId(), offset, count);
+	}
 }

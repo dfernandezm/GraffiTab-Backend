@@ -168,6 +168,16 @@ public class UserApiController extends BaseApiController {
 		return streamableService.getUserStreamables(userId, offset, count);
 	}
 
+	@RequestMapping(value = {"/{id}/feed"}, method = RequestMethod.GET)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getFeed(
+			@PathVariable("id") Long userId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="count", required = false) Integer count) {
+		return streamableService.getUserFeed(userId, offset, count);
+	}
+
 	@RequestMapping(value = {"/mostactive"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)

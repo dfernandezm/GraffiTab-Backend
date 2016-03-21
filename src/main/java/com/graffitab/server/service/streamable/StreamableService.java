@@ -7,8 +7,6 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import lombok.extern.log4j.Log4j;
-
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +29,8 @@ import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
@@ -176,6 +176,25 @@ public class StreamableService {
 			  + "order by count(l) desc");
 
 		return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+	}
+
+	@Transactional
+	public ListItemsResult<StreamableDto> getUserFeed(Long userId, Integer offset, Integer count) {
+		User user = userService.findUserById(userId);
+
+		if (user != null) {
+			Query query = userDao.createQuery(
+					"select f "
+				  + "from User u "
+				  + "join u.feed f "
+				  + "where u = :currentUser "
+				  + "order by f.date desc");
+			query.setParameter("currentUser", user);
+
+			return pagingService.getPagedItemsResult(Streamable.class, StreamableDto.class, offset, count, query);
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
+		}
 	}
 
 	@Transactional(readOnly = true)
