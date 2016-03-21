@@ -51,10 +51,25 @@ public class NotificationService {
 				"select n "
 			  + "from User u "
 			  + "join u.notifications n "
-			  + "where u = :currentUser");
+			  + "where u = :currentUser "
+			  + "order by n.date desc");
 		query.setParameter("currentUser", currentUser);
 
 		return pagingService.getPagedItems(Notification.class, NotificationDto.class, offset, count, query);
+	}
+
+	@Transactional
+	public Long getUnreadNotificationsCount() {
+		User currentUser = userService.getCurrentUser();
+
+		Query query = notificationDao.createQuery(
+				"select count(n) "
+			  + "from User u "
+			  + "join u.notifications n "
+			  + "where u = :currentUser and n.isRead = 'N'");
+		query.setParameter("currentUser", currentUser);
+
+		return (Long) query.uniqueResult();
 	}
 
 	@Transactional

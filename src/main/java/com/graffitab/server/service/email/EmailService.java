@@ -7,14 +7,13 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-@Service
-public class EmailService {
+import lombok.extern.log4j.Log4j;
 
-	private static final Logger log = LogManager.getLogger();
+@Service
+@Log4j
+public class EmailService {
 
 	@Resource
 	private EmailSenderService emailSenderService;
@@ -44,6 +43,16 @@ public class EmailService {
 
 		Email resetPasswordEmail = Email.resetPassword(new String[] {email}, data);
 		sendEmailAsync(resetPasswordEmail);
+	}
+
+	public void sendFeedbackEmail(String name, String email, String text) {
+		Map<String,String> data = new HashMap<>();
+		data.put("@username", name);
+		data.put("@email", email);
+		data.put("@feedback", text);
+
+		Email feedbackEmail = Email.feedback(data);
+		sendEmailAsync(feedbackEmail);
 	}
 
 	private void sendEmailAsync(Email email) {

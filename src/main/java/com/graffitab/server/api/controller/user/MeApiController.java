@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.dto.ActionCompletedResult;
+import com.graffitab.server.api.dto.CountResult;
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.asset.result.CreateAssetResult;
@@ -98,10 +99,20 @@ public class MeApiController {
 	@RequestMapping(value = {"/notifications"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<NotificationDto> getMyNotifications(
+	public ListItemsResult<NotificationDto> getNotifications(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="count", required = false) Integer count) {
 		return notificationService.getNotificationsResult(offset, count);
+	}
+
+	@RequestMapping(value = {"/notifications/unreadcount"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public CountResult getUnreadNotifications() {
+		CountResult countResult = new CountResult();
+		Long count = notificationService.getUnreadNotificationsCount();
+		countResult.setCount(count);
+		return countResult;
 	}
 
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})

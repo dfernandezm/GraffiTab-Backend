@@ -40,6 +40,7 @@ public class Email {
 
 	private static String FROM_NAME = "GraffiTab";
 	private static String FROM_ADDRESS = "no_reply@graffitab.com";
+	private static String TO_FEEDBACK_ADDRESS = "georgi.christov89@gmail.com";
 
 	static {
 		try {
@@ -88,6 +89,19 @@ public class Email {
 		String emailBody = replacePlaceholders(placeHolders, PASSWORD_RESET_TEMPLATE_CONTENTS);
 		email.setHtmlBody(emailBody);
 		email.setRecipients(recipients);
+		return email;
+	}
+
+	public static Email feedback(Map<String, String> placeHolders) {
+		Email email = new Email();
+		EmailType emailType = EmailType.FEEDBACK;
+		email.setSubject("GraffiTab Feedback");
+		email.setFromAddress(FROM_ADDRESS);
+		email.setFromName(FROM_NAME);
+		email.setEmailType(emailType);
+		String emailBody = replacePlaceholders(placeHolders, FEEDBACK_TEMPLATE_CONTENTS);
+		email.setHtmlBody(emailBody);
+		email.setRecipients(new String[] {TO_FEEDBACK_ADDRESS});
 		return email;
 	}
 
