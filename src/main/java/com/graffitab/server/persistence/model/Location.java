@@ -9,11 +9,25 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
+
 import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.model.user.User;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+@NamedQueries({
+	@NamedQuery(
+		name = "Location.getLocations",
+		query = "select l "
+			  + "from User u "
+			  + "join u.locations l "
+			  + "where u = :currentUser"
+	)
+})
 
 @Getter
 @Setter

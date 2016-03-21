@@ -18,11 +18,11 @@ import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
-import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
+import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.notification.NotificationService;
@@ -125,11 +125,7 @@ public class StreamableService {
 		Streamable streamable = findStreamableById(streamableId);
 
 		if (streamable != null) {
-			Query query = streamableDao.createQuery(
-					"select u "
-				  + "from Streamable s "
-				  + "join s.likers u "
-				  + "where s = :currentStreamable");
+			Query query = streamableDao.createNamedQuery("User.getLikers");
 			query.setParameter("currentStreamable", streamable);
 
 			return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
@@ -143,12 +139,7 @@ public class StreamableService {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
-			Query query = userDao.createQuery(
-					"select s "
-				  + "from User u "
-				  + "join u.streamables s "
-				  + "where u = :currentUser "
-				  + "order by s.date desc");
+			Query query = userDao.createNamedQuery("Streamable.getUserStreamables");
 			query.setParameter("currentUser", user);
 
 			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
@@ -159,22 +150,14 @@ public class StreamableService {
 
 	@Transactional
 	public ListItemsResult<StreamableDto> getNewestStreamablesResult(Integer offset, Integer count) {
-		Query query = streamableDao.createQuery(
-				"select s "
-			  + "from Streamable s "
-			  + "order by s.date desc");
+		Query query = streamableDao.createNamedQuery("Streamable.getNewestStreamables");
 
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
 	@Transactional
 	public ListItemsResult<StreamableDto> getPopularStreamablesResult(Integer offset, Integer count) {
-		Query query = streamableDao.createQuery(
-				"select s "
-			  + "from Streamable s "
-			  + "left join s.likers l "
-			  + "group by s.id "
-			  + "order by count(l) desc");
+		Query query = streamableDao.createNamedQuery("Streamable.getPopularStreamables");
 
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
@@ -184,12 +167,7 @@ public class StreamableService {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
-			Query query = userDao.createQuery(
-					"select f "
-				  + "from User u "
-				  + "join u.feed f "
-				  + "where u = :currentUser "
-				  + "order by f.date desc");
+			Query query = userDao.createNamedQuery("Streamable.getUserFeed");
 			query.setParameter("currentUser", user);
 
 			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
@@ -238,12 +216,7 @@ public class StreamableService {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
-			Query query = streamableDao.createQuery(
-					"select s "
-				  + "from Streamable s "
-				  + "join s.likers u "
-				  + "where u = :currentUser "
-				  + "order by s.date desc");
+			Query query = streamableDao.createNamedQuery("Streamable.getLikedStreamables");
 			query.setParameter("currentUser", user);
 
 			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
@@ -256,12 +229,7 @@ public class StreamableService {
 	public ListItemsResult<StreamableDto> getPrivateStreamablesResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 
-		Query query = userDao.createQuery(
-				"select s "
-			  + "from User u "
-			  + "join u.streamables s "
-			  + "where u = :currentUser and s.isPrivate = 'Y' "
-			  + "order by s.date desc");
+		Query query = userDao.createNamedQuery("Streamable.getPrivateStreamables");
 		query.setParameter("currentUser", currentUser);
 
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
@@ -269,19 +237,45 @@ public class StreamableService {
 
 	@Transactional
 	public ListItemsResult<StreamableDto> searchStreamablesAtLocationResult(Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
-		Query query = streamableDao.createQuery(
-				"select s "
-			  + "from Streamable s "
-			  + "where s.latitude is not null and s.longitude is not null " // Check that the streamable has a location.
-			  + "and s.latitude <= :neLatitude and s.latitude >= :swLatitude " // Check that the streamable is inside the required GPS rectangle.
-			  + "and s.longitude >= :neLongitude and s.longitude <= :swLongitude "
-			  + "order by s.date desc");
+		Query query = streamableDao.createNamedQuery("Streamable.searchStreamablesAtLocation");
 		query.setParameter("neLatitude", neLatitude);
 		query.setParameter("swLatitude", swLatitude);
 		query.setParameter("neLongitude", neLongitude);
 		query.setParameter("swLongitude", swLongitude);
 
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
+	}
+
+	@Transactional
+	public ListItemsResult<StreamableDto> searchStreamablesForHashtagResult(String hashtag, Integer offset, Integer count) {
+		// Filter out special characters to prevent SQL injection.
+		hashtag = hashtag.toLowerCase() + "%";
+
+		Query query = streamableDao.createNamedQuery("Streamable.searchStreamablesForHashtag");
+		query.setParameter("tag", hashtag);
+
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+	}
+
+	@Transactional
+	public ListItemsResult<String> searchHashtags(String hashtag, Integer offset, Integer count) {
+		// Filter out special characters to prevent SQL injection.
+		hashtag = hashtag.toLowerCase() + "%";
+
+		Query query = streamableDao.createNamedQuery("Streamable.searchHashtags");
+		query.setParameter("tag", hashtag);
+
+		return pagingService.getPagedItems(String.class, String.class, offset, count, query);
+	}
+
+	@Transactional
+	public Boolean hashtagExistsForStreamable(String hashtag, Streamable streamable) {
+		Query query = streamableDao.createNamedQuery("Streamable.hashtagExistsForStreamable");
+		query.setParameter("currentStreamable", streamable);
+		query.setParameter("tag", hashtag);
+
+		Long resultCount = (Long) query.uniqueResult();
+		return resultCount > 0;
 	}
 
 	@Transactional(readOnly = true)
@@ -303,11 +297,7 @@ public class StreamableService {
 
 				// Get list of followers.
 				List<Long> followeesIds = transactionUtils.executeInTransactionWithResult(() -> {
-					Query query = userDao.createQuery(
-							"select f.id "
-						  + "from User u "
-						  + "join u.followers f "
-						  + "where u = :currentUser");
+					Query query = userDao.createNamedQuery("User.getFollowerIds");
 					query.setParameter("currentUser", currentUser);
 					List<Long> ids = (List<Long>) query.list();
 					return ids;
@@ -316,7 +306,9 @@ public class StreamableService {
 				// We want to add the streamable to the user's feed as well.
 				followeesIds.add(currentUser.getId());
 
-				log.debug("Adding streamable to " + followeesIds.size() + " followers");
+				if (log.isDebugEnabled()) {
+					log.debug("Adding streamable to " + followeesIds.size() + " followers");
+				}
 
 				// For each follower, add the item to their feed.
 				followeesIds.forEach(userId -> {
@@ -327,7 +319,9 @@ public class StreamableService {
 					});
 				});
 
-				log.debug("Finished adding streamable to followers' feed");
+				if (log.isDebugEnabled()) {
+					log.debug("Finished adding streamable to followers' feed");
+				}
 			} catch (Throwable t) {
 				log.error("Error updating followers feed", t);
 			} finally {

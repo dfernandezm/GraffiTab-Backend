@@ -14,27 +14,27 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@DiscriminatorValue("LIKE")
-public class NotificationLike extends Notification {
+@DiscriminatorValue("MENTION")
+public class NotificationMention extends Notification {
 
 	private static final long serialVersionUID = 1L;
 
 	@OneToOne(targetEntity = User.class)
-	@JoinColumn(name = "liker_id")
-	private User liker;
+	@JoinColumn(name = "mentioner_id")
+	private User mentioner;
 
 	@OneToOne(targetEntity = Streamable.class)
-	@JoinColumn(name = "liked_item_id")
-	private Streamable likedStreamable;
+	@JoinColumn(name = "mentioned_item_id")
+	private Streamable mentionedStreamable;
 
-	public NotificationLike() {
-		super(NotificationType.LIKE);
+	public NotificationMention() {
+		super(NotificationType.MENTION);
 	}
 
-	public NotificationLike(User liker, Streamable likedStreamable) {
-		super(NotificationType.LIKE);
+	public NotificationMention(User mentioner, Streamable mentionedStreamable) {
+		super(NotificationType.MENTION);
 
-		this.liker = liker;
-		this.likedStreamable = likedStreamable;
+		this.mentioner = mentioner;
+		this.mentionedStreamable = mentionedStreamable;
 	}
 }

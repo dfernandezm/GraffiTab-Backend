@@ -1,5 +1,10 @@
 package com.graffitab.server.service.streamable;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.annotation.Resource;
 
 import org.hibernate.Query;
@@ -13,18 +18,28 @@ import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Comment;
-import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.streamable.Streamable;
+import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.notification.NotificationService;
+import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
 
+import lombok.extern.log4j.Log4j;
+
+@Log4j
 @Service
 public class CommentService {
 
+	private static final Pattern HASH_PATTERN = Pattern.compile("#(\\w+|\\W+)");
+	private static final Pattern MENTION_PATTERN = Pattern.compile("@(\\w+|\\W+)");
+
 	@Resource
 	private UserService userService;
+
+	@Resource
+	private StreamableService streamableService;
 
 	@Resource
 	private NotificationService notificationService;
@@ -41,25 +56,34 @@ public class CommentService {
 	@Resource
 	private HibernateDaoImpl<Comment, Long> commentDao;
 
-	@Transactional
+	private ExecutorService executor = Executors.newFixedThreadPool(2);
+
 	public Comment postComment(Long streamableId, String text) {
-		Streamable streamable = findStreamableById(streamableId);
+		Streamable checked = transactionUtils.executeInTransactionWithResult(() -> {
+			return streamableService.findStreamableById(streamableId);
+		});
 
-		if (streamable != null) {
-			User currentUser = userService.getCurrentUser();
+		if (checked != null) {
+			Comment comment = transactionUtils.executeInTransactionWithResult(() -> {
+				Streamable streamable = streamableService.findStreamableById(streamableId);
+				User currentUser = userService.getCurrentUser();
 
-			Comment comment = Comment.comment();
-			comment.setUser(currentUser);
-			comment.setText(text);
-			streamable.getComments().add(comment);
+				Comment newComment = Comment.comment();
+				newComment.setUser(currentUser);
+				newComment.setText(text);
+				streamable.getComments().add(newComment);
 
-			Comment persisted = commentDao.persist(comment);
-			if (!streamable.getUser().equals(currentUser)) {
-				// Send notification.
-				notificationService.addCommentNotification(streamable.getUser(), currentUser, streamable, persisted);
-			}
+				if (!streamable.getUser().equals(currentUser)) {
+					// Send notification.
+					notificationService.addCommentNotification(streamable.getUser(), currentUser, streamable, newComment);
+				}
 
-			return persisted;
+				return newComment;
+			});
+
+			parseCommentForSpecialSymbols(comment, checked);
+
+			return comment;
 		} else {
 			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
 		}
@@ -67,7 +91,7 @@ public class CommentService {
 
 	@Transactional
 	public void deleteComment(Long streamableId, Long commentId) {
-		Streamable streamable = findStreamableById(streamableId);
+		Streamable streamable = streamableService.findStreamableById(streamableId);
 
 		if (streamable != null) {
 			Comment toDelete = findCommentById(commentId);
@@ -86,7 +110,7 @@ public class CommentService {
 
 	@Transactional
 	public Comment editComment(Long streamableId, Long commentId, String newText) {
-		Streamable streamable = findStreamableById(streamableId);
+		Streamable streamable = streamableService.findStreamableById(streamableId);
 
 		if (streamable != null) {
 			Comment toEdit = findCommentById(commentId);
@@ -113,14 +137,10 @@ public class CommentService {
 
 	@Transactional
 	public ListItemsResult<CommentDto> getCommentsResult(Long streamableId, Integer offset, Integer count) {
-		Streamable streamable = findStreamableById(streamableId);
+		Streamable streamable = streamableService.findStreamableById(streamableId);
 
 		if (streamable != null) {
-			Query query = streamableDao.createQuery(
-					"select c "
-				  + "from Streamable s "
-				  + "join s.comments c "
-				  + "where s = :currentStreamable");
+			Query query = streamableDao.createNamedQuery("Comment.getComments");
 			query.setParameter("currentStreamable", streamable);
 
 			return pagingService.getPagedItems(Comment.class, CommentDto.class, offset, count, query);
@@ -130,12 +150,62 @@ public class CommentService {
 	}
 
 	@Transactional(readOnly = true)
-	public Streamable findStreamableById(Long id) {
-		return streamableDao.find(id);
-	}
-
-	@Transactional(readOnly = true)
 	public Comment findCommentById(Long id) {
 		return commentDao.find(id);
+	}
+
+	private void parseCommentForSpecialSymbols(Comment comment, Streamable streamable) {
+		User currentUser = userService.getCurrentUser();
+		executor.submit(() -> {
+
+			if (log.isDebugEnabled()) {
+				log.debug("About to parse comment " + comment);
+			}
+
+			try {
+				RunAsUser.set(currentUser);
+
+				Matcher mentionMatcher = MENTION_PATTERN.matcher(comment.getText());
+				Matcher hashtagMatcher = HASH_PATTERN.matcher(comment.getText());
+
+		    	// Parse for mentions.
+		    	while(mentionMatcher.find()) {
+		    		transactionUtils.executeInTransaction(() -> {
+		    			String match = mentionMatcher.group(1);
+
+						User foundUser = userService.findByUsername(match);
+						if (foundUser != null) {
+							if (!foundUser.equals(currentUser)) { // User can mention himself without notifications.
+								// Send notification.
+								notificationService.addMentionNotification(foundUser, currentUser, streamable);
+							}
+						}
+						else if (log.isDebugEnabled()) {
+							log.debug("Non-existing user found '" + match + "'");
+						}
+					});
+		    	}
+
+		    	// Parse for hashtags.
+		    	while (hashtagMatcher.find()) {
+		    		transactionUtils.executeInTransaction(() -> {
+		    			String match = hashtagMatcher.group(1);
+
+		    			if (!streamableService.hashtagExistsForStreamable(match, streamable)) {
+		    				Streamable inner = streamableService.findStreamableById(streamable.getId());
+			    			inner.getHashtags().add(match);
+		    			}
+		    		});
+		    	}
+
+		    	if (log.isDebugEnabled()) {
+		    		log.debug("Finished parsing comment");
+		    	}
+			} catch (Throwable t) {
+				log.error("Error parsing comment", t);
+			} finally {
+				RunAsUser.clear();
+			}
+		});
 	}
 }

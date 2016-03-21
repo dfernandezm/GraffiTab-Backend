@@ -13,13 +13,14 @@ import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Comment;
-import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.notification.NotificationComment;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
 import com.graffitab.server.persistence.model.notification.NotificationLike;
+import com.graffitab.server.persistence.model.notification.NotificationMention;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
 import com.graffitab.server.persistence.model.streamable.Streamable;
+import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.PagingService;
 import com.graffitab.server.service.user.UserService;
 
@@ -47,12 +48,7 @@ public class NotificationService {
 	public ListItemsResult<NotificationDto> getNotificationsResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 
-		Query query = notificationDao.createQuery(
-				"select n "
-			  + "from User u "
-			  + "join u.notifications n "
-			  + "where u = :currentUser "
-			  + "order by n.date desc");
+		Query query = notificationDao.createNamedQuery("Notification.getNotifications");
 		query.setParameter("currentUser", currentUser);
 
 		return pagingService.getPagedItems(Notification.class, NotificationDto.class, offset, count, query);
@@ -62,11 +58,7 @@ public class NotificationService {
 	public Long getUnreadNotificationsCount() {
 		User currentUser = userService.getCurrentUser();
 
-		Query query = notificationDao.createQuery(
-				"select count(n) "
-			  + "from User u "
-			  + "join u.notifications n "
-			  + "where u = :currentUser and n.isRead = 'N'");
+		Query query = notificationDao.createNamedQuery("Notification.getUnreadNotificationsCount");
 		query.setParameter("currentUser", currentUser);
 
 		return (Long) query.uniqueResult();
@@ -101,6 +93,14 @@ public class NotificationService {
 		Notification notification = new NotificationComment(commenter, commentedStreamable, comment);
 		userService.merge(user);
 		user.getNotifications().add(notification);
+		sendNotificationAsync(user, notification);
+	}
+
+	@Transactional
+	public void addMentionNotification(User user, User mentioner, Streamable mentionedStreamable) {
+		Notification notification = new NotificationMention(mentioner, mentionedStreamable);
+		user.getNotifications().add(notification);
+
 		sendNotificationAsync(user, notification);
 	}
 

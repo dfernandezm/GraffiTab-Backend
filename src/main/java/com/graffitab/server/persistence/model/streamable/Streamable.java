@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -25,18 +27,100 @@ import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.Comment;
-import com.graffitab.server.persistence.model.User;
 import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.util.BooleanToStringConverter;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+@NamedQueries({
+	@NamedQuery(
+		name = "Streamable.getNewestStreamables",
+		query = "select s "
+			  + "from Streamable s "
+			  + "order by s.date desc"
+	),
+	@NamedQuery(
+		name = "Streamable.getPopularStreamables",
+		query = "select s "
+			  + "from Streamable s "
+			  + "left join s.likers l "
+			  + "group by s.id "
+			  + "order by count(l) desc"
+	),
+	@NamedQuery(
+		name = "Streamable.getLikedStreamables",
+		query = "select s "
+			  + "from Streamable s "
+			  + "join s.likers u "
+			  + "where u = :currentUser "
+			  + "order by s.date desc"
+	),
+	@NamedQuery(
+		name = "Streamable.searchStreamablesAtLocation",
+		query = "select s "
+			  + "from Streamable s "
+			  + "where s.latitude is not null and s.longitude is not null " // Check that the streamable has a location.
+			  + "and s.latitude <= :neLatitude and s.latitude >= :swLatitude " // Check that the streamable is inside the required GPS rectangle.
+			  + "and s.longitude >= :neLongitude and s.longitude <= :swLongitude "
+			  + "order by s.date desc"
+	),
+	@NamedQuery(
+		name = "Streamable.hashtagExistsForStreamable",
+		query = "select count(*) "
+			  + "from Streamable s "
+			  + "join s.hashtags h "
+			  + "where s = :currentStreamable and h = :tag"
+	),
+	@NamedQuery(
+		name = "Streamable.searchStreamablesForHashtag",
+		query = "select distinct s "
+			  + "from Streamable s "
+			  + "join s.hashtags h "
+			  + "where h like :tag "
+			  + "order by s.date desc"
+	),
+	@NamedQuery(
+		name = "Streamable.searchHashtags",
+		query = "select distinct h "
+			  + "from Streamable s "
+			  + "join s.hashtags h "
+			  + "where h like :tag"
+	),
+	@NamedQuery(
+		name = "Streamable.getUserStreamables",
+		query = "select s "
+			  + "from User u "
+			  + "join u.streamables s "
+			  + "where u = :currentUser "
+			  + "order by s.date desc"
+	),
+	@NamedQuery(
+		name = "Streamable.getUserFeed",
+		query = "select f "
+			  + "from User u "
+			  + "join u.feed f "
+			  + "where u = :currentUser "
+			  + "order by f.date desc"
+	),
+	@NamedQuery(
+		name = "Streamable.getPrivateStreamables",
+		query = "select s "
+			  + "from User u "
+			  + "join u.streamables s "
+			  + "where u = :currentUser and s.isPrivate = 'Y' "
+			  + "order by s.date desc"
+	)
+})
 
 @Getter
 @Setter
@@ -92,6 +176,12 @@ public abstract class Streamable implements Identifiable<Long> {
 	@JoinColumn(name = "streamable_id", nullable = false)
 	@OrderColumn(name = "order_key")
 	private List<Comment> comments = new ArrayList<>();
+
+	@ElementCollection
+    @Column(name="tag")
+    @CollectionTable(name="hashtag", joinColumns = @JoinColumn(name="streamable_id"))
+	@OrderColumn(name = "order_key")
+	private List<String> hashtags = new ArrayList<>();
 
 	@Override
 	public Long getId() {

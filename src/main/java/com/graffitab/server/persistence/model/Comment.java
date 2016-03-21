@@ -11,15 +11,28 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
 import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.streamable.Streamable;
+import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+@NamedQueries({
+	@NamedQuery(
+		name = "Comment.getComments",
+		query = "select c "
+			  + "from Streamable s "
+			  + "join s.comments c "
+			  + "where s = :currentStreamable"
+	)
+})
 
 @Getter
 @Setter

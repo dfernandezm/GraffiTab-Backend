@@ -12,7 +12,7 @@ import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Location;
-import com.graffitab.server.persistence.model.User;
+import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.PagingService;
 
 @Service
@@ -77,11 +77,7 @@ public class LocationService {
 	public ListItemsResult<LocationDto> getLocationsResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 
-		Query query = locationDao.createQuery(
-				"select l "
-			  + "from User u "
-			  + "join u.locations l "
-			  + "where u = :currentUser");
+		Query query = locationDao.createNamedQuery("Location.getLocations");
 		query.setParameter("currentUser", currentUser);
 
 		return pagingService.getPagedItems(Location.class, LocationDto.class, offset, count, query);
