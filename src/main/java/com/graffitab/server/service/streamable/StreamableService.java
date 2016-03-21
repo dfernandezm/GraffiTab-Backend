@@ -7,6 +7,8 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
+import lombok.extern.log4j.Log4j;
+
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +31,6 @@ import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
-
-import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
@@ -65,22 +65,18 @@ public class StreamableService {
 		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
 
 		Streamable streamable = transactionUtils.executeInTransactionWithResult(() -> {
-			User currentUser = userService.getCurrentUser();
-			userService.merge(currentUser);
+			User currentUser = userService.findUserById(userService.getCurrentUser().getId());
 			Streamable streamableGraffiti = new StreamableGraffiti(streamableGraffitiDto.getLatitude(),
 														   streamableGraffitiDto.getLongitude(),
 														   streamableGraffitiDto.getRoll(),
 														   streamableGraffitiDto.getYaw(),
 														   streamableGraffitiDto.getPitch());
 			streamableGraffiti.setAsset(assetToAdd);
-			streamableGraffiti.setUser(currentUser);
 			currentUser.getStreamables().add(streamableGraffiti);
-			Streamable persisted = streamableDao.persist(streamableGraffiti);
-
-			return persisted;
+			return streamableGraffiti;
 		});
 
-		addStreamableToFollowersStream(streamable);
+		addStreamableToOwnAndFollowersStream(streamable);
 
 		return streamable;
 	}
@@ -186,15 +182,19 @@ public class StreamableService {
 		return streamableDao.find(id);
 	}
 
-	private void addStreamableToFollowersStream(Streamable streamable) {
-
+	@SuppressWarnings("unchecked")
+	private void addStreamableToOwnAndFollowersStream(Streamable streamable) {
+		User currentUser = userService.getCurrentUser();
 		executor.submit(() -> {
-			User currentUser = streamable.getUser();
-			log.debug("About to add streamable " + streamable + " to followers of user " + streamable.getUser());
+
+			if (log.isDebugEnabled()) {
+				log.debug("About to add streamable " + streamable + " to followers of user " + currentUser);
+			}
+
 			try {
 				RunAsUser.set(currentUser);
+
 				// Get list of followers.
-				@SuppressWarnings("unchecked")
 				List<Long> followeesIds = transactionUtils.executeInTransactionWithResult(() -> {
 					Query query = userDao.createQuery(
 							"select f.id "
@@ -202,9 +202,7 @@ public class StreamableService {
 						  + "join u.followers f "
 						  + "where u = :currentUser");
 					query.setParameter("currentUser", currentUser);
-
 					List<Long> ids = (List<Long>) query.list();
-
 					return ids;
 				});
 
