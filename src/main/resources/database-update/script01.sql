@@ -278,9 +278,7 @@ ALTER TABLE feed ADD CONSTRAINT feed_streamable_fk FOREIGN KEY (streamable_id) R
 alter table feed add order_key int(11) not null;
 
 --changeset georgi:v100cs49
+ALTER TABLE hashtag DROP FOREIGN KEY del_hashtag_on_item;
 ALTER TABLE hashtag CHANGE itemId streamable_id bigint(20) NOT NULL;
 ALTER TABLE hashtag ADD CONSTRAINT hashtag_streamable_fk FOREIGN KEY (streamable_id) REFERENCES streamable (id);
 alter table hashtag add order_key int(11) not null;
-
---changeset georgi:v100cs50
-ALTER TABLE hashtag DROP FOREIGN KEY del_hashtag_on_item;
