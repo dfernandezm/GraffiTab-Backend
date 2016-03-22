@@ -23,8 +23,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-import com.graffitab.server.api.authentication.ClearThreadLocalsFilter;
-
 @Configuration
 @EnableWebMvc
 @EnableAspectJAutoProxy
