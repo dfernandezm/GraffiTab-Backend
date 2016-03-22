@@ -87,7 +87,7 @@ public class OrikaMapper {
 
 	private void registerMappings() {
 
-		// Converters
+		// Global Converters
 		ConverterFactory converterFactory = mapperFactory.getConverterFactory();
 		converterFactory.registerConverter(new DateTimeToStringConverter());
 
