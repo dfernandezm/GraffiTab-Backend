@@ -18,7 +18,7 @@ import org.springframework.transaction.TransactionDefinition;
 import org.springframework.util.StringUtils;
 
 @Configuration
-@ImportResource({"classpath:jdbc-dbcp.xml", "classpath:configurable-context.xml"})
+@ImportResource({"classpath:jdbc-dbcp.xml"})
 @Profile("main")
 public class MainDatabaseConfig {
 

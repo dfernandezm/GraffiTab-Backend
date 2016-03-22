@@ -23,6 +23,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
+import com.graffitab.server.api.authentication.ClearThreadLocalsFilter;
+
 @Configuration
 @EnableWebMvc
 @EnableAspectJAutoProxy
@@ -38,7 +40,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 public class WebConfig extends WebMvcConfigurationSupport {
 
-    // Note: Static resources works through extending WebMvcAutoConfigurationAdapter {
+    // Note: Static resources work through extending WebMvcAutoConfigurationAdapter {
 
 	@Bean
 	public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
@@ -95,7 +97,7 @@ public class WebConfig extends WebMvcConfigurationSupport {
 		argumentResolvers.add(jsonDtoArgumentResolver());
 	}
 
-	//@Bean
+	//@Bean -- to be deleted, test if needed
 	public InternalResourceViewResolver getInternalResourceViewResolver() {
 	    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
 	    resolver.setPrefix("/WEB-INF/jsp/");
