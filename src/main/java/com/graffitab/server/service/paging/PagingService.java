@@ -23,24 +23,13 @@ public class PagingService {
 
 	@Transactional
 	public <T, K> ListItemsResult<K> getPagedItems(Class<T> targetClass, Class<K> targetDtoClass, Integer offset, Integer count, Query query) {
-		// Get list of entities.
 		PagedList<T> items = getItems(query, offset, count);
-
-		// Map to list of DTOs.
-		List<K> itemDtos = mapper.mapList(items, targetDtoClass);
-
-		// Build result list.
-		ListItemsResult<K> listItemsResult = new ListItemsResult<>();
-		listItemsResult.setItems(itemDtos);
-		listItemsResult.setResultsCount(items.getResultsCount());
-		listItemsResult.setMaxResultsCount(items.getMaxResultsCount());
-		listItemsResult.setOffset(items.getOffset());
-
-		return listItemsResult;
+		return mapResults(items, targetDtoClass);
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <T> PagedList<T> getItems(Query query, Integer offset, Integer count) {
+	@Transactional
+	public <T> PagedList<T> getItems(Query query, Integer offset, Integer count) {
 		offset = offset != null ? Math.abs(offset) : 0;
 		count = count != null ? Math.abs(count) : PAGE_SIZE_DEFAULT_VALUE;
 
@@ -52,5 +41,19 @@ public class PagingService {
 		query.setMaxResults(count);
 
 		return new PagedList<>((List<T>) query.list(), offset, count);
+	}
+
+	public <T, K> ListItemsResult<K> mapResults(PagedList<T> items, Class<K> targetDtoClass) {
+		// Map to list of DTOs.
+		List<K> itemDtos = mapper.mapList(items, targetDtoClass);
+
+		// Build result list.
+		ListItemsResult<K> listItemsResult = new ListItemsResult<>();
+		listItemsResult.setItems(itemDtos);
+		listItemsResult.setResultsCount(items.getResultsCount());
+		listItemsResult.setMaxResultsCount(items.getMaxResultsCount());
+		listItemsResult.setOffset(items.getOffset());
+
+		return listItemsResult;
 	}
 }

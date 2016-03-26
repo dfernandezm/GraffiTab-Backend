@@ -106,7 +106,14 @@ public class CommentService {
 			Comment toDelete = findCommentById(commentId);
 
 			if (toDelete != null) {
-				toDelete.setIsDeleted(true);
+				User currentUser = userService.getCurrentUser();
+
+				if (currentUser.equals(toDelete.getUser())) {
+					toDelete.setIsDeleted(true);
+				}
+				else {
+					throw new RestApiException(ResultCode.USER_NOT_OWNER, "The comment with id " + commentId + " cannot be edited by user with id " + currentUser.getId());
+				}
 			}
 			else {
 				throw new RestApiException(ResultCode.COMMENT_NOT_FOUND, "Comment with id " + commentId + " not found");

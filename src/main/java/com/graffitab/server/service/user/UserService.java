@@ -499,7 +499,7 @@ public class UserService {
 			activityService.addFollowActivityAsync(currentUser, followedUser);
 		}
 
-		return resultPair.getValue0();
+		return followedUser;
 	}
 
 	@Transactional

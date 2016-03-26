@@ -18,6 +18,7 @@ public class ActivityPagingService extends PagingService {
 	public static final Integer NUM_GROUP_ITEMS_DEFAULT_VALUE = 5;
 	public static final Integer NUM_GROUP_ITEMS_MAX_VALUE = 20;
 
+	@SuppressWarnings("unchecked")
 	@Transactional
 	public <T, K> ListItemsResult<K> getPagedItems(Class<T> targetClass, Class<K> targetDtoClass, Integer numberOfItemsInGroup, Integer offset, Integer count, Query query) {
 		numberOfItemsInGroup = numberOfItemsInGroup != null ? Math.abs(numberOfItemsInGroup) : NUM_GROUP_ITEMS_DEFAULT_VALUE;
@@ -28,7 +29,6 @@ public class ActivityPagingService extends PagingService {
 
 		// Get list of entities.
 		PagedList<T> items = getItems(query, offset, count);
-		@SuppressWarnings("unchecked")
 		List<ActivityContainer> groupedActivities = groupActivities((List<Activity>) items, numberOfItemsInGroup);
 
 		// Map to list of DTOs.
