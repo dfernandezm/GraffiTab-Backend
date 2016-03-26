@@ -133,18 +133,18 @@ public class MeApiController {
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserResult update(@JsonProperty("user") UserDto userDto) {
+	public GetUserResult edit(@JsonProperty("user") UserDto userDto) {
 		GetUserResult updateUserResult = new GetUserResult();
-		User user = userService.updateUser(mapper.map(userDto, User.class));
+		User user = userService.editUser(mapper.map(userDto, User.class));
 		updateUserResult.setUser(mapper.map(user, UserDto.class));
 		return updateUserResult;
 	}
 
 	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateAssetResult updateAvatar(HttpServletRequest request) throws IOException {
+	public CreateAssetResult editAvatar(HttpServletRequest request) throws IOException {
 		CreateAssetResult editAvatarResult = new CreateAssetResult();
-		Asset asset = userService.updateAvatar(request.getInputStream(), request.getContentLengthLong());
+		Asset asset = userService.editAvatar(request.getInputStream(), request.getContentLengthLong());
 		editAvatarResult.setAsset(mapper.map(asset, AssetDto.class));
 		return editAvatarResult;
 	}
@@ -158,9 +158,9 @@ public class MeApiController {
 
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateAssetResult updateCover(HttpServletRequest request) throws IOException {
+	public CreateAssetResult editCover(HttpServletRequest request) throws IOException {
 		CreateAssetResult editcoverResult = new CreateAssetResult();
-		Asset asset = userService.updateCover(request.getInputStream(), request.getContentLengthLong());
+		Asset asset = userService.editCover(request.getInputStream(), request.getContentLengthLong());
 		editcoverResult.setAsset(mapper.map(asset, AssetDto.class));
 		return editcoverResult;
 	}
@@ -279,6 +279,24 @@ public class MeApiController {
 		try {
 			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
 			Streamable streamable = streamableService.createStreamableGraffiti(streamableDto, file.getInputStream(), file.getSize());
+			addStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
+			return addStreamableResult;
+		} catch (IOException e) {
+			throw new RestApiException(ResultCode.BAD_REQUEST,
+					"File stream could not be read.");
+		}
+	}
+
+	@RequestMapping(value = "/streamables/graffiti/{id}", method = RequestMethod.POST)
+	@ResponseBody
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public CreateStreamableResult editGraffiti(
+			@PathVariable("id") Long streamableId,
+			@RequestPart("properties") StreamableGraffitiDto streamableDto,
+			@RequestPart("file") @NotNull @NotBlank MultipartFile file) {
+		try {
+			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
+			Streamable streamable = streamableService.editStreamableGraffiti(streamableId, streamableDto, file.getInputStream(), file.getSize());
 			addStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 			return addStreamableResult;
 		} catch (IOException e) {

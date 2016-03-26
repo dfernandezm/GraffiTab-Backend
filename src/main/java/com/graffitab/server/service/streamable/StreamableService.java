@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 
 import org.hibernate.Query;
 import org.javatuples.Pair;
+import org.javatuples.Triplet;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -87,6 +88,46 @@ public class StreamableService {
 
 		// Add activity to all followers.
 		activityService.addCreateStreamableActivityAsync(streamable.getUser(), streamable);
+
+		return streamable;
+	}
+
+	public Streamable editStreamableGraffiti(Long streamableId, StreamableGraffitiDto streamableGraffitiDto, InputStream assetInputStream, long contentLength) {
+		Triplet<Streamable, Asset, String> resultTripet = transactionUtils.executeInTransactionWithResult(() -> {
+			Streamable streamable = findStreamableById(streamableId);
+
+			if (streamable != null) {
+				User currentUser = userService.getCurrentUser();
+
+				if (streamable.getUser().equals(currentUser)) {
+					Asset assetToAdd = Asset.asset(AssetType.IMAGE);
+					String currentStreamableAssetGuid = streamable.getAsset().getGuid();
+
+					StreamableGraffiti streamableGraffiti = (StreamableGraffiti) streamable;
+					streamableGraffiti.setAsset(assetToAdd);
+					streamableGraffiti.setLatitude(streamableGraffitiDto.getLatitude());
+					streamableGraffiti.setLongitude(streamableGraffitiDto.getLongitude());
+					streamableGraffiti.setRoll(streamableGraffitiDto.getRoll());
+					streamableGraffiti.setYaw(streamableGraffitiDto.getYaw());
+					streamableGraffiti.setPitch(streamableGraffitiDto.getPitch());
+
+					return new Triplet<Streamable, Asset, String>(streamable, assetToAdd, currentStreamableAssetGuid);
+				}
+				else {
+					throw new RestApiException(ResultCode.USER_NOT_OWNER, "The streamable with id " + streamableId + " cannot be changed by user with id " + currentUser.getId());
+				}
+			}
+			else {
+				throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
+			}
+		});
+
+		Streamable streamable = resultTripet.getValue0();
+		Asset asset = resultTripet.getValue1();
+		String currentStreamableAssetGuid = resultTripet.getValue2();
+
+		datastoreService.saveAsset(assetInputStream, contentLength, asset.getGuid());
+		datastoreService.deleteAsset(currentStreamableAssetGuid);
 
 		return streamable;
 	}

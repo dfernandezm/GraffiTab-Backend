@@ -318,7 +318,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public User updateUser(User user) {
+	public User editUser(User user) {
 		if (validationService.validateUser(user)) {
 			User currentUser = getCurrentUser();
 			merge(currentUser);
@@ -358,7 +358,7 @@ public class UserService {
 //		return new PagedList<User>(listUsers, total, offset);
 	}
 
-	public Asset updateAvatar(InputStream assetInputStream, long contentLength) {
+	public Asset editAvatar(InputStream assetInputStream, long contentLength) {
 		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
 		User user = getCurrentUser();
 
@@ -404,7 +404,7 @@ public class UserService {
 		}
 	}
 
-	public Asset updateCover(InputStream assetInputStream, long contentLength) {
+	public Asset editCover(InputStream assetInputStream, long contentLength) {
 		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
 		User user = getCurrentUser();
 
