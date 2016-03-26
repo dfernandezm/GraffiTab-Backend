@@ -96,6 +96,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.PUT)
+	@Transactional
 	public ActionCompletedResult completePasswordReset(
 			@PathVariable(value = "token") String token,
 			@JsonProperty(value = "password") String password) {
@@ -105,7 +106,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullUserResult getUserProfile(@PathVariable("id") Long id) {
 		GetFullUserResult userProfileResult = new GetFullUserResult();
@@ -134,7 +135,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getFollowers(
 			@PathVariable("id") Long userId,
@@ -144,7 +145,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getFollowing(
 			@PathVariable("id") Long userId,
@@ -154,7 +155,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/streamables"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getStreamables(
 			@PathVariable("id") Long userId,
@@ -164,7 +165,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/feed"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getFeed(
 			@PathVariable("id") Long userId,
@@ -174,7 +175,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/mostactive"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getMostActiveUsers(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -183,7 +184,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/liked"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
 			@PathVariable("id") Long userId,
@@ -193,7 +194,7 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/search"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> searchUsers(
 			@RequestParam(value="query", required = true) String query,

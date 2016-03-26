@@ -86,6 +86,7 @@ public class Comment implements Identifiable<Long> {
 	public static Comment comment() {
 		Comment comment = new Comment();
 		comment.setDate(new DateTime());
+		comment.setIsDeleted(false);
 		return comment;
 	}
 }

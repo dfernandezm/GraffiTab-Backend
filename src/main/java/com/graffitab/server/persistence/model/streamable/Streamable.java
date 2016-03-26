@@ -220,6 +220,9 @@ public abstract class Streamable implements Identifiable<Long> {
 	public Streamable(StreamableType streamableType) {
 		this.streamableType = streamableType;
 		this.date = new DateTime();
+		this.isDeleted = false;
+		this.isFlagged = false;
+		this.isPrivate = false;
 	}
 
 	/**

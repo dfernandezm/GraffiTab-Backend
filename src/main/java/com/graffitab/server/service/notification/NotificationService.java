@@ -52,7 +52,7 @@ public class NotificationService {
 
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<NotificationDto> getNotificationsResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 
@@ -62,7 +62,7 @@ public class NotificationService {
 		return pagingService.getPagedItems(Notification.class, NotificationDto.class, offset, count, query);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public Long getUnreadNotificationsCount() {
 		User currentUser = userService.getCurrentUser();
 

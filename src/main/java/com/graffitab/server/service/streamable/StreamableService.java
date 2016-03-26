@@ -109,7 +109,6 @@ public class StreamableService {
 		}
 	}
 
-	@Transactional
 	public Streamable like(Long toLikeId) {
 		User currentUser = userService.getCurrentUser();
 
@@ -162,7 +161,7 @@ public class StreamableService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<UserDto> getLikersResult(Long streamableId, Integer offset, Integer count) {
 		Streamable streamable = findStreamableById(streamableId);
 
@@ -176,7 +175,7 @@ public class StreamableService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> getUserStreamablesResult(Long userId, Integer offset, Integer count) {
 		User user = userService.findUserById(userId);
 
@@ -190,21 +189,21 @@ public class StreamableService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> getNewestStreamablesResult(Integer offset, Integer count) {
 		Query query = streamableDao.createNamedQuery("Streamable.getNewestStreamables");
 
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> getPopularStreamablesResult(Integer offset, Integer count) {
 		Query query = streamableDao.createNamedQuery("Streamable.getPopularStreamables");
 
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> getUserFeedResult(Long userId, Integer offset, Integer count) {
 		User user = userService.findUserById(userId);
 
@@ -253,7 +252,7 @@ public class StreamableService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> getLikedStreamablesForUserResult(Long userId, Integer offset, Integer count) {
 		User user = userService.findUserById(userId);
 
@@ -267,7 +266,7 @@ public class StreamableService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> getPrivateStreamablesResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 
@@ -277,7 +276,7 @@ public class StreamableService {
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> searchStreamablesAtLocationResult(Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
 		Query query = streamableDao.createNamedQuery("Streamable.searchStreamablesAtLocation");
 		query.setParameter("neLatitude", neLatitude);
@@ -288,7 +287,7 @@ public class StreamableService {
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<StreamableDto> searchStreamablesForHashtagResult(String hashtag, Integer offset, Integer count) {
 		// Filter out special characters to prevent SQL injection.
 		hashtag = hashtag.toLowerCase() + "%";
@@ -299,7 +298,7 @@ public class StreamableService {
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<String> searchHashtags(String hashtag, Integer offset, Integer count) {
 		// Filter out special characters to prevent SQL injection.
 		hashtag = hashtag.toLowerCase() + "%";

@@ -143,7 +143,7 @@ public class CommentService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<CommentDto> getCommentsResult(Long streamableId, Integer offset, Integer count) {
 		Streamable streamable = streamableService.findStreamableById(streamableId);
 

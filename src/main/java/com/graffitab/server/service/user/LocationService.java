@@ -73,7 +73,7 @@ public class LocationService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<LocationDto> getLocationsResult(Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 

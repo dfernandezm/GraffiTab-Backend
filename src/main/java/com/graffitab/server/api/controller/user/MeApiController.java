@@ -92,7 +92,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/profile"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullUserResult getProfile() {
 		GetFullUserResult userProfileResult = new GetFullUserResult();
@@ -253,7 +253,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getFollowers(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -262,7 +262,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getFollowing(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -296,7 +296,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/streamables"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -325,7 +325,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/streamables/private"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getPrivateStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -334,7 +334,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/feed"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getFeed(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -343,7 +343,7 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/liked"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
 			@RequestParam(value="offset", required = false) Integer offset,

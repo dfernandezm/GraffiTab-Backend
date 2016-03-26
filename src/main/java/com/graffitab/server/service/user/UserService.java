@@ -448,7 +448,7 @@ public class UserService {
 		}
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<UserDto> getFollowingOrFollowersForUserResult(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
 		User requestedUser = (userId == null) ? getCurrentUser() : findUserById(userId);
 
@@ -596,7 +596,7 @@ public class UserService {
 		return user;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<UserDto> getMostActiveUsersResult(Integer offset, Integer count) {
 		Query query = userDao.createNamedQuery("User.getMostActiveUsers");
 

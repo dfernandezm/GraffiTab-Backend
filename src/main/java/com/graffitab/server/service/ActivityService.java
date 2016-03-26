@@ -48,7 +48,7 @@ public class ActivityService {
 
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public ListItemsResult<ActivityContainerDto> getFollowersActivityResult(Integer numberOfItemsInGroup, Integer offset, Integer count) {
 		User currentUser = userService.getCurrentUser();
 

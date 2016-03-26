@@ -40,7 +40,7 @@ public class StreamableApiController {
 	private OrikaMapper mapper;
 
 	@RequestMapping(value = {"/{id}"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullStreamableResult getStreamable(@PathVariable("id") Long streamableId) {
 		GetFullStreamableResult getFullStreamableResult = new GetFullStreamableResult();
@@ -123,7 +123,7 @@ public class StreamableApiController {
 	}
 
 	@RequestMapping(value = {"/newest"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getNewestStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -132,7 +132,7 @@ public class StreamableApiController {
 	}
 
 	@RequestMapping(value = {"/popular"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getPopularStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
@@ -162,7 +162,7 @@ public class StreamableApiController {
 	}
 
 	@RequestMapping(value = {"/search/hashtag"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> searchStreamablesForHashtag(
 			@RequestParam(value="query", required = true) String query,
@@ -172,7 +172,7 @@ public class StreamableApiController {
 	}
 
 	@RequestMapping(value = {"/search/hashtags"}, method = RequestMethod.GET)
-	@Transactional
+	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<String> searchHashtags(
 			@RequestParam(value="query", required = true) String query,
