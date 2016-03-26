@@ -48,6 +48,7 @@ import lombok.Setter;
 		query = "select s "
 			  + "from Streamable s "
 			  + "where s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'N' "
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -56,6 +57,7 @@ import lombok.Setter;
 			  + "from Streamable s "
 			  + "left join s.likers l "
 			  + "where s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'N' "
 			  + "group by s.id "
 			  + "order by count(l) desc"
 	),
@@ -66,6 +68,7 @@ import lombok.Setter;
 			  + "join s.likers u "
 			  + "where u = :currentUser "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'N' "
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -76,6 +79,7 @@ import lombok.Setter;
 			  + "and s.latitude <= :neLatitude and s.latitude >= :swLatitude " // Check that the streamable is inside the required GPS rectangle.
 			  + "and s.longitude >= :neLongitude and s.longitude <= :swLongitude "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'N' "
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -92,6 +96,7 @@ import lombok.Setter;
 			  + "join s.hashtags h "
 			  + "where h like :tag "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'N' "
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -108,6 +113,7 @@ import lombok.Setter;
 			  + "join u.streamables s "
 			  + "where u = :currentUser "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'N' "
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -117,6 +123,7 @@ import lombok.Setter;
 			  + "join u.feed f "
 			  + "where u = :currentUser "
 			  + "and f.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and f.isPrivate = 'N' "
 			  + "order by f.date desc"
 	),
 	@NamedQuery(
