@@ -2,6 +2,7 @@ package com.graffitab.server.config.web;
 
 import java.util.List;
 
+import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.MultipartFilter;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -44,12 +46,6 @@ public class WebConfig extends WebMvcConfigurationSupport {
 	public RequestMappingHandlerAdapter requestMappingHandlerAdapter() {
 		RequestMappingHandlerAdapter requestMappingHandlerAdapter = super.requestMappingHandlerAdapter();
 		return requestMappingHandlerAdapter;
-	}
-
-	@Bean
-	public CommonsMultipartResolver commonsMultipartResolver() {
-		CommonsMultipartResolver commonsMultipart = new CommonsMultipartResolver();
-		return commonsMultipart;
 	}
 
 	@Override
@@ -83,6 +79,21 @@ public class WebConfig extends WebMvcConfigurationSupport {
 	public List<HttpMessageConverter<?>> converters() {
 		return requestMappingHandlerAdapter().getMessageConverters();
 	}
+
+	@Bean
+    public CommonsMultipartResolver commonsMultipartResolver() {
+        final CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
+        commonsMultipartResolver.setMaxUploadSize(4 * 1024 * 1024);
+        return commonsMultipartResolver;
+    }
+
+	@Bean
+    public FilterRegistrationBean multipartFilterRegistrationBean() {
+        final MultipartFilter multipartFilter = new MultipartFilter();
+        final FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(multipartFilter);
+        filterRegistrationBean.addInitParameter("multipartResolverBeanName", "commonsMultipartResolver");
+        return filterRegistrationBean;
+    }
 
 	@Override
 	public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {

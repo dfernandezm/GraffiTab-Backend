@@ -39,6 +39,8 @@ import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.ProxyUtilities;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
+import com.graffitab.server.service.image.ImageSizes;
+import com.graffitab.server.service.image.ImageUtilsService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.social.SocialNetworksService;
@@ -57,6 +59,9 @@ public class UserService {
 
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
+
+	@Resource
+	private HibernateDaoImpl<Asset, Long> assetDao;
 
 	@Resource
 	private UserSessionService userSessionService;
@@ -93,6 +98,9 @@ public class UserService {
 
 	@Resource
 	private SocialNetworksService socialNetworksService;
+
+	@Resource
+	private ImageUtilsService imageUtilsService;
 
 	public static final String ACTIVATION_TOKEN_METADATA_KEY = "activationToken";
 	public static final String ACTIVATION_TOKEN_DATE_METADATA_KEY = "activationTokenDate";
@@ -365,18 +373,24 @@ public class UserService {
 			currentAvatarAssetGuid = user.getAvatarAsset().getGuid();
 		}
 
+		ImageSizes imageSizes = imageUtilsService.generateAndUploadImagesForAsset(assetInputStream, assetToAdd.getGuid());
+		assetToAdd.setWidth(imageSizes.getWidth());
+		assetToAdd.setHeight(imageSizes.getHeight());
+		assetToAdd.setThumbnailWidth(imageSizes.getThumbnailWidth());
+		assetToAdd.setThumbnailHeight(imageSizes.getThumbnailHeight());
+
 		transactionUtils.executeInTransaction(() -> {
 			// Need to reassign, as 'user' is final in this lambda
 			// and we cannot change it
 			User storedUser = user;
 			storedUser.setAvatarAsset(assetToAdd);
 			storedUser.setUpdatedOn(new DateTime());
+			merge(storedUser);
 		});
-
-		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
 
 		if (currentAvatarAssetGuid != null) {
 			datastoreService.deleteAsset(currentAvatarAssetGuid);
+			datastoreService.deleteAsset(currentAvatarAssetGuid + ImageUtilsService.ASSET_THUMBNAIL_SUFFIX);
 		}
 
 		return assetToAdd;
@@ -397,9 +411,11 @@ public class UserService {
 				// Delete current avatar from database
 				storedUser.setAvatarAsset(null);
 				storedUser.setUpdatedOn(new DateTime());
+				merge(storedUser);
 			});
 
 			datastoreService.deleteAsset(avatarAsset);
+			datastoreService.deleteAsset(avatarAsset + ImageUtilsService.ASSET_THUMBNAIL_SUFFIX);
 		}
 	}
 
@@ -413,18 +429,24 @@ public class UserService {
 			currentCoverAssetGuid = user.getCoverAsset().getGuid();
 		}
 
+		ImageSizes imageSizes = imageUtilsService.generateAndUploadImagesForAsset(assetInputStream, assetToAdd.getGuid());
+		assetToAdd.setWidth(imageSizes.getWidth());
+		assetToAdd.setHeight(imageSizes.getHeight());
+		assetToAdd.setThumbnailWidth(imageSizes.getThumbnailWidth());
+		assetToAdd.setThumbnailHeight(imageSizes.getThumbnailHeight());
+
 		transactionUtils.executeInTransaction(() -> {
 			// Need to reassign, as 'user' is final in this lambda
 		    // and we cannot change it
 			User storedUser = user;
 			storedUser.setCoverAsset(assetToAdd);
 			storedUser.setUpdatedOn(new DateTime());
+			merge(storedUser);
 		});
-
-		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
 
 		if (currentCoverAssetGuid != null) {
 			datastoreService.deleteAsset(currentCoverAssetGuid);
+			datastoreService.deleteAsset(currentCoverAssetGuid + ImageUtilsService.ASSET_THUMBNAIL_SUFFIX);
 		}
 
 		return assetToAdd;
@@ -443,9 +465,11 @@ public class UserService {
 				// Delete current cover from database
 				storedUser.setCoverAsset(null);
 				storedUser.setUpdatedOn(new DateTime());
+				merge(storedUser);
 			});
 
 			datastoreService.deleteAsset(coverAssetGuid);
+			datastoreService.deleteAsset(coverAssetGuid + ImageUtilsService.ASSET_THUMBNAIL_SUFFIX);
 		}
 	}
 

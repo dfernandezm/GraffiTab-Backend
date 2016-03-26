@@ -22,5 +22,6 @@ public class AssetMapper extends CustomMapper<Asset, AssetDto> {
 		super.mapAtoB(a, b, context);
 
 		b.setLink(datastoreService.generateDownloadLink(a.getGuid()));
+		b.setThumbnail(datastoreService.generateThumbnailLink(a.getGuid()));
 	}
 }

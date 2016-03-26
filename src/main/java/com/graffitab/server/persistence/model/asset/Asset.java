@@ -9,12 +9,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.util.GuidGenerator;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import com.graffitab.server.persistence.dao.Identifiable;
-import com.graffitab.server.util.GuidGenerator;
 
 @Getter
 @Setter
@@ -39,6 +39,18 @@ public class Asset implements Identifiable<Long> {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "asset_type", nullable = false)
 	private AssetType assetType;
+
+	@Column(name = "width")
+	private Integer width;
+
+	@Column(name = "height")
+	private Integer height;
+
+	@Column(name = "thumbnail_width")
+	private Integer thumbnailWidth;
+
+	@Column(name = "thumbnail_height")
+	private Integer thumbnailHeight;
 
 	@Override
 	public Long getId() {

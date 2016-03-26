@@ -9,5 +9,6 @@ environments {
         loggingEmailFrom = 'dummy@gmail.com'
         smtpHost = 'smtp.gmail.com'
         loggingDefaultLogLevel = 'debug'
+        tempDir = '/app/tmp'
     }
 }

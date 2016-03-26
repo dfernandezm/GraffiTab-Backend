@@ -392,6 +392,12 @@ public class UserApiTest {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public String generateThumbnailLink(String assetGuid) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	private ResultActions assertFollowEndpointResponse(ResultActions ra) throws Exception {

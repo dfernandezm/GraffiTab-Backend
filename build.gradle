@@ -84,7 +84,7 @@ def sendgridVersion = "2.2.2"
 def pushSenderVersion = "1.0.2"
 def javatuplesVersion = "1.2"
 def facebook4jVersion = "2.4.3"
-
+def imageScalingVersion = "0.8.6"
 def commonsFileuploadVersion = "1.3.1"
 //http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
 def springSecurityVersion = "4.0.3.RELEASE"
@@ -176,6 +176,8 @@ dependencies {
 
    compile "org.facebook4j:facebook4j-core:$facebook4jVersion"
 
+   compile "com.mortennobel:java-image-scaling:$imageScalingVersion"
+
    // for OAuth 2.0
    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
    compile 'org.json:json:20151123'
@@ -241,7 +243,7 @@ def loadConfiguration() {
 	def localConfigFilePath = "$configDir/$localConfigFileName"
     def localConfigExists = file(localConfigFilePath).exists()
 
-    // Temporarily assume heroku if not local file present -- need to setup more env variables in CircleCI / Heroku to detect this
+    // Temporarily assume heroku as environment if not local file present -- need to setup more env variables in CircleCI / Heroku to detect this
     // and not hardcode it
     def env = hasProperty('env') ? env : ( (localConfigExists) ? 'local' : 'herokuDev')
 
@@ -258,27 +260,25 @@ def loadConfiguration() {
     def config = null
 
     if (dbUrl?.trim()) {
-
+	   // Heroku
        URI dbUri = new URI(System.getenv("DATABASE_URL"));
        String username = dbUri.getUserInfo().split(":")[0];
        String password = dbUri.getUserInfo().split(":")[1];
        String dbJdbcUrl = "jdbc:mysql://" + dbUri.getHost() + dbUri.getPath();
-       println "DATABASE URL " + dbJdbcUrl
+       println "DATABASE URL: " + dbJdbcUrl
 
-       println "=== Reading config for remote deployment for $env ==="
+       println "=== Reading config for remote deployment for $env from environment variable DATABASE_URL ==="
        config = readConfigFile("$configDir/$remotesConfigFileName", env)
        config.databaseDomainAndName =  dbUri.getHost() + dbUri.getPath()
        config.databaseUsername = username
        config.databasePassword = password
 
-    }
-    else if (dbHost?.trim() || !localConfigExists) {
+    } else if (dbHost?.trim() || !localConfigExists) {
 
       // If the variable is not empty (CircleCI) or the local config file does not exist, assume remote deployment
       // Read from env variables
-      println "=== Reading config for remote deployment for $env ==="
+      println "=== Reading config for remote deployment for $env from separate values ==="
       config = readConfigFile("$configDir/$remotesConfigFileName", env)
-
       config.databaseDomainAndName = "$dbHost:3306/$dbName".toString()
       config.databaseUsername = "$dbUser".toString()
       config.databasePassword = "$dbPassword".toString()
@@ -287,8 +287,14 @@ def loadConfiguration() {
 
       println "=== Reading local deployment config for $env ==="
       config = readConfigFile(localConfigFilePath, env)
-
+	  config.tempDir = '/tmp'
     }
+
+	// application.properties
+    // def appProperties = new Properties()
+    // file("src/main/resources/application.properties").withInputStream{
+    //    appProperties.load(it)
+    // }
 
     // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
     // which are the files under 'src/main/resources'

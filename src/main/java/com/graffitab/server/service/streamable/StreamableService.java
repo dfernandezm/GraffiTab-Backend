@@ -30,6 +30,8 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
+import com.graffitab.server.service.image.ImageSizes;
+import com.graffitab.server.service.image.ImageUtilsService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
@@ -69,6 +71,9 @@ public class StreamableService {
 	@Resource
 	private HibernateDaoImpl<User, Long> userDao;
 
+	@Resource
+	private ImageUtilsService imageUtilsService;
+
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
 	@Transactional(readOnly = true)
@@ -85,7 +90,11 @@ public class StreamableService {
 	public Streamable createStreamableGraffiti(StreamableGraffitiDto streamableGraffitiDto, InputStream assetInputStream, long contentLength) {
 		Asset assetToAdd = Asset.asset(AssetType.IMAGE);
 
-		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
+		ImageSizes imageSizes = imageUtilsService.generateAndUploadImagesForAsset(assetInputStream, assetToAdd.getGuid());
+		assetToAdd.setWidth(imageSizes.getWidth());
+		assetToAdd.setHeight(imageSizes.getHeight());
+		assetToAdd.setThumbnailWidth(imageSizes.getThumbnailWidth());
+		assetToAdd.setThumbnailHeight(imageSizes.getThumbnailHeight());
 
 		Streamable streamable = transactionUtils.executeInTransactionWithResult(() -> {
 			User currentUser = userService.findUserById(userService.getCurrentUser().getId());
@@ -144,8 +153,20 @@ public class StreamableService {
 		Asset asset = resultTripet.getValue1();
 		String currentStreamableAssetGuid = resultTripet.getValue2();
 
-		datastoreService.saveAsset(assetInputStream, contentLength, asset.getGuid());
+		ImageSizes imageSizes = imageUtilsService.generateAndUploadImagesForAsset(assetInputStream, asset.getGuid());
+
+		transactionUtils.executeInTransaction(() -> {
+			Asset streamableAsset = streamable.getAsset();
+			streamableAsset.setWidth(imageSizes.getWidth());
+			streamableAsset.setHeight(imageSizes.getHeight());
+			streamableAsset.setThumbnailWidth(imageSizes.getThumbnailWidth());
+			streamableAsset.setThumbnailHeight(imageSizes.getThumbnailHeight());
+			streamableDao.merge(streamable);
+		});
+
+		// delete current
 		datastoreService.deleteAsset(currentStreamableAssetGuid);
+		datastoreService.deleteAsset(currentStreamableAssetGuid + ImageUtilsService.ASSET_THUMBNAIL_SUFFIX);
 
 		return streamable;
 	}

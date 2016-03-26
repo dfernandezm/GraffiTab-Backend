@@ -150,4 +150,9 @@ public class AmazonS3DatastoreService implements DatastoreService {
 						putObjectResult.getMetadata().getContentMD5());
 		}
 	}
+
+	@Override
+	public String generateThumbnailLink(String assetGuid) {
+		return "http://" + BUCKET_NAME + ".s3.amazonaws.com/" + generateKey(assetGuid) + "_thumb";
+	}
 }

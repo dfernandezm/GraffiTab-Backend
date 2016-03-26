@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -131,7 +132,7 @@ public class MeApiController {
 		return updateUserResult;
 	}
 
-	@RequestMapping(value = {"/avatar"}, method = RequestMethod.PUT)
+	@RequestMapping(value = {"/avatar"}, method = RequestMethod.PUT, consumes={"image/png", "image/jpeg"})
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public CreateAssetResult editAvatar(HttpServletRequest request) throws IOException {
 		CreateAssetResult editAvatarResult = new CreateAssetResult();
@@ -147,7 +148,7 @@ public class MeApiController {
 		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = {"/cover"}, method = RequestMethod.PUT)
+	@RequestMapping(value = {"/cover"}, method = RequestMethod.PUT, consumes={"image/png", "image/jpeg"})
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public CreateAssetResult editCover(HttpServletRequest request) throws IOException {
 		CreateAssetResult editcoverResult = new CreateAssetResult();
@@ -276,6 +277,12 @@ public class MeApiController {
 	public CreateStreamableResult createGraffiti(
 			@RequestPart("properties") StreamableGraffitiDto streamableDto,
 			@RequestPart("file") @NotNull @NotBlank MultipartFile file) {
+		String contentType = file.getContentType();
+		if (!contentType.equalsIgnoreCase(MediaType.IMAGE_JPEG_VALUE) && !contentType.equalsIgnoreCase(MediaType.IMAGE_PNG_VALUE)) {
+			throw new RestApiException(ResultCode.UNSUPPORTED_FILE_TYPE,
+					"The file type '" + contentType + "' is not supported.");
+		}
+
 		try {
 			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
 			Streamable streamable = streamableService.createStreamableGraffiti(streamableDto, file.getInputStream(), file.getSize());
@@ -294,6 +301,12 @@ public class MeApiController {
 			@PathVariable("id") Long streamableId,
 			@RequestPart("properties") StreamableGraffitiDto streamableDto,
 			@RequestPart("file") @NotNull @NotBlank MultipartFile file) {
+		String contentType = file.getContentType();
+		if (!contentType.equalsIgnoreCase(MediaType.IMAGE_JPEG_VALUE) && !contentType.equalsIgnoreCase(MediaType.IMAGE_PNG_VALUE)) {
+			throw new RestApiException(ResultCode.UNSUPPORTED_FILE_TYPE,
+					"The file type '" + contentType + "' is not supported.");
+		}
+
 		try {
 			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
 			Streamable streamable = streamableService.editStreamableGraffiti(streamableId, streamableDto, file.getInputStream(), file.getSize());
