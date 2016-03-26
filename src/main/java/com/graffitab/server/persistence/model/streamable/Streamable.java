@@ -47,6 +47,7 @@ import lombok.Setter;
 		name = "Streamable.getNewestStreamables",
 		query = "select s "
 			  + "from Streamable s "
+			  + "where s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -54,6 +55,7 @@ import lombok.Setter;
 		query = "select s "
 			  + "from Streamable s "
 			  + "left join s.likers l "
+			  + "where s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "group by s.id "
 			  + "order by count(l) desc"
 	),
@@ -63,6 +65,7 @@ import lombok.Setter;
 			  + "from Streamable s "
 			  + "join s.likers u "
 			  + "where u = :currentUser "
+			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -72,6 +75,7 @@ import lombok.Setter;
 			  + "where s.latitude is not null and s.longitude is not null " // Check that the streamable has a location.
 			  + "and s.latitude <= :neLatitude and s.latitude >= :swLatitude " // Check that the streamable is inside the required GPS rectangle.
 			  + "and s.longitude >= :neLongitude and s.longitude <= :swLongitude "
+			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -87,6 +91,7 @@ import lombok.Setter;
 			  + "from Streamable s "
 			  + "join s.hashtags h "
 			  + "where h like :tag "
+			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -102,6 +107,7 @@ import lombok.Setter;
 			  + "from User u "
 			  + "join u.streamables s "
 			  + "where u = :currentUser "
+			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "order by s.date desc"
 	),
 	@NamedQuery(
@@ -110,6 +116,7 @@ import lombok.Setter;
 			  + "from User u "
 			  + "join u.feed f "
 			  + "where u = :currentUser "
+			  + "and f.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "order by f.date desc"
 	),
 	@NamedQuery(
@@ -117,7 +124,9 @@ import lombok.Setter;
 		query = "select s "
 			  + "from User u "
 			  + "join u.streamables s "
-			  + "where u = :currentUser and s.isPrivate = 'Y' "
+			  + "where u = :currentUser "
+			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'Y' "
 			  + "order by s.date desc"
 	)
 })
@@ -161,6 +170,10 @@ public abstract class Streamable implements Identifiable<Long> {
 	@Column(name = "is_flagged", nullable = false)
 	private Boolean isFlagged;
 
+	@Convert(converter = BooleanToStringConverter.class)
+	@Column(name = "is_deleted", nullable = false)
+	private Boolean isDeleted;
+
 	@OneToOne(targetEntity = Asset.class, cascade = CascadeType.ALL, orphanRemoval = true)
 	@JoinColumn(name = "asset_id")
 	private Asset asset;
@@ -200,8 +213,6 @@ public abstract class Streamable implements Identifiable<Long> {
 	public Streamable(StreamableType streamableType) {
 		this.streamableType = streamableType;
 		this.date = new DateTime();
-		this.isFlagged = false;
-		this.isPrivate = false;
 	}
 
 	/**
@@ -209,6 +220,7 @@ public abstract class Streamable implements Identifiable<Long> {
 	 * @return true if the current user likes the specified streamable
 	 */
 	public boolean isLikedBy(User liker) {
+		// TODO: Evaluate using a query.
 		return likers.contains(liker);
 	}
 }

@@ -287,6 +287,14 @@ public class MeApiController {
 		}
 	}
 
+	@RequestMapping(value = {"/streamables/{id}"}, method = RequestMethod.DELETE)
+	@Transactional
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ActionCompletedResult deleteStreamable(@PathVariable("id") Long streamableId) {
+		streamableService.deleteStreamable(streamableId);
+		return new ActionCompletedResult();
+	}
+
 	@RequestMapping(value = {"/streamables"}, method = RequestMethod.GET)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)

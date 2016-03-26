@@ -91,6 +91,25 @@ public class StreamableService {
 		return streamable;
 	}
 
+	@Transactional
+	public void deleteStreamable(Long streamableId) {
+		Streamable streamable = findStreamableById(streamableId);
+
+		if (streamable != null) {
+			User currentUser = userService.getCurrentUser();
+
+			if (currentUser.equals(streamable.getUser())) {
+				streamable.setIsDeleted(true);
+			}
+			else {
+				throw new RestApiException(ResultCode.USER_NOT_OWNER, "The streamable with id " + streamableId + " cannot be changed by user with id " + currentUser.getId());
+			}
+		} else {
+			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
+		}
+	}
+
+	@Transactional
 	public Streamable like(Long toLikeId) {
 		User currentUser = userService.getCurrentUser();
 

@@ -106,8 +106,7 @@ public class CommentService {
 			Comment toDelete = findCommentById(commentId);
 
 			if (toDelete != null) {
-				// TODO: This will fail, as there is a link between the notifications and activities.
-				streamable.getComments().remove(toDelete);
+				toDelete.setIsDeleted(true);
 			}
 			else {
 				throw new RestApiException(ResultCode.COMMENT_NOT_FOUND, "Comment with id " + commentId + " not found");

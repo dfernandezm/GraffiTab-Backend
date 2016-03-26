@@ -132,7 +132,7 @@ alter table notification add order_key int(11) not null;
 alter table notification change type notification_type varchar(50) NOT NULL;
 
 --changeset georgi:v100cs22
-alter table notification change is_read is_read varchar(10) NOT NULL;
+alter table notification change is_read is_read varchar(10) NOT NULL DEFAULT 'N';
 
 --changeset georgi:v100cs23
 alter table notification change date date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL;
@@ -205,8 +205,8 @@ drop table streamableTag;
 drop table streamableVideo;
 
 --changeset georgi:v100cs35
-alter table streamable change is_private is_private varchar(10) NOT NULL;
-alter table streamable change is_flagged is_flagged varchar(10) NOT NULL;
+alter table streamable change is_private is_private varchar(10) NOT NULL DEFAULT 'N';
+alter table streamable change is_flagged is_flagged varchar(10) NOT NULL DEFAULT 'N';
 alter table streamable change asset_id asset_id bigint(20) NOT NULL;
 
 --changeset georgi:v100cs36
@@ -288,3 +288,7 @@ alter table activity change type activity_type varchar(50) NOT NULL;
 
 --changeset georgi:v100cs51
 alter table activity add order_key int(11) not null;
+
+--changeset georgi:v100cs52
+alter table streamable add is_deleted varchar(10) NOT NULL DEFAULT 'N';
+alter table comment add is_deleted varchar(10) NOT NULL DEFAULT 'N';

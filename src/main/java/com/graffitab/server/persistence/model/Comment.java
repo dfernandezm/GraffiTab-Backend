@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
+import com.graffitab.server.persistence.util.BooleanToStringConverter;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 import lombok.EqualsAndHashCode;
@@ -30,7 +31,9 @@ import lombok.Setter;
 		query = "select c "
 			  + "from Streamable s "
 			  + "join s.comments c "
-			  + "where s = :currentStreamable"
+			  + "where s = :currentStreamable "
+			  + "and c.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "order by c.date desc"
 	)
 })
 
@@ -65,6 +68,10 @@ public class Comment implements Identifiable<Long> {
 	@Convert(converter = DateTimeToLongConverter.class)
 	@Column(name = "edit_date")
 	private DateTime editDate;
+
+	@Convert(converter = BooleanToStringConverter.class)
+	@Column(name = "is_deleted", nullable = false)
+	private Boolean isDeleted;
 
 	@Override
 	public Long getId() {

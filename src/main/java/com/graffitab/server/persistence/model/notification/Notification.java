@@ -90,7 +90,6 @@ public abstract class Notification implements Identifiable<Long> {
 	}
 
 	public Notification(NotificationType notificationType) {
-		this.isRead = false;
 		this.notificationType = notificationType;
 		this.date = new DateTime();
 	}
