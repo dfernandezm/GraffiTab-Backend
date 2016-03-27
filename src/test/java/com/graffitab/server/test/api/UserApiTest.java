@@ -28,6 +28,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
@@ -45,6 +46,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
+import com.graffitab.server.api.controller.user.MeApiController;
 import com.graffitab.server.config.spring.MainConfig;
 import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
@@ -55,6 +57,7 @@ import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.social.SocialNetworkService;
+import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
@@ -72,6 +75,9 @@ public class UserApiTest {
 
 	    @Resource
 	    private UserService userService;
+
+	    @Resource
+	    private MeApiController meApiController;
 
 		@Resource
 		private HibernateDaoImpl<User, Long> userDao;
@@ -94,6 +100,7 @@ public class UserApiTest {
 	         wiser = startWiser();
 	         replaceEmailSenderService();
 	         replaceDatastoreService();
+	         replaceSocialNetworksService();
 	    }
 
 	    @After
@@ -101,7 +108,7 @@ public class UserApiTest {
 	    	// Nothing to do
 	    }
 
-//	    @Test
+	    @Test
 	    public void getUserByIdTest() throws Exception {
 	    	User loggedInUser = createUser();
 	    	User testUser = createUser2();
@@ -257,6 +264,14 @@ public class UserApiTest {
 	    	DatastoreService testDatastoreService = new TestDatastoreService();
 	    	UserService unwrapped = (UserService) unwrapSpringProxy(userService);
 	    	ReflectionTestUtils.setField(unwrapped, "datastoreService", testDatastoreService);
+	    }
+
+	    private void replaceSocialNetworksService() throws Exception {
+	    	UserService unwrapped = (UserService) unwrapSpringProxy(userService);
+	    	SocialNetworksService socialNetworksService = (SocialNetworksService) ReflectionTestUtils.getField(unwrapped, "socialNetworksService");
+	    	SocialNetworkService testSocialNetworkService = new TestSocialNetworkService();
+	    	ReflectionTestUtils.setField(socialNetworksService, "facebookService", testSocialNetworkService);
+	    	ReflectionTestUtils.setField(userService, "socialNetworksService", socialNetworksService);
 	    }
 
 	    /**
