@@ -55,6 +55,15 @@ public class EmailService {
 		sendEmailAsync(feedbackEmail);
 	}
 
+	public void sendFlagEmail(Long streamableId, String streamableLink) {
+		Map<String,String> data = new HashMap<>();
+		data.put("@streamable_id", streamableId + "");
+		data.put("@streamable_link", streamableLink);
+
+		Email feedbackEmail = Email.flag(data);
+		sendEmailAsync(feedbackEmail);
+	}
+
 	private void sendEmailAsync(Email email) {
 		emailExecutor.submit(() -> {
 			log.debug("About to send email " + email);

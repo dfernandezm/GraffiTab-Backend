@@ -141,7 +141,6 @@ public class StreamableApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/flag"}, method = RequestMethod.POST)
-	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullStreamableResult flag(@PathVariable("id") Long streamableId) {
 		GetFullStreamableResult getFullStreamableResult = new GetFullStreamableResult();

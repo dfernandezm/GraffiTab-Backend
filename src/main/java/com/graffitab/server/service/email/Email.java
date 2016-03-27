@@ -15,7 +15,11 @@ public class Email {
 
 	@Getter
 	public enum EmailType {
-		ACTIVATION("welcome.htm"), ACTIVATION_EXTERNAL("welcome_external.htm"), RESET_PASSWORD("password_reset.htm"), FEEDBACK("feedback.htm");
+		ACTIVATION("welcome.htm"),
+		ACTIVATION_EXTERNAL("welcome_external.htm"),
+		RESET_PASSWORD("password_reset.htm"),
+		FEEDBACK("feedback.htm"),
+		FLAG("flag.htm");
 
 		private String templateName;
 
@@ -37,10 +41,12 @@ public class Email {
 	private static String WELCOME_EXTERNAL_TEMPLATE_CONTENTS;
 	private static String PASSWORD_RESET_TEMPLATE_CONTENTS;
 	private static String FEEDBACK_TEMPLATE_CONTENTS;
+	private static String FLAG_TEMPLATE_CONTENTS;
 
 	private static String FROM_NAME = "GraffiTab";
 	private static String FROM_ADDRESS = "no_reply@graffitab.com";
 	private static String TO_FEEDBACK_ADDRESS = "georgi.christov89@gmail.com";
+	private static String TO_SUPPORT_ADDRESS = TO_FEEDBACK_ADDRESS;
 
 	static {
 		try {
@@ -48,6 +54,7 @@ public class Email {
 			WELCOME_EXTERNAL_TEMPLATE_CONTENTS = readTemplate(EmailType.ACTIVATION_EXTERNAL.getTemplateName());
 			PASSWORD_RESET_TEMPLATE_CONTENTS = readTemplate(EmailType.RESET_PASSWORD.getTemplateName());
 			FEEDBACK_TEMPLATE_CONTENTS = readTemplate(EmailType.FEEDBACK.getTemplateName());
+			FLAG_TEMPLATE_CONTENTS = readTemplate(EmailType.FLAG.getTemplateName());
 		} catch (IOException e) {
 			log.error("Error reading email templates", e);
 		}
@@ -102,6 +109,19 @@ public class Email {
 		String emailBody = replacePlaceholders(placeHolders, FEEDBACK_TEMPLATE_CONTENTS);
 		email.setHtmlBody(emailBody);
 		email.setRecipients(new String[] {TO_FEEDBACK_ADDRESS});
+		return email;
+	}
+
+	public static Email flag(Map<String, String> placeHolders) {
+		Email email = new Email();
+		EmailType emailType = EmailType.FLAG;
+		email.setSubject("GraffiTab Flags");
+		email.setFromAddress(FROM_ADDRESS);
+		email.setFromName(FROM_NAME);
+		email.setEmailType(emailType);
+		String emailBody = replacePlaceholders(placeHolders, FLAG_TEMPLATE_CONTENTS);
+		email.setHtmlBody(emailBody);
+		email.setRecipients(new String[] {TO_SUPPORT_ADDRESS});
 		return email;
 	}
 

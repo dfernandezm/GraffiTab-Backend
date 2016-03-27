@@ -28,6 +28,7 @@ import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.TransactionUtils;
+import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
@@ -42,6 +43,9 @@ public class StreamableService {
 
 	@Resource
 	private UserService userService;
+
+	@Resource
+	private EmailService emailService;
 
 	@Resource
 	private DatastoreService datastoreService;
@@ -260,19 +264,32 @@ public class StreamableService {
 		}
 	}
 
-	@Transactional
 	public Streamable flag(Long streamableId) {
-		Streamable streamable = findStreamableById(streamableId);
+		Pair<Streamable, Boolean> resultPair = transactionUtils.executeInTransactionWithResult(() -> {
+			Streamable innerStreamable = findStreamableById(streamableId);
 
-		if (streamable != null) {
-			streamable.setIsFlagged(true);
+			if (innerStreamable != null) {
+				Boolean flagged = false;
 
-			// TODO: Potentially send an email to support saying that a streamable has been flagged and include it's ID and asset link.
+				if (!innerStreamable.getIsFlagged()) {
+					innerStreamable.setIsFlagged(true);
+					flagged = true;
+				}
 
-			return streamable;
-		} else {
-			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
+				return new Pair<Streamable, Boolean>(innerStreamable, flagged);
+			} else {
+				throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
+			}
+		});
+
+		Streamable streamable = resultPair.getValue0();
+		Boolean wasFlagged = resultPair.getValue1();
+
+		if (wasFlagged) {
+			emailService.sendFlagEmail(streamable.getId(), datastoreService.generateDownloadLink(streamable.getAsset().getGuid()));
 		}
+
+		return streamable;
 	}
 
 	@Transactional

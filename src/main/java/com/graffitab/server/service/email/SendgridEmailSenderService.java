@@ -15,7 +15,7 @@ public class SendgridEmailSenderService implements EmailSenderService {
 
 	private SendGrid sendGrid;
 
-	private String SENDGRID_API_KEY_ENVVAR_NAME = "SENDGRID_APIKEY";
+	private String SENDGRID_API_KEY_ENVVAR_NAME = "SENDGRID_API_KEY";
 
 	@PostConstruct
 	public void setupSendgrid() {
