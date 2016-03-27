@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
-import com.graffitab.server.api.mapper.OrikaMapper;
+import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.paging.PagingService;
@@ -27,10 +27,10 @@ public class SocialNetworksService {
 	private UserService userService;
 
 	@Resource
-	private FacebookSocialNetworkService facebookService;
+	private PagingService pagingService;
 
 	@Resource
-	private OrikaMapper mapper;
+	private FacebookSocialNetworkService facebookService;
 
 	@Transactional(readOnly = true)
 	public ListItemsResult<UserSocialFriendsContainerDto> getSocialFriendsResult(Integer offset, Integer limit) {
@@ -44,7 +44,7 @@ public class SocialNetworksService {
 			}
 		}
 
-		return mapSocialFriends(containers);
+		return pagingService.mapResults(new PagedList<>(containers, null, null), UserSocialFriendsContainerDto.class);
 	}
 
 	@Transactional(readOnly = true)
@@ -55,18 +55,6 @@ public class SocialNetworksService {
 			container = new UserSocialFriendsContainer();
 
 		return container;
-	}
-
-	private ListItemsResult<UserSocialFriendsContainerDto> mapSocialFriends(List<UserSocialFriendsContainer> containers) {
-		// Map to list of DTOs.
-		List<UserSocialFriendsContainerDto> itemDtos = mapper.mapList(containers, UserSocialFriendsContainerDto.class);
-
-		// Build result list.
-		ListItemsResult<UserSocialFriendsContainerDto> listItemsResult = new ListItemsResult<>();
-		listItemsResult.setItems(itemDtos);
-		listItemsResult.setResultsCount(itemDtos.size());
-
-		return listItemsResult;
 	}
 
 	private UserSocialFriendsContainer getFriendsForSocialNetwork(User currentUser, ExternalProviderType type, Integer offset, Integer limit) {
