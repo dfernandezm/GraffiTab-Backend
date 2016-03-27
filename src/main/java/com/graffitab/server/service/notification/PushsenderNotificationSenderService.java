@@ -1,6 +1,8 @@
 package com.graffitab.server.service.notification;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -61,19 +63,19 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 		}
 
 		try {
-			// TODO: Push notification protocol.
 			// Build PN content.
-			// For more examples, see -> https://github.com/devsu/push-sender
+			// TODO: Configure content and metadata once apps are working and registering properly.
 			String title = "GraffiTab";
-			String content = "Hello! This is a push message!";
+			String content = buildContentForNotification(notification);
+			Map<String, String> metadata = buildMetadataMapForNotification(notification);
 
 			// Send PN to each of the user's devices.
 			for (Device device : user.getDevices()) {
 				if (device.getOsType() == OSType.ANDROID) {
-					androidService.sendPush(title, content, device.getToken());
+					androidService.sendPush(title, content, metadata, device.getToken());
 				}
 				else if (device.getOsType() == OSType.IOS) {
-					appleService.sendPush(title, content, device.getToken());
+					appleService.sendPush(title, content, metadata, device.getToken());
 				}
 			}
 		} catch (Exception e) {
@@ -81,5 +83,14 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 			log.error(msg, e);
 			throw new NotificationSenderException(msg, e);
 		}
+	}
+
+	private Map<String, String> buildMetadataMapForNotification(Notification notification) {
+		Map<String, String> metadata = new HashMap<String, String>();
+		return metadata;
+	}
+
+	private String buildContentForNotification(Notification notification) {
+		return "Hello! This is a push notification.";
 	}
 }

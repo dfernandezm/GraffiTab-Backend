@@ -109,8 +109,8 @@ public class NotificationService {
 				inner.getNotifications().add(notification);
 			});
 
-//			// Send push notification to receiver.
-//			notificationSenderService.sendNotification(receiver, notification);
+			// Send push notification to receiver.
+			notificationSenderService.sendNotification(receiver, notification);
 
 			if (log.isDebugEnabled()) {
 				log.debug("Finished adding notification");
