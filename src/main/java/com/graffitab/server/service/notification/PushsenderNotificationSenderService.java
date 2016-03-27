@@ -59,7 +59,7 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 	public void sendNotification(User user, Notification notification) {
 		if (log.isDebugEnabled()) {
 			log.debug("[PUSHSENDER] About to send push notification to user " +
-						user.getUsername() + " through Pushsender");
+						user.getUsername() + " through PushSender");
 		}
 
 		try {
