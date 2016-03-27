@@ -151,14 +151,14 @@ public class CommentService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<CommentDto> getCommentsResult(Long streamableId, Integer offset, Integer count) {
+	public ListItemsResult<CommentDto> getCommentsResult(Long streamableId, Integer offset, Integer limit) {
 		Streamable streamable = streamableService.findStreamableById(streamableId);
 
 		if (streamable != null) {
 			Query query = streamableDao.createNamedQuery("Comment.getComments");
 			query.setParameter("currentStreamable", streamable);
 
-			return pagingService.getPagedItems(Comment.class, CommentDto.class, offset, count, query);
+			return pagingService.getPagedItems(Comment.class, CommentDto.class, offset, limit, query);
 		} else {
 			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
 		}

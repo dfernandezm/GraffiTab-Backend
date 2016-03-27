@@ -20,7 +20,7 @@ public class ActivityPagingService extends PagingService {
 
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public <T, K> ListItemsResult<K> getPagedItems(Class<T> targetClass, Class<K> targetDtoClass, Integer numberOfItemsInGroup, Integer offset, Integer count, Query query) {
+	public <T, K> ListItemsResult<K> getPagedItems(Class<T> targetClass, Class<K> targetDtoClass, Integer numberOfItemsInGroup, Integer offset, Integer limit, Query query) {
 		numberOfItemsInGroup = numberOfItemsInGroup != null ? Math.abs(numberOfItemsInGroup) : NUM_GROUP_ITEMS_DEFAULT_VALUE;
 
 		// Guard against malicious input.
@@ -28,7 +28,7 @@ public class ActivityPagingService extends PagingService {
 			numberOfItemsInGroup = NUM_GROUP_ITEMS_MAX_VALUE;
 
 		// Get list of entities.
-		PagedList<T> items = getItems(query, offset, count);
+		PagedList<T> items = getItems(query, offset, limit);
 		List<ActivityContainer> groupedActivities = groupActivities((List<Activity>) items, numberOfItemsInGroup);
 
 		// Map to list of DTOs.
@@ -38,7 +38,7 @@ public class ActivityPagingService extends PagingService {
 		ListItemsResult<K> listItemsResult = new ListItemsResult<>();
 		listItemsResult.setItems(itemDtos);
 		listItemsResult.setResultsCount(items.getResultsCount());
-		listItemsResult.setMaxResultsCount(items.getMaxResultsCount());
+		listItemsResult.setLimit(items.getLimit());
 		listItemsResult.setOffset(items.getOffset());
 
 		return listItemsResult;

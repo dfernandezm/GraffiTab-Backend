@@ -76,13 +76,13 @@ public class LocationService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<LocationDto> getLocationsResult(Integer offset, Integer count) {
+	public ListItemsResult<LocationDto> getLocationsResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 
 		Query query = locationDao.createNamedQuery("Location.getLocations");
 		query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItems(Location.class, LocationDto.class, offset, count, query);
+		return pagingService.getPagedItems(Location.class, LocationDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)

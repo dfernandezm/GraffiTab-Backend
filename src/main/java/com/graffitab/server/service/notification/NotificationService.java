@@ -53,13 +53,13 @@ public class NotificationService {
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<NotificationDto> getNotificationsResult(Integer offset, Integer count) {
+	public ListItemsResult<NotificationDto> getNotificationsResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 
 		Query query = notificationDao.createNamedQuery("Notification.getNotifications");
 		query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItems(Notification.class, NotificationDto.class, offset, count, query);
+		return pagingService.getPagedItems(Notification.class, NotificationDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)

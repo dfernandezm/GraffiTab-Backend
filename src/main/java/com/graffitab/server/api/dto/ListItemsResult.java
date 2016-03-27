@@ -10,5 +10,5 @@ public class ListItemsResult<T> {
 	private List<T> items;
 	private Integer resultsCount;
 	private Integer offset;
-	private Integer maxResultsCount;
+	private Integer limit;
 }

@@ -21,15 +21,15 @@ public class PagedList<T> extends ArrayList<T> {
 	@JsonProperty("offset")
 	private Integer offset;
 
-	@JsonProperty("maxResultsCount")
-	private Integer maxResultsCount = PagingService.PAGE_SIZE_DEFAULT_VALUE;
+	@JsonProperty("limit")
+	private Integer limit = PagingService.PAGE_SIZE_DEFAULT_VALUE;
 
-	public PagedList(List<T> resultsList, Integer offset, Integer maxResultsCount) {
+	public PagedList(List<T> resultsList, Integer offset, Integer limit) {
 		super(resultsList);
 
 		this.resultsCount = resultsList.size();
 		this.offset = offset;
-		this.maxResultsCount = maxResultsCount;
+		this.limit = limit;
 	}
 
 	public PagedList() {
@@ -37,6 +37,6 @@ public class PagedList<T> extends ArrayList<T> {
 
 		this.resultsCount = 0;
 		this.offset = 0;
-		this.maxResultsCount = PagingService.PAGE_SIZE_DEFAULT_VALUE;
+		this.limit = PagingService.PAGE_SIZE_DEFAULT_VALUE;
 	}
 }

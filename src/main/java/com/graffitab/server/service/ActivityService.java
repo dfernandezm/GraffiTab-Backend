@@ -49,13 +49,13 @@ public class ActivityService {
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<ActivityContainerDto> getFollowersActivityResult(Integer numberOfItemsInGroup, Integer offset, Integer count) {
+	public ListItemsResult<ActivityContainerDto> getFollowersActivityResult(Integer numberOfItemsInGroup, Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 
 		Query query = activityDao.createNamedQuery("Activity.getFollowersActivity");
 		query.setParameter("currentUser", currentUser);
 
-		return activityPagingService.getPagedItems(Activity.class, ActivityContainerDto.class, numberOfItemsInGroup, offset, count, query);
+		return activityPagingService.getPagedItems(Activity.class, ActivityContainerDto.class, numberOfItemsInGroup, offset, limit, query);
 	}
 
 	public void addCreateStreamableActivityAsync(User creator, Streamable createdStreamable) {

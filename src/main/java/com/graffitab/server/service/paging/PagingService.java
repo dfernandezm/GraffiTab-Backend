@@ -22,25 +22,25 @@ public class PagingService {
 	protected OrikaMapper mapper;
 
 	@Transactional
-	public <T, K> ListItemsResult<K> getPagedItems(Class<T> targetClass, Class<K> targetDtoClass, Integer offset, Integer count, Query query) {
-		PagedList<T> items = getItems(query, offset, count);
+	public <T, K> ListItemsResult<K> getPagedItems(Class<T> targetClass, Class<K> targetDtoClass, Integer offset, Integer limit, Query query) {
+		PagedList<T> items = getItems(query, offset, limit);
 		return mapResults(items, targetDtoClass);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public <T> PagedList<T> getItems(Query query, Integer offset, Integer count) {
+	public <T> PagedList<T> getItems(Query query, Integer offset, Integer limit) {
 		offset = offset != null ? Math.abs(offset) : 0;
-		count = count != null ? Math.abs(count) : PAGE_SIZE_DEFAULT_VALUE;
+		limit = limit != null ? Math.abs(limit) : PAGE_SIZE_DEFAULT_VALUE;
 
 		// Guard against malicious input.
-		if (count > PAGE_SIZE_MAX_VALUE)
-			count = PAGE_SIZE_MAX_VALUE;
+		if (limit > PAGE_SIZE_MAX_VALUE)
+			limit = PAGE_SIZE_MAX_VALUE;
 
 		query.setFirstResult(offset);
-		query.setMaxResults(count);
+		query.setMaxResults(limit);
 
-		return new PagedList<>((List<T>) query.list(), offset, count);
+		return new PagedList<>((List<T>) query.list(), offset, limit);
 	}
 
 	public <T, K> ListItemsResult<K> mapResults(PagedList<T> items, Class<K> targetDtoClass) {
@@ -51,7 +51,7 @@ public class PagingService {
 		ListItemsResult<K> listItemsResult = new ListItemsResult<>();
 		listItemsResult.setItems(itemDtos);
 		listItemsResult.setResultsCount(items.getResultsCount());
-		listItemsResult.setMaxResultsCount(items.getMaxResultsCount());
+		listItemsResult.setLimit(items.getLimit());
 		listItemsResult.setOffset(items.getOffset());
 
 		return listItemsResult;

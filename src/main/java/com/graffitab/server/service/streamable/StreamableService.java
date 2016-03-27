@@ -205,56 +205,56 @@ public class StreamableService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<UserDto> getLikersResult(Long streamableId, Integer offset, Integer count) {
+	public ListItemsResult<UserDto> getLikersResult(Long streamableId, Integer offset, Integer limit) {
 		Streamable streamable = findStreamableById(streamableId);
 
 		if (streamable != null) {
 			Query query = streamableDao.createNamedQuery("User.getLikers");
 			query.setParameter("currentStreamable", streamable);
 
-			return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
+			return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
 		} else {
 			throw new RestApiException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + streamableId + " not found");
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getUserStreamablesResult(Long userId, Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getUserStreamablesResult(Long userId, Integer offset, Integer limit) {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
 			Query query = userDao.createNamedQuery("Streamable.getUserStreamables");
 			query.setParameter("currentUser", user);
 
-			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getNewestStreamablesResult(Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getNewestStreamablesResult(Integer offset, Integer limit) {
 		Query query = streamableDao.createNamedQuery("Streamable.getNewestStreamables");
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getPopularStreamablesResult(Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getPopularStreamablesResult(Integer offset, Integer limit) {
 		Query query = streamableDao.createNamedQuery("Streamable.getPopularStreamables");
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getUserFeedResult(Long userId, Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getUserFeedResult(Long userId, Integer offset, Integer limit) {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
 			Query query = userDao.createNamedQuery("Streamable.getUserFeed");
 			query.setParameter("currentUser", user);
 
-			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
@@ -296,27 +296,27 @@ public class StreamableService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getLikedStreamablesForUserResult(Long userId, Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getLikedStreamablesForUserResult(Long userId, Integer offset, Integer limit) {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
 			Query query = streamableDao.createNamedQuery("Streamable.getLikedStreamables");
 			query.setParameter("currentUser", user);
 
-			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getPrivateStreamablesResult(Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> getPrivateStreamablesResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 
 		Query query = userDao.createNamedQuery("Streamable.getPrivateStreamables");
 		query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)
@@ -331,25 +331,25 @@ public class StreamableService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> searchStreamablesForHashtagResult(String hashtag, Integer offset, Integer count) {
+	public ListItemsResult<StreamableDto> searchStreamablesForHashtagResult(String hashtag, Integer offset, Integer limit) {
 		// Filter out special characters to prevent SQL injection.
 		hashtag = hashtag.toLowerCase() + "%";
 
 		Query query = streamableDao.createNamedQuery("Streamable.searchStreamablesForHashtag");
 		query.setParameter("tag", hashtag);
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, count, query);
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<String> searchHashtags(String hashtag, Integer offset, Integer count) {
+	public ListItemsResult<String> searchHashtags(String hashtag, Integer offset, Integer limit) {
 		// Filter out special characters to prevent SQL injection.
 		hashtag = hashtag.toLowerCase() + "%";
 
 		Query query = streamableDao.createNamedQuery("Streamable.searchHashtags");
 		query.setParameter("tag", hashtag);
 
-		return pagingService.getPagedItems(String.class, String.class, offset, count, query);
+		return pagingService.getPagedItems(String.class, String.class, offset, limit, query);
 	}
 
 	@Transactional

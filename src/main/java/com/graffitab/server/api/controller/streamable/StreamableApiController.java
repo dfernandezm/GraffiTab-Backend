@@ -74,8 +74,8 @@ public class StreamableApiController {
 	public ListItemsResult<UserDto> getLikers(
 			@PathVariable("id") Long streamableId,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getLikersResult(streamableId, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getLikersResult(streamableId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/{id}/comments"}, method = RequestMethod.POST)
@@ -118,8 +118,8 @@ public class StreamableApiController {
 	public ListItemsResult<CommentDto> getComments(
 			@PathVariable("id") Long streamableId,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return commentService.getCommentsResult(streamableId, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return commentService.getCommentsResult(streamableId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/newest"}, method = RequestMethod.GET)
@@ -127,8 +127,8 @@ public class StreamableApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getNewestStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getNewestStreamablesResult(offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getNewestStreamablesResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/popular"}, method = RequestMethod.GET)
@@ -136,8 +136,8 @@ public class StreamableApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getPopularStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getPopularStreamablesResult(offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getPopularStreamablesResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/{id}/flag"}, method = RequestMethod.POST)
@@ -167,8 +167,8 @@ public class StreamableApiController {
 	public ListItemsResult<StreamableDto> searchStreamablesForHashtag(
 			@RequestParam(value="query", required = true) String query,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.searchStreamablesForHashtagResult(query, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.searchStreamablesForHashtagResult(query, offset, limit);
 	}
 
 	@RequestMapping(value = {"/search/hashtags"}, method = RequestMethod.GET)
@@ -177,7 +177,7 @@ public class StreamableApiController {
 	public ListItemsResult<String> searchHashtags(
 			@RequestParam(value="query", required = true) String query,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.searchHashtags(query, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.searchHashtags(query, offset, limit);
 	}
 }

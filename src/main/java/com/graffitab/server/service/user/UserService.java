@@ -336,7 +336,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<UserDto> searchUsersResult(String userQuery, Integer offset, Integer count) {
+	public ListItemsResult<UserDto> searchUsersResult(String userQuery, Integer offset, Integer limit) {
 		// By username, first name, lastName.
 		// TODO: Need to escape the characters to prevent SQL injection here.
 		userQuery = "%" + userQuery + "%";
@@ -346,7 +346,7 @@ public class UserService {
 		query.setParameter("firstName", userQuery);
 		query.setParameter("lastName", userQuery);
 
-		return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
+		return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
 
 		// Example with Criteria.
 //		Criterion usernameRestriction = Restrictions.like("username", query, MatchMode.ANYWHERE);
@@ -458,7 +458,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<UserDto> getFollowingOrFollowersForUserResult(boolean shouldGetFollowers, Long userId, Integer offset, Integer count) {
+	public ListItemsResult<UserDto> getFollowingOrFollowersForUserResult(boolean shouldGetFollowers, Long userId, Integer offset, Integer limit) {
 		User requestedUser = (userId == null) ? getCurrentUser() : findUserById(userId);
 
 		Query query = userDao.createQuery(
@@ -468,7 +468,7 @@ public class UserService {
 			  + "where u = :currentUser");
 		query.setParameter("currentUser", requestedUser);
 
-		return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
+		return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
 	}
 
 	public User follow(Long toFollowId) {
@@ -607,10 +607,10 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<UserDto> getMostActiveUsersResult(Integer offset, Integer count) {
+	public ListItemsResult<UserDto> getMostActiveUsersResult(Integer offset, Integer limit) {
 		Query query = userDao.createNamedQuery("User.getMostActiveUsers");
 
-		return pagingService.getPagedItems(User.class, UserDto.class, offset, count, query);
+		return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)

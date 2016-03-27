@@ -140,8 +140,8 @@ public class UserApiController extends BaseApiController {
 	public ListItemsResult<UserDto> getFollowers(
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersForUserResult(true, userId, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return userService.getFollowingOrFollowersForUserResult(true, userId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/{id}/following"}, method = RequestMethod.GET)
@@ -150,8 +150,8 @@ public class UserApiController extends BaseApiController {
 	public ListItemsResult<UserDto> getFollowing(
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersForUserResult(false, userId, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return userService.getFollowingOrFollowersForUserResult(false, userId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/{id}/streamables"}, method = RequestMethod.GET)
@@ -160,8 +160,8 @@ public class UserApiController extends BaseApiController {
 	public ListItemsResult<StreamableDto> getStreamables(
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserStreamablesResult(userId, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getUserStreamablesResult(userId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/{id}/feed"}, method = RequestMethod.GET)
@@ -170,8 +170,8 @@ public class UserApiController extends BaseApiController {
 	public ListItemsResult<StreamableDto> getFeed(
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserFeedResult(userId, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getUserFeedResult(userId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/mostactive"}, method = RequestMethod.GET)
@@ -179,8 +179,8 @@ public class UserApiController extends BaseApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getMostActiveUsers(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getMostActiveUsersResult(offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return userService.getMostActiveUsersResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/{id}/liked"}, method = RequestMethod.GET)
@@ -189,8 +189,8 @@ public class UserApiController extends BaseApiController {
 	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getLikedStreamablesForUserResult(userId, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getLikedStreamablesForUserResult(userId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/search"}, method = RequestMethod.GET)
@@ -199,7 +199,7 @@ public class UserApiController extends BaseApiController {
 	public ListItemsResult<UserDto> searchUsers(
 			@RequestParam(value="query", required = true) String query,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return userService.searchUsersResult(query, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return userService.searchUsersResult(query, offset, limit);
 	}
 }

@@ -106,8 +106,8 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<NotificationDto> getNotifications(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return notificationService.getNotificationsResult(offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return notificationService.getNotificationsResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/notifications/unreadcount"}, method = RequestMethod.GET)
@@ -126,8 +126,8 @@ public class MeApiController {
 	public ListItemsResult<ActivityContainerDto> getFollowersActivity(
 			@RequestParam(value="numberOfItemsInGroup", required = false) Integer numberOfItemsInGroup,
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return activityService.getFollowersActivityResult(numberOfItemsInGroup, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return activityService.getFollowersActivityResult(numberOfItemsInGroup, offset, limit);
 	}
 
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
@@ -207,8 +207,8 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<LocationDto> getLocations(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return locationService.getLocationsResult(offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return locationService.getLocationsResult(offset, limit);
 	}
 
 	@RequestMapping(value = "/devices", method = RequestMethod.POST)
@@ -257,8 +257,8 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getFollowers(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersForUserResult(true, null, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return userService.getFollowingOrFollowersForUserResult(true, null, offset, limit);
 	}
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
@@ -266,8 +266,8 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserDto> getFollowing(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return userService.getFollowingOrFollowersForUserResult(false, null, offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return userService.getFollowingOrFollowersForUserResult(false, null, offset, limit);
 	}
 
 	@RequestMapping(value = "/streamables/graffiti", method = RequestMethod.POST)
@@ -318,8 +318,8 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserStreamablesResult(userService.getCurrentUser().getId(), offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getUserStreamablesResult(userService.getCurrentUser().getId(), offset, limit);
 	}
 
 	@RequestMapping(value = {"/streamables/{id}/private"}, method = RequestMethod.POST)
@@ -347,8 +347,8 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getPrivateStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getPrivateStreamablesResult(offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getPrivateStreamablesResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/feed"}, method = RequestMethod.GET)
@@ -356,8 +356,8 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getFeed(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getUserFeedResult(userService.getCurrentUser().getId(), offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getUserFeedResult(userService.getCurrentUser().getId(), offset, limit);
 	}
 
 	@RequestMapping(value = {"/liked"}, method = RequestMethod.GET)
@@ -365,7 +365,16 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
 			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="count", required = false) Integer count) {
-		return streamableService.getLikedStreamablesForUserResult(userService.getCurrentUser().getId(), offset, count);
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getLikedStreamablesForUserResult(userService.getCurrentUser().getId(), offset, limit);
+	}
+
+	@RequestMapping(value = {"/social/friends"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<StreamableDto> getSocialFriends(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getLikedStreamablesForUserResult(userService.getCurrentUser().getId(), offset, limit);
 	}
 }
