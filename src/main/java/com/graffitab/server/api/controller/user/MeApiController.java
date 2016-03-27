@@ -53,7 +53,6 @@ import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.notification.NotificationService;
-import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.DeviceService;
 import com.graffitab.server.service.user.LocationService;
@@ -80,9 +79,6 @@ public class MeApiController {
 
 	@Resource
 	private LocationService locationService;
-
-	@Resource
-	private SocialNetworksService socialNetworksService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -376,22 +372,20 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/social/friends"}, method = RequestMethod.GET)
-	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<UserSocialFriendsContainerDto> getSocialFriends(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
-		return socialNetworksService.getSocialFriendsResult(offset, limit);
+		return userService.getSocialFriendsResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/social/{type}/friends"}, method = RequestMethod.GET)
-	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public UserSocialFriendsContainerDto getSocialFriends(
 			@PathVariable("type") ExternalProviderType type,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
-		UserSocialFriendsContainer container = socialNetworksService.getSocialFriendsForProviderResult(type, offset, limit);
+		UserSocialFriendsContainer container = userService.getSocialFriendsForProviderResult(type, offset, limit);
 		return mapper.map(container, UserSocialFriendsContainerDto.class);
 	}
 }

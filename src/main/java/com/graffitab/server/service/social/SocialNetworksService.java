@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
@@ -32,7 +31,6 @@ public class SocialNetworksService {
 	@Resource
 	private FacebookSocialNetworkService facebookService;
 
-	@Transactional(readOnly = true)
 	public ListItemsResult<UserSocialFriendsContainerDto> getSocialFriendsResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 		List<UserSocialFriendsContainer> containers = new ArrayList<>();
@@ -47,7 +45,6 @@ public class SocialNetworksService {
 		return pagingService.mapResults(new PagedList<>(containers, null, null), UserSocialFriendsContainerDto.class);
 	}
 
-	@Transactional(readOnly = true)
 	public UserSocialFriendsContainer getSocialFriendsForProviderResult(ExternalProviderType type, Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 		UserSocialFriendsContainer container = getFriendsForSocialNetwork(currentUser, type, offset, limit);

@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
 import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
@@ -33,12 +34,14 @@ import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
+import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.ProxyUtilities;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
+import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
@@ -87,6 +90,9 @@ public class UserService {
 
 	@Resource
 	private ActivityService activityService;
+
+	@Resource
+	private SocialNetworksService socialNetworksService;
 
 	public static final String ACTIVATION_TOKEN_METADATA_KEY = "activationToken";
 	public static final String ACTIVATION_TOKEN_DATE_METADATA_KEY = "activationTokenDate";
@@ -611,6 +617,14 @@ public class UserService {
 		Query query = userDao.createNamedQuery("User.getMostActiveUsers");
 
 		return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
+	}
+
+	public ListItemsResult<UserSocialFriendsContainerDto> getSocialFriendsResult(Integer offset, Integer limit) {
+		return socialNetworksService.getSocialFriendsResult(offset, limit);
+	}
+
+	public UserSocialFriendsContainer getSocialFriendsForProviderResult(ExternalProviderType type, Integer offset, Integer limit) {
+		return socialNetworksService.getSocialFriendsForProviderResult(type, offset, limit);
 	}
 
 	@Transactional(readOnly = true)

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.persistence.model.user.User;
+import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.user.UserService;
 
 import facebook4j.Facebook;
@@ -26,6 +27,9 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 
 	@Resource
 	private UserService userService;
+
+	@Resource
+	private TransactionUtils transactionUtils;
 
 	private Facebook facebook;
 	private ExternalProviderType providerType = ExternalProviderType.FACEBOOK;
@@ -76,8 +80,10 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 					log.debug("[FACEBOOK] Checking friend with id " + friend.getId() + " and name " + friend.getName());
 				}
 
-				User graffitabUser = userService.findUsersWithMetadataValues(String.format(UserService.EXTERNAL_PROVIDER_ID_KEY, providerType.name()),
-						friend.getId());
+				User graffitabUser = transactionUtils.executeInTransactionWithResult(() -> {
+					return userService.findUsersWithMetadataValues(String.format(UserService.EXTERNAL_PROVIDER_ID_KEY, providerType.name()),
+							friend.getId());
+				});
 				if (graffitabUser != null) { // User is registered in our database, so safely return them at this point.
 					graffiTabUsers.add(graffitabUser);
 				}
