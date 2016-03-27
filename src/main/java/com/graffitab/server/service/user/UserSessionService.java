@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
 import org.hibernate.criterion.Restrictions;
+import org.joda.time.DateTime;
 import org.springframework.security.oauth2.common.util.SerializationUtils;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
@@ -78,6 +79,7 @@ public class UserSessionService {
 				User currentUser = userService.getCurrentUser();
 				userService.merge(currentUser);
 				UserSession userSession = new UserSession();
+				userSession.setCreatedOn(new DateTime());
 				userSession.setSessionId(session.getId());
 				userSession.setContent(sessionData);
 				userSession.setUser(currentUser);

@@ -15,6 +15,6 @@ public class CommentDto {
 	private StreamableDto streamable;
 	private UserDto user;
 	private String text;
-	private String date;
-	private String editDate;
+	private String createdOn;
+	private String updatedOn;
 }

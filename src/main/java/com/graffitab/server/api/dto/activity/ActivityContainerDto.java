@@ -14,7 +14,9 @@ import lombok.Data;
 public class ActivityContainerDto {
 
 	private UserDto user;
-	private String date;
+
+	@JsonProperty("date")
+	private String createdOn;
 
 	@JsonProperty("type")
 	private String activityType;

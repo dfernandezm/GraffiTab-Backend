@@ -1,6 +1,7 @@
 package com.graffitab.server.persistence.model;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,9 +12,11 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
+import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.user.User;
+import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -55,6 +58,14 @@ public class Location implements Identifiable<Long> {
 	@Column(name = "longitude", nullable = false)
 	private Double longitude;
 
+	@Convert(converter = DateTimeToLongConverter.class)
+	@Column(name = "created_on", nullable = false)
+	private DateTime createdOn;
+
+	@Convert(converter = DateTimeToLongConverter.class)
+	@Column(name = "updated_on")
+	private DateTime updatedOn;
+
 	@Override
 	public Long getId() {
 		return id;
@@ -67,6 +78,7 @@ public class Location implements Identifiable<Long> {
 
 	public static Location location(String address, Double latitude, Double longitude) {
 		Location location = new Location();
+		location.setCreatedOn(new DateTime());
 		location.setAddress(address);
 		location.setLatitude(latitude);
 		location.setLongitude(longitude);

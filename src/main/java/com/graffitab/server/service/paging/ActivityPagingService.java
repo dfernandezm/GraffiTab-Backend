@@ -54,7 +54,7 @@ public class ActivityPagingService extends PagingService {
     		ActivityContainer container = new ActivityContainer();
     		container.setActivityType(previous.getActivityType());
     		container.setUser(previous.getActivityUser());
-    		container.setDate(previous.getDate());
+    		container.setCreatedOn(previous.getCreatedOn());
     		groups.add(container);
 
     		for (Activity activity : activities) {
@@ -69,7 +69,7 @@ public class ActivityPagingService extends PagingService {
     				container = new ActivityContainer();
     				container.setActivityType(activity.getActivityType());
     	    		container.setUser(activity.getActivityUser());
-    	    		container.setDate(activity.getDate());
+    	    		container.setCreatedOn(activity.getCreatedOn());
     	    		container.getActivities().add(activity);
     	    		groups.add(container);
     			}

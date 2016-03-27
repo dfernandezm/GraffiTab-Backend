@@ -10,6 +10,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.javatuples.Pair;
+import org.joda.time.DateTime;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -257,6 +258,7 @@ public class UserService {
 				transactionUtils.executeInTransaction(() -> {
 					user.setPassword(passwordEncoder.encode(user.getPassword()));
 					user.setGuid(GuidGenerator.generate());
+					user.setCreatedOn(new DateTime());
 					user.setAccountStatus(AccountStatus.PENDING_ACTIVATION);
 					user.getMetadataItems().put(ACTIVATION_TOKEN_METADATA_KEY, userToken);
 					user.getMetadataItems().put(ACTIVATION_TOKEN_DATE_METADATA_KEY, System.currentTimeMillis() + "");
@@ -294,6 +296,7 @@ public class UserService {
 								externalProviderId);
 						user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
 								externalProviderToken);
+						user.setCreatedOn(new DateTime());
 						userDao.persist(user);
 					});
 
@@ -320,6 +323,8 @@ public class UserService {
 	@Transactional
 	public User editUser(User user) {
 		if (validationService.validateUser(user)) {
+			user.setUpdatedOn(new DateTime());
+
 			User currentUser = getCurrentUser();
 			merge(currentUser);
 			mapper.map(user, currentUser);
@@ -373,6 +378,7 @@ public class UserService {
 			// and we cannot change it
 			User storedUser = user;
 			storedUser.setAvatarAsset(assetToAdd);
+			storedUser.setUpdatedOn(new DateTime());
 		});
 
 		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
@@ -398,6 +404,7 @@ public class UserService {
 				User storedUser = user;
 				// Delete current avatar from database
 				storedUser.setAvatarAsset(null);
+				storedUser.setUpdatedOn(new DateTime());
 			});
 
 			datastoreService.deleteAsset(avatarAsset);
@@ -419,6 +426,7 @@ public class UserService {
 		    // and we cannot change it
 			User storedUser = user;
 			storedUser.setCoverAsset(assetToAdd);
+			storedUser.setUpdatedOn(new DateTime());
 		});
 
 		datastoreService.saveAsset(assetInputStream, contentLength, assetToAdd.getGuid());
@@ -442,6 +450,7 @@ public class UserService {
 				User storedUser = user;
 				// Delete current cover from database
 				storedUser.setCoverAsset(null);
+				storedUser.setUpdatedOn(new DateTime());
 			});
 
 			datastoreService.deleteAsset(coverAssetGuid);
@@ -585,6 +594,7 @@ public class UserService {
 		}
 
 		user.setPassword(passwordEncoder.encode(newPassword));
+		user.setUpdatedOn(new DateTime());
 
 		// Logout from all devices
         userSessionService.logoutEverywhere(user);

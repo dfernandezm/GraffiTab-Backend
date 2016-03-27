@@ -135,7 +135,7 @@ public class CommentService {
 
 				if (currentUser.equals(toEdit.getUser())) {
 					toEdit.setText(newText);
-					toEdit.setEditDate(new DateTime());
+					toEdit.setUpdatedOn(new DateTime());
 					return toEdit;
 				}
 				else {

@@ -18,7 +18,7 @@ import lombok.Setter;
 public class ActivityContainer {
 
 	private ActivityType activityType;
-	private DateTime date;
+	private DateTime createdOn;
 	private User user;
 	private List<Activity> activities = new ArrayList<>();
 }

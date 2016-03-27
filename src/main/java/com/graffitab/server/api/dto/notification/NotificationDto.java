@@ -14,7 +14,9 @@ import lombok.Data;
 public class NotificationDto {
 
 	private Boolean isRead;
-	private String date;
+
+	@JsonProperty("date")
+	private String createdOn;
 
 	@JsonProperty("type")
 	private String notificationType;

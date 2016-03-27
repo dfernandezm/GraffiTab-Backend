@@ -3,6 +3,7 @@ package com.graffitab.server.service.user;
 import javax.annotation.Resource;
 
 import org.hibernate.Query;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,7 @@ public class LocationService {
 				toEdit.setAddress(address);
 				toEdit.setLatitude(latitude);
 				toEdit.setLongitude(longitude);
+				toEdit.setUpdatedOn(new DateTime());
 				return toEdit;
 			}
 			else {

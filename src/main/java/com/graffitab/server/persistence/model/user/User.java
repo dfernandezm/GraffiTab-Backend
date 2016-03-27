@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -29,6 +30,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
+import org.joda.time.DateTime;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,6 +42,7 @@ import com.graffitab.server.persistence.model.activity.Activity;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.streamable.Streamable;
+import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -139,6 +142,14 @@ public class User implements Identifiable<Long>, UserDetails {
 
 	@Column(name = "about", nullable = true)
 	private String about;
+
+	@Convert(converter = DateTimeToLongConverter.class)
+	@Column(name = "created_on", nullable = false)
+	private DateTime createdOn;
+
+	@Convert(converter = DateTimeToLongConverter.class)
+	@Column(name = "updated_on")
+	private DateTime updatedOn;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status")

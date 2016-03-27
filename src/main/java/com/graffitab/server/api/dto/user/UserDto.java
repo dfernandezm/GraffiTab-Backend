@@ -22,6 +22,8 @@ public class UserDto {
 	private String website;
 	private String about;
 	private Boolean followedByCurrentUser = Boolean.FALSE;
+	private String createdOn;
+	private String updatedOn;
 
 	@JsonProperty("avatar")
 	private AssetDto avatarAsset;

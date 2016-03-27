@@ -14,7 +14,8 @@ public class StreamableDto {
 
 	private Long id;
 	private UserDto user;
-	private String date;
+	private String createdOn;
+	private String updatedOn;
 
 	@JsonProperty(value = "type")
 	private String streamableType;

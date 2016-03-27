@@ -33,7 +33,7 @@ import lombok.Setter;
 			  + "join s.comments c "
 			  + "where s = :currentStreamable "
 			  + "and c.isDeleted = 'N' " // Enforce rules for hidden items.
-			  + "order by c.date desc"
+			  + "order by c.createdOn desc"
 	)
 })
 
@@ -62,12 +62,12 @@ public class Comment implements Identifiable<Long> {
 	private String text;
 
 	@Convert(converter = DateTimeToLongConverter.class)
-	@Column(name = "date", nullable = false)
-	private DateTime date;
+	@Column(name = "created_on", nullable = false)
+	private DateTime createdOn;
 
 	@Convert(converter = DateTimeToLongConverter.class)
-	@Column(name = "edit_date")
-	private DateTime editDate;
+	@Column(name = "updated_on")
+	private DateTime updatedOn;
 
 	@Convert(converter = BooleanToStringConverter.class)
 	@Column(name = "is_deleted", nullable = false)
@@ -85,7 +85,7 @@ public class Comment implements Identifiable<Long> {
 
 	public static Comment comment() {
 		Comment comment = new Comment();
-		comment.setDate(new DateTime());
+		comment.setCreatedOn(new DateTime());
 		comment.setIsDeleted(false);
 		return comment;
 	}

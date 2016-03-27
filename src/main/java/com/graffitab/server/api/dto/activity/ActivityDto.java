@@ -13,7 +13,8 @@ import lombok.Data;
 @JsonInclude(Include.NON_NULL)
 public class ActivityDto {
 
-	private String date;
+	@JsonProperty("date")
+	private String createdOn;
 
 	@JsonProperty("type")
 	private String activityType;

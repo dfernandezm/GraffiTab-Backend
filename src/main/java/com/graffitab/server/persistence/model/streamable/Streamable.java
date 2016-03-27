@@ -49,7 +49,7 @@ import lombok.Setter;
 			  + "from Streamable s "
 			  + "where s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and s.isPrivate = 'N' "
-			  + "order by s.date desc"
+			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
 		name = "Streamable.getPopularStreamables",
@@ -69,7 +69,7 @@ import lombok.Setter;
 			  + "where u = :currentUser "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and s.isPrivate = 'N' "
-			  + "order by s.date desc"
+			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
 		name = "Streamable.searchStreamablesAtLocation",
@@ -80,7 +80,7 @@ import lombok.Setter;
 			  + "and s.longitude >= :neLongitude and s.longitude <= :swLongitude "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and s.isPrivate = 'N' "
-			  + "order by s.date desc"
+			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
 		name = "Streamable.hashtagExistsForStreamable",
@@ -97,7 +97,7 @@ import lombok.Setter;
 			  + "where h like :tag "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and s.isPrivate = 'N' "
-			  + "order by s.date desc"
+			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
 		name = "Streamable.searchHashtags",
@@ -114,7 +114,7 @@ import lombok.Setter;
 			  + "where u = :currentUser "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and s.isPrivate = 'N' "
-			  + "order by s.date desc"
+			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
 		name = "Streamable.getUserFeed",
@@ -124,7 +124,7 @@ import lombok.Setter;
 			  + "where u = :currentUser "
 			  + "and f.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and f.isPrivate = 'N' "
-			  + "order by f.date desc"
+			  + "order by f.createdOn desc"
 	),
 	@NamedQuery(
 		name = "Streamable.getPrivateStreamables",
@@ -134,7 +134,7 @@ import lombok.Setter;
 			  + "where u = :currentUser "
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and s.isPrivate = 'Y' "
-			  + "order by s.date desc"
+			  + "order by s.createdOn desc"
 	)
 })
 
@@ -162,8 +162,12 @@ public abstract class Streamable implements Identifiable<Long> {
 	private User user;
 
 	@Convert(converter = DateTimeToLongConverter.class)
-	@Column(name = "date", nullable = false)
-	private DateTime date;
+	@Column(name = "created_on", nullable = false)
+	private DateTime createdOn;
+
+	@Convert(converter = DateTimeToLongConverter.class)
+	@Column(name = "updated_on")
+	private DateTime updatedOn;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "streamable_type", nullable = false, insertable = false, updatable = false)
@@ -219,7 +223,7 @@ public abstract class Streamable implements Identifiable<Long> {
 
 	public Streamable(StreamableType streamableType) {
 		this.streamableType = streamableType;
-		this.date = new DateTime();
+		this.createdOn = new DateTime();
 		this.isDeleted = false;
 		this.isFlagged = false;
 		this.isPrivate = false;

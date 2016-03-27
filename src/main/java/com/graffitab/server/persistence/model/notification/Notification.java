@@ -33,7 +33,7 @@ import lombok.Setter;
 			  + "from User u "
 			  + "join u.notifications n "
 			  + "where u = :currentUser "
-			  + "order by n.date desc"
+			  + "order by n.createdOn desc"
 	),
 	@NamedQuery(
 		name = "Notification.getUnreadNotificationsCount",
@@ -72,8 +72,8 @@ public abstract class Notification implements Identifiable<Long> {
 	private NotificationType notificationType;
 
 	@Convert(converter = DateTimeToLongConverter.class)
-	@Column(name = "date", nullable = false)
-	private DateTime date;
+	@Column(name = "created_on", nullable = false)
+	private DateTime createdOn;
 
 	@Override
 	public Long getId() {
@@ -91,7 +91,7 @@ public abstract class Notification implements Identifiable<Long> {
 
 	public Notification(NotificationType notificationType) {
 		this.notificationType = notificationType;
-		this.date = new DateTime();
+		this.createdOn = new DateTime();
 		this.isRead = false;
 	}
 }

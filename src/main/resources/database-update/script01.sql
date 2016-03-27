@@ -292,3 +292,19 @@ alter table activity add order_key int(11) not null;
 --changeset georgi:v100cs52
 alter table streamable add is_deleted varchar(10) NOT NULL DEFAULT 'N';
 alter table comment add is_deleted varchar(10) NOT NULL DEFAULT 'N';
+
+--changeset georgi:v100cs53
+ALTER TABLE activity CHANGE date created_on bigint(20) NOT NULL;
+ALTER TABLE comment CHANGE date created_on bigint(20) NOT NULL;
+alter table comment CHANGE edit_date updated_on bigint(20);
+alter table gt_user add created_on bigint(20) not null;
+alter table gt_user add updated_on bigint(20);
+alter table location add created_on bigint(20) not null;
+alter table location add updated_on bigint(20);
+ALTER TABLE notification CHANGE date created_on bigint(20) NOT NULL;
+ALTER TABLE session add created_on bigint(20) NOT NULL;
+ALTER TABLE streamable CHANGE date created_on bigint(20) NOT NULL;
+alter table streamable add updated_on bigint(20);
+
+--changeset georgi:v100cs54
+ALTER TABLE gt_user_metadata MODIFY metadata_value varchar(1000);

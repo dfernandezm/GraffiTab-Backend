@@ -33,7 +33,7 @@ import lombok.Setter;
 			  + "from User u "
 			  + "join u.activity a "
 			  + "where u = :currentUser "
-			  + "order by a.date desc"
+			  + "order by a.createdOn desc"
 	)
 })
 
@@ -61,8 +61,8 @@ public abstract class Activity implements Identifiable<Long> {
 	private ActivityType activityType;
 
 	@Convert(converter = DateTimeToLongConverter.class)
-	@Column(name = "date", nullable = false)
-	private DateTime date;
+	@Column(name = "created_on", nullable = false)
+	private DateTime createdOn;
 
 	@Override
 	public Long getId() {
@@ -80,7 +80,7 @@ public abstract class Activity implements Identifiable<Long> {
 
 	public Activity(ActivityType activityType) {
 		this.activityType = activityType;
-		this.date = new DateTime();
+		this.createdOn = new DateTime();
 	}
 
 	public boolean isSameTypeOfActivity(Activity other) {

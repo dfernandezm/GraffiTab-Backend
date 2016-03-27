@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,8 +16,10 @@ import javax.persistence.Version;
 
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
+import org.joda.time.DateTime;
 
 import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -57,12 +60,13 @@ public class UserSession implements Identifiable<Long>, Serializable{
 	@Lob @Basic
     private byte[] content;
 
+	@Convert(converter = DateTimeToLongConverter.class)
+	@Column(name = "created_on", nullable = false)
+	private DateTime createdOn;
+
 	@ManyToOne
     private User user;
 
 	@Version
     private Integer version;
-
-
-
 }

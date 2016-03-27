@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import org.hibernate.Query;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -110,6 +111,7 @@ public class StreamableService {
 					streamableGraffiti.setRoll(streamableGraffitiDto.getRoll());
 					streamableGraffiti.setYaw(streamableGraffitiDto.getYaw());
 					streamableGraffiti.setPitch(streamableGraffitiDto.getPitch());
+					streamableGraffiti.setUpdatedOn(new DateTime());
 
 					return new Triplet<Streamable, Asset, String>(streamable, assetToAdd, currentStreamableAssetGuid);
 				}
