@@ -662,7 +662,7 @@ public class UserService {
 		return query.list();
 	}
 
-	private User findUsersWithMetadataValues(String key, String value) {
+	public User findUsersWithMetadataValues(String key, String value) {
 		Query query = userDao.createNamedQuery("User.findUsersWithMetadataValues");
 		query.setParameter("metadataKey", key);
 		query.setParameter("metadataValue", value);

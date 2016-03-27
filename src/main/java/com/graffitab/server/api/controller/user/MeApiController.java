@@ -39,6 +39,7 @@ import com.graffitab.server.api.dto.user.ExternalProviderDto;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
 import com.graffitab.server.api.dto.user.result.GetFullUserResult;
 import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.errors.RestApiException;
@@ -49,8 +50,10 @@ import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
+import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.notification.NotificationService;
+import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.DeviceService;
 import com.graffitab.server.service.user.LocationService;
@@ -77,6 +80,9 @@ public class MeApiController {
 
 	@Resource
 	private LocationService locationService;
+
+	@Resource
+	private SocialNetworksService socialNetworksService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -372,9 +378,20 @@ public class MeApiController {
 	@RequestMapping(value = {"/social/friends"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getSocialFriends(
+	public ListItemsResult<UserSocialFriendsContainerDto> getSocialFriends(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
-		return streamableService.getLikedStreamablesForUserResult(userService.getCurrentUser().getId(), offset, limit);
+		return socialNetworksService.getSocialFriendsResult(offset, limit);
+	}
+
+	@RequestMapping(value = {"/social/{type}/friends"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public UserSocialFriendsContainerDto getSocialFriends(
+			@PathVariable("type") ExternalProviderType type,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="limit", required = false) Integer limit) {
+		UserSocialFriendsContainer container = socialNetworksService.getSocialFriendsForProviderResult(type, offset, limit);
+		return mapper.map(container, UserSocialFriendsContainerDto.class);
 	}
 }

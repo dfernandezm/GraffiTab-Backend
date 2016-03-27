@@ -2,17 +2,16 @@ package com.graffitab.server.service.email;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.sendgrid.SendGrid;
 import com.sendgrid.SendGridException;
 
+import lombok.extern.log4j.Log4j;
+
+@Log4j
 @Service
 public class SendgridEmailSenderService implements EmailSenderService {
-
-	private static Logger log = LogManager.getLogger();
 
 	private SendGrid sendGrid;
 
@@ -21,7 +20,7 @@ public class SendgridEmailSenderService implements EmailSenderService {
 	@PostConstruct
 	public void setupSendgrid() {
 		String apiKey = System.getenv(SENDGRID_API_KEY_ENVVAR_NAME);
-		log.debug("Setting up Sendgrid with API key: {}", apiKey);
+		log.debug("Setting up Sendgrid with API key: " + apiKey);
 		sendGrid = new SendGrid(apiKey);
 	}
 
