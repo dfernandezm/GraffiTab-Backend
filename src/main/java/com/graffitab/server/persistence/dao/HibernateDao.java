@@ -1,12 +1,12 @@
 package com.graffitab.server.persistence.dao;
 
+import java.io.Serializable;
+import java.util.List;
+
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-
-import java.io.Serializable;
-import java.util.List;
 
 public interface HibernateDao<E extends Identifiable<K>, K extends Serializable> extends GenericDao<E, K> {
 

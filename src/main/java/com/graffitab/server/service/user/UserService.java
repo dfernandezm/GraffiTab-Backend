@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.log4j.Log4j2;
+
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
@@ -45,8 +47,6 @@ import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
-
-import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -480,7 +480,7 @@ public class UserService {
 	}
 
 	public User follow(Long toFollowId) {
-		User currentUser = getCurrentUser();
+		final User currentUser = getCurrentUser();
 
 		Pair<User, Boolean> resultPair = transactionUtils.executeInTransactionWithResult(() -> {
 			User toFollow = findUserById(toFollowId);
@@ -494,8 +494,10 @@ public class UserService {
 				}
 
 				if (!currentUser.isFollowing(toFollow)) {
-					User innerCurrentUser = findUserById(currentUser.getId());
-					innerCurrentUser.getFollowing().add(toFollow);
+					//User innerCurrentUser = findUserById(currentUser.getId());
+					User innerUser = currentUser;
+					innerUser.getFollowing().add(toFollow);
+					merge(currentUser);
 					isFollowed = true;
 				}
 

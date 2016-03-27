@@ -2,14 +2,14 @@ package com.graffitab.server.api.mapper.notification;
 
 import javax.annotation.Resource;
 
+import ma.glasnost.orika.CustomMapper;
+import ma.glasnost.orika.MappingContext;
+
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.persistence.model.notification.NotificationLike;
 import com.graffitab.server.service.user.UserService;
-
-import ma.glasnost.orika.CustomMapper;
-import ma.glasnost.orika.MappingContext;
 
 @Component
 public class NotificationLikeMapper extends CustomMapper<NotificationLike, NotificationDto> {

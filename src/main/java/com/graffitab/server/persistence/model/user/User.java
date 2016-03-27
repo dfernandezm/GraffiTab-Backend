@@ -28,6 +28,9 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
 import org.joda.time.DateTime;
@@ -43,9 +46,6 @@ import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
-
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Created by david.

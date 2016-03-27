@@ -2,14 +2,14 @@ package com.graffitab.server.api.mapper;
 
 import javax.annotation.Resource;
 
+import ma.glasnost.orika.CustomMapper;
+import ma.glasnost.orika.MappingContext;
+
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.service.store.DatastoreService;
-
-import ma.glasnost.orika.CustomMapper;
-import ma.glasnost.orika.MappingContext;
 
 @Component
 public class AssetMapper extends CustomMapper<Asset, AssetDto> {

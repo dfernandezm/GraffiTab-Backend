@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
+import lombok.extern.log4j.Log4j2;
+
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.springframework.security.oauth2.common.util.SerializationUtils;
@@ -23,8 +25,6 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.UserSession;
 import com.graffitab.server.service.ProxyUtilities;
 import com.graffitab.server.service.TransactionUtils;
-
-import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2

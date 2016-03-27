@@ -7,6 +7,8 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
 
+import lombok.extern.log4j.Log4j;
+
 import org.hibernate.Query;
 import org.javatuples.Pair;
 import org.joda.time.DateTime;
@@ -27,8 +29,6 @@ import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
-
-import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service

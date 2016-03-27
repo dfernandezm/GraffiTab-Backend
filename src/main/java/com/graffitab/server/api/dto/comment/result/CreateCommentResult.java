@@ -1,8 +1,8 @@
 package com.graffitab.server.api.dto.comment.result;
 
-import com.graffitab.server.api.dto.comment.CommentDto;
-
 import lombok.Data;
+
+import com.graffitab.server.api.dto.comment.CommentDto;
 
 @Data
 public class CreateCommentResult {

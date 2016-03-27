@@ -2,14 +2,15 @@ package com.graffitab.server.service.notification;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -18,11 +19,20 @@ import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.Device.OSType;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.user.User;
+import com.graffitab.server.service.ProxyUtilities;
+import com.graffitab.server.service.TransactionUtils;
+import com.graffitab.server.service.user.UserService;
 
 @Service
 public class PushsenderNotificationSenderService implements NotificationSenderService {
 
 	private static Logger log = LogManager.getLogger();
+
+	@Resource
+	private TransactionUtils transactionUtils;
+
+	@Resource
+	private UserService userService;
 
 	private AsyncAndroidPushService androidService;
 	private GraffitabAsyncApplePushService appleService;
@@ -45,7 +55,7 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 		if (StringUtils.hasText(apnsCertificatePassword) && StringUtils.hasText(gcmKey)) {
 			androidService = new AsyncAndroidPushService(gcmKey);
 			try {
-				Resource resource = new ClassPathResource("certificates/APNS_Certificate_" + (PN_IS_PRODUCTION_ENVIRONMENT ? "Prod" : "Dev") + ".p12");
+				ClassPathResource resource = new ClassPathResource("certificates/APNS_Certificate_" + (PN_IS_PRODUCTION_ENVIRONMENT ? "Prod" : "Dev") + ".p12");
 				appleService = new GraffitabAsyncApplePushService(resource.getInputStream(), apnsCertificatePassword, PN_IS_PRODUCTION_ENVIRONMENT);
 			} catch (IOException e) {
 				log.error("Error reading APNS certificate", e);
@@ -69,8 +79,14 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 			String content = buildContentForNotification(notification);
 			Map<String, String> metadata = buildMetadataMapForNotification(notification);
 
+			List<Device> devices = transactionUtils.executeInTransactionWithResult(() -> {
+				User innerUser = userService.findUserById(user.getId());
+				ProxyUtilities.initializeObjectWithOneLevelCollections(innerUser.getDevices());
+				return innerUser.getDevices();
+			});
+
 			// Send PN to each of the user's devices.
-			for (Device device : user.getDevices()) {
+			for (Device device : devices) {
 				if (device.getOsType() == OSType.ANDROID) {
 					androidService.sendPush(title, content, metadata, device.getToken());
 				}

@@ -1,12 +1,12 @@
 package com.graffitab.server.api.dto.user;
 
+import lombok.Data;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.dto.asset.AssetDto;
-
-import lombok.Data;
 
 @Data
 @JsonInclude(Include.NON_NULL)

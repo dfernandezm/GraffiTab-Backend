@@ -2,12 +2,12 @@ package com.graffitab.server.service.email;
 
 import javax.annotation.PostConstruct;
 
+import lombok.extern.log4j.Log4j;
+
 import org.springframework.stereotype.Service;
 
 import com.sendgrid.SendGrid;
 import com.sendgrid.SendGridException;
-
-import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service

@@ -9,10 +9,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
 import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFilter;
-import com.graffitab.server.api.authentication.SessionInvalidationFilter;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.JsonLoginFailureHandler;
 import com.graffitab.server.api.authentication.JsonLoginSuccessHandler;
+import com.graffitab.server.api.authentication.SessionInvalidationFilter;
 
 @Configuration
 @Order(5) // one more than the latest block in GraffitabSecurityConfig

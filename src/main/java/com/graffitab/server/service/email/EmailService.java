@@ -7,9 +7,9 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import org.springframework.stereotype.Service;
-
 import lombok.extern.log4j.Log4j;
+
+import org.springframework.stereotype.Service;
 
 @Service
 @Log4j

@@ -5,11 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
-import com.graffitab.server.persistence.model.streamable.Streamable;
-import com.graffitab.server.persistence.model.user.User;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import com.graffitab.server.persistence.model.streamable.Streamable;
+import com.graffitab.server.persistence.model.user.User;
 
 @Getter
 @Setter

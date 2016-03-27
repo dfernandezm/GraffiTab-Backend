@@ -1,8 +1,8 @@
 package com.graffitab.server.api.dto.asset;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 public class AssetDto {

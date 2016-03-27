@@ -9,12 +9,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.graffitab.server.persistence.dao.Identifiable;
-import com.graffitab.server.util.GuidGenerator;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import com.graffitab.server.persistence.dao.Identifiable;
+import com.graffitab.server.util.GuidGenerator;
 
 @Getter
 @Setter

@@ -3,11 +3,11 @@ package com.graffitab.server.persistence.model.user;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 
 @Getter
 @Setter

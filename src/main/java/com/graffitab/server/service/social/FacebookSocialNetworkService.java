@@ -6,7 +6,10 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import lombok.extern.log4j.Log4j;
+
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.persistence.model.user.User;
@@ -19,7 +22,6 @@ import facebook4j.FacebookFactory;
 import facebook4j.Friend;
 import facebook4j.Reading;
 import facebook4j.auth.AccessToken;
-import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
@@ -42,11 +44,17 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 		String appId = System.getenv(FACEBOOK_APP_ID_ENVVAR_NAME);
 		String appSecret = System.getenv(FACEBOOK_APP_SECRET_ENVVAR_NAME);
 
-		if (appId != null && appSecret != null) {
-			log.debug("Setting up Facebook with APP ID: " + appId + " and APP SECRET: " + appSecret);
+		if (StringUtils.hasText(appId) && StringUtils.hasText(appSecret)) {
+			if (log.isDebugEnabled()) {
+				log.debug("Setting up Facebook with APP ID: " + appId + " and APP SECRET: " + appSecret);
+			}
 			facebook = new FacebookFactory().getInstance();
 			facebook.setOAuthAppId(appId, appSecret);
 			facebook.setOAuthPermissions("public_profile, email, user_friends");
+		} else {
+			if (log.isDebugEnabled()) {
+				log.debug("Facebook App ID or secret are not set -- getting social friends for Facebook won't work");
+			}
 		}
 	}
 

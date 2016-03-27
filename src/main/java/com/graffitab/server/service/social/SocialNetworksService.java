@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import lombok.extern.log4j.Log4j;
+
 import org.springframework.stereotype.Service;
 
 import com.graffitab.server.api.dto.ListItemsResult;
@@ -15,8 +17,6 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.user.UserService;
-
-import lombok.extern.log4j.Log4j;
 
 @Service
 @Log4j

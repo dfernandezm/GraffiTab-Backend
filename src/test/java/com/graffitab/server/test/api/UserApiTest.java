@@ -26,6 +26,7 @@ import javax.servlet.Filter;
 import javax.transaction.Transactional;
 
 import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.subethamail.wiser.Wiser;
@@ -53,11 +55,10 @@ import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
+import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
 import com.graffitab.server.service.email.EmailService;
-import com.graffitab.server.service.social.SocialNetworkService;
-import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
@@ -66,7 +67,6 @@ import com.graffitab.server.util.GuidGenerator;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={MainConfig.class, TestDatabaseConfig.class, WebConfig.class})
 @Rollback(value = true)
-@Transactional
 @ActiveProfiles("unit-test")
 public class UserApiTest {
 
@@ -82,6 +82,9 @@ public class UserApiTest {
 		@Resource
 		private HibernateDaoImpl<User, Long> userDao;
 
+		@Resource
+		private TransactionUtils transactionUtils;
+
 	    @Autowired
 	    private Filter springSecurityFilterChain;
 
@@ -90,6 +93,10 @@ public class UserApiTest {
 	    private MockMvc mockMvc;
 
 	    private static Integer currentSmtpPort;
+
+	    private static User user1;
+
+	    private static User user2;
 
 	    @Before
 	    public void setUp() throws Exception {
@@ -100,15 +107,16 @@ public class UserApiTest {
 	         wiser = startWiser();
 	         replaceEmailSenderService();
 	         replaceDatastoreService();
-	         replaceSocialNetworksService();
 	    }
 
 	    @After
 	    public void clear() {
-	    	// Nothing to do
+	    	//deleteUser(user1);
+	    	//deleteUser(user2);
 	    }
 
 	    @Test
+	    @Transactional
 	    public void getUserByIdTest() throws Exception {
 	    	User loggedInUser = createUser();
 	    	User testUser = createUser2();
@@ -122,7 +130,8 @@ public class UserApiTest {
 
 	    }
 
-//	    @Test
+	    @Test
+	    @Transactional
 	    public void createUserTest() throws Exception {
 	    	fillTestUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/user.json");
@@ -133,7 +142,7 @@ public class UserApiTest {
 	                .content(json))
 	                .andExpect(status().is(201))
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
-	                .andExpect(jsonPath("$.token").isNotEmpty());
+	                .andExpect(jsonPath("$.result").value("OK"));
 
 	    	pollForEmail(wiser);
 
@@ -143,27 +152,22 @@ public class UserApiTest {
 	    	assertEquals("Welcome to GraffiTab", message.getMimeMessage().getSubject());
 	    }
 
-//	    @Test
+	    @Test
 	    @Transactional
-	    @Rollback(value = true)
 	    public void followUserTest() throws Exception {
 	    	User currentUser = createUser();
 	    	User userToFollow = createUser2();
 
-	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
+	    	ResultActions ra = mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
 	    			.with(user(currentUser)))
 	                .andExpect(status().is(200))
-	                .andExpect(content().contentType("application/json;charset=UTF-8"))
-	                .andExpect(jsonPath("$.user.guid").isNotEmpty())
-	                .andExpect(jsonPath("$.user.email").isNotEmpty())
-	                .andExpect(jsonPath("$.user.followersCount").isNotEmpty())
-	                .andExpect(jsonPath("$.user.followingCount").isNotEmpty())
-	                .andExpect(jsonPath("$.user.streamablesCount").isNotEmpty());
-
+	                .andExpect(content().contentType("application/json;charset=UTF-8"));
+	    	assertFollowEndpointResponse(ra);
 	    	//TODO: complete test when possible to query following and followers
 	    }
 
-//	    @Test
+	    @Test
+	    @Transactional
 	    public void unFollowUserTest() throws Exception {
 	    	User currentUser = createUser();
 	    	User userToFollow = createUser2();
@@ -181,7 +185,9 @@ public class UserApiTest {
 	    	//TODO: Complete test when possible to query following and followers
 	    }
 
-//	    @Test
+	    @Test
+	    @Transactional
+	    @Rollback(value = true)
 	    public void addAssetTest() throws IOException, Exception {
 	    	User loggedInUser = createUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
@@ -204,6 +210,7 @@ public class UserApiTest {
 	    	testUser.setUsername("johnd");
 	    	testUser.setPassword("password");
 	    	testUser.setAccountStatus(AccountStatus.ACTIVE);
+	    	testUser.setCreatedOn(new DateTime());
 	    	testUser.setGuid(GuidGenerator.generate());
 	    	return testUser;
 	    }
@@ -215,21 +222,45 @@ public class UserApiTest {
 	    	testUser2.setEmail("janedoe@mailinator.com");
 	    	testUser2.setUsername("janed");
 	    	testUser2.setPassword("password2");
+	    	testUser2.setCreatedOn(new DateTime());
 	    	testUser2.setAccountStatus(AccountStatus.ACTIVE);
 	    	testUser2.setGuid(GuidGenerator.generate());
 	    	return testUser2;
 	    }
 
-	    private User createUser() {
-	    	User testUser = fillTestUser();
-	    	userDao.persist(testUser);
-	    	return testUser;
+		@Transactional
+	    public User createUser() {
+			User u = transactionUtils.executeInTransactionWithResult(() -> {
+				User testUser = fillTestUser();
+		    	userDao.persist(testUser);
+		    	user1 = testUser;
+		    	return testUser;
+			});
+
+			return u;
+
 	    }
 
-	    private User createUser2() {
-	    	User user = fillTestUser2();
-	    	userDao.persist(user);
-	    	return user;
+		public void deleteUser(User user) {
+			transactionUtils.executeInNewTransaction(() -> {
+				user.getFollowers().clear();
+				user.getFollowing().clear();
+				userDao.flush();
+				userDao.remove(user);
+			});
+		}
+
+		@Transactional
+	    public User createUser2() {
+			User u = transactionUtils.executeInTransactionWithResult(() -> {
+				User user = fillTestUser2();
+		    	userDao.persist(user);
+		    	user2 = user;
+		    	return user;
+			});
+
+			return u;
+
 	    }
 
 	    @SuppressWarnings("boxing")
@@ -264,14 +295,6 @@ public class UserApiTest {
 	    	DatastoreService testDatastoreService = new TestDatastoreService();
 	    	UserService unwrapped = (UserService) unwrapSpringProxy(userService);
 	    	ReflectionTestUtils.setField(unwrapped, "datastoreService", testDatastoreService);
-	    }
-
-	    private void replaceSocialNetworksService() throws Exception {
-	    	UserService unwrapped = (UserService) unwrapSpringProxy(userService);
-	    	SocialNetworksService socialNetworksService = (SocialNetworksService) ReflectionTestUtils.getField(unwrapped, "socialNetworksService");
-	    	SocialNetworkService testSocialNetworkService = new TestSocialNetworkService();
-	    	ReflectionTestUtils.setField(socialNetworksService, "facebookService", testSocialNetworkService);
-	    	ReflectionTestUtils.setField(userService, "socialNetworksService", socialNetworksService);
 	    }
 
 	    /**
@@ -370,12 +393,18 @@ public class UserApiTest {
 		}
 	}
 
-	public static class TestSocialNetworkService implements SocialNetworkService {
-
-		@Override
-		public List<User> getFriendsList(User user, Integer offset, Integer limit) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+	private ResultActions assertFollowEndpointResponse(ResultActions ra) throws Exception {
+		return ra.andExpect(jsonPath("$.user.username").isNotEmpty())
+				.andExpect(jsonPath("$.user.firstName").isNotEmpty())
+				.andExpect(jsonPath("$.user.lastName").isNotEmpty())
+				.andExpect(jsonPath("$.user.email").isNotEmpty())
+				.andExpect(jsonPath("$.user.followedByCurrentUser").value(true))
+				.andExpect(jsonPath("$.user.email").isNotEmpty())
+				.andExpect(jsonPath("$.user.createdOn").isNotEmpty())
+				.andExpect(jsonPath("$.user.followersCount").isNotEmpty())
+				.andExpect(jsonPath("$.user.followingCount").isNotEmpty())
+				.andExpect(jsonPath("$.user.streamablesCount").isNotEmpty());
 	}
+
+
 }

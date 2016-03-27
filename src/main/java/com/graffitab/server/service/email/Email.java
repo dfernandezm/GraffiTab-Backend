@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import com.amazonaws.util.IOUtils;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+
+import com.amazonaws.util.IOUtils;
 
 @Getter @Setter @Log4j2
 public class Email {

@@ -127,7 +127,6 @@ public class UserApiController extends BaseApiController {
 	}
 
 	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.DELETE)
-	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullUserResult unFollow(@PathVariable("id") Long userId) {
 		GetFullUserResult userProfileResult = new GetFullUserResult();
