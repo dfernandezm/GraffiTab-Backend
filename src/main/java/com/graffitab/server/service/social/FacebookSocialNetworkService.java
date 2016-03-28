@@ -41,10 +41,13 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 	public void setupFacebook() {
 		String appId = System.getenv(FACEBOOK_APP_ID_ENVVAR_NAME);
 		String appSecret = System.getenv(FACEBOOK_APP_SECRET_ENVVAR_NAME);
-		log.debug("Setting up Facebook with APP ID: " + appId + " and APP SECRET: " + appSecret);
-		facebook = new FacebookFactory().getInstance();
-		facebook.setOAuthAppId(appId, appSecret);
-		facebook.setOAuthPermissions("public_profile, email, user_friends");
+
+		if (appId != null && appSecret != null) {
+			log.debug("Setting up Facebook with APP ID: " + appId + " and APP SECRET: " + appSecret);
+			facebook = new FacebookFactory().getInstance();
+			facebook.setOAuthAppId(appId, appSecret);
+			facebook.setOAuthPermissions("public_profile, email, user_friends");
+		}
 	}
 
 	@Override
