@@ -1,3289 +1,1967 @@
 FORMAT: 1A
-HOST: http://graffitab.morenware.com/api/rest/
+HOST: http://localhost:8091/api/
 
-# GraffiTab API
+# GraffiTab Public API
 
-Make graffiti art and virtually spray it around for others to find and share. Use our API to quickly integrate GraffiTab's services in your application.
+Use our API to quickly integrate GraffiTab's services in your application.
 
-# Group User API
+# Group Users
 
-## Login and Register [/1]
+## Register [/1]
 
-### Register [POST /user/register]
- 
-To register without Facebook you should ignore the `externalId` field in the JSON request.
- 
+### Register [POST /users]
+
 + Request (application/json)
-
-        {"username":"john.smith", "password":"password", "firstName":"John", "lastName":"Smith", "email":"jsmith@gmail.com", "externalId":"1234567890"}
-
-+ Response 200 (application/json)
 
         {
-            "user": {
-            "id": 1,
-            "streamablesCount": 0,
-            "username": "john.smith",
-            "avatarId": 0,
-            "email": "jsmith@gmail.com",
-            "followersCount": 0,
-            "lastname": "Smith",
-            "coverId": 0,
-            "firstname": "John",
-            "followeesCount": 0,
-            "externalId": "1234567890",
-            "isFollowing": false
-          }
-        }
-        
-### Login [POST /user/login]
-
-Logs the user in and sets appropriate cookies.
-
-+ Request (application/json)
-
-        {"username":"john.smith", "password":"password"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.graffitab.com",
-            "email": "jsmith@gmail.com",
-            "about": "Some about information.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-### Logout [GET /user/logout]
-
-Logs the user out and clears the cookie from the HTTP headers.
-
-+ Response 200 (application/json)
-
-        {}
-        
-### Verify External User [POST /user/verifyExternalUser]
-
-Checks whether a user with the specified `externalId` exists and returns that user.
-
-+ Request (application/json)
-
-        {"externalId":"1191950632"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-### Check Login Status [GET /user/checkLoginStatus]
-
-Returns the current logged in user if their session is valid.
-
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-### Link External Id [POST /user/linkExternalId]
-
-Links an `externalId` to the current logged in user.
-
-+ Request (application/json)
-
-        {"externalId":"1191950632"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-       
-## Edit Profile [/2]
-        
-### Edit Password [POST /user/editPassword]
-
-Updates the user password. The user's current password is checked before the changes are applied.
-
-+ Request (application/json)
-
-        {"password":"password", "newPassword":"newpassword"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.graffitab.com",
-            "email": "jsmith@gmail.com",
-            "about": "Some about information.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-### Edit Profile [POST /user/editProfile]
-
-Updates the user profile. All fields must be included in the request.
-
-+ Request (application/json)
-
-        {"email":"jsmith@gmail.com", "about":"This is John.", "website":"www.google.com", "firstName":"John", "lastName":"Smith"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-
-### Reset Password [POST /user/resetPassword]
-
-If the email exists and is linked to a user, they will receive an email with instructions on how to reset their password.
-
-+ Request (application/json)
-
-        {"email":"jsmith@gmail.com"}
-        
-+ Response 200 (application/json)
-
-        {}
-
-### Edit Avatar [POST /user/editAvatar]
-
-Updates the user avatar. The `encodedImage` field must contain a Base64 encoded image.
-
-+ Request (application/json)
-
-        {"encodedImage":"BASE_64_ENCODED_IMAGE"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-
-### Edit Cover [POST /user/editCover]
-
-Updates the user cover image. The `encodedImage` field must contain a Base64 encoded image.
-
-+ Request (application/json)
-
-        {"encodedImage":"BASE_64_ENCODED_IMAGE"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-
-## Profile Metadata [/3]
-
-### Get Cover Image [GET /user/getCoverImage?{coverId}=14]
-
-Returns the image as a byte stream.
-
-+ Parameters
-    + coverId (number) - ID of the cover image for the user
-    
-+ Response 200 (application/json)
-
-        Specified image as a byte stream.
-
-### Get Avatar Image [GET /user/getAvatarImage?{avatarId}=14]
-
-Returns the image as a byte stream.
-
-+ Parameters
-    + avatarId (number) - ID of the avatar image for the user
-    
-+ Response 200 (application/json)
-
-        Specified image as a byte stream.
-        
-### Get Avatar Image for Username [GET /user/getAvatarImage?{username}=john.smith]
-
-Returns the image as a byte stream.
-
-+ Parameters
-    + username (string) - the username of the user
-    
-+ Response 200 (application/json)
-
-        Specified image as a byte stream.
-        
-### Find User for Username [POST /user/findUserForUsername]
-
-Returns a user if the specified `username` exists.
-
-+ Request (application/json)
-
-        {"username":"john.smith"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-### Get Full Profile [POST /user/fullProfile]
-
-Returns the full user profile for the specified `userId`.
-
-+ Request (application/json)
-
-        {"userId":"86"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-## Followers [/4]
-        
-### Follow [POST /user/follow]
-
-Returns the user that has been followed as a result. The logged in user starts following a user with the specified `userId`.
-
-+ Request (application/json)
-
-        {"userId":"12"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-### Unfollow [POST /user/unfollow]
-
-Returns the user that has been unfollowed as a result. The logged in user stops following a user with the specified `userId`.
-
-+ Request (application/json)
-
-        {"userId":"12"}
-        
-+ Response 200 (application/json)
-
-        {
-          "user": {
-            "id": 86,
-            "streamablesCount": 22,
-            "username": "john.smith",
-            "avatarId": 92,
-            "website": "www.google.com",
-            "email": "jsmith@gmail.com",
-            "about": "This is John.",
-            "followersCount": 1,
-            "lastname": "Smith",
-            "coverId": 28,
-            "firstname": "John",
-            "followeesCount": 4,
-            "externalId": "1191950632",
-            "isFollowing": false
-          }
-        }
-        
-### Get Followers [POST /user/getFollowers]
-
-Returns a subset of the list of followers for the specified user.
-
-+ Request (application/json)
-
-        {"userId":"92", "offset":"0", "count":"12"}
-        
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            }
-          ]
-        }
-        
-### Get Following [POST /user/getFollowing]
-
-Returns a subset of the list of followees for the specified user.
-
-+ Request (application/json)
-
-        {"userId":"92", "offset":"0", "count":"12"}
-        
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 94,
-              "streamablesCount": 0,
-              "username": "angel",
-              "avatarId": 0,
-              "email": "test3@test.com",
-              "followersCount": 1,
-              "lastname": "Hristov",
-              "coverId": 0,
-              "firstname": "Angel",
-              "followeesCount": 1,
-              "isFollowing": true
-            },
-            {
-              "id": 93,
-              "streamablesCount": 3,
-              "username": "lussi",
-              "avatarId": 93,
-              "email": "test2@test.com",
-              "followersCount": 3,
-              "lastname": "Hristova",
-              "coverId": 0,
-              "firstname": "Lussi",
-              "followeesCount": 1,
-              "isFollowing": true
-            }
-          ]
-        }
-        
-## User lists [/5]
-        
-### Get Most Active [POST /user/getMostActive]
-
-Returns a subset of the list of most active users.
-
-+ Request (application/json)
-
-        {"offset":"0", "count":"12"}
-        
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 94,
-              "streamablesCount": 0,
-              "username": "angel",
-              "avatarId": 0,
-              "email": "test3@test.com",
-              "followersCount": 1,
-              "lastname": "Hristov",
-              "coverId": 0,
-              "firstname": "Angel",
-              "followeesCount": 1,
-              "isFollowing": true
-            },
-            {
-              "id": 93,
-              "streamablesCount": 3,
-              "username": "lussi",
-              "avatarId": 93,
-              "email": "test2@test.com",
-              "followersCount": 3,
-              "lastname": "Hristova",
-              "coverId": 0,
-              "firstname": "Lussi",
-              "followeesCount": 1,
-              "isFollowing": true
-            }
-          ]
-        }
-        
-### Find Social Friends [POST /user/findSocialNetworkFriends]
-
-Returns a list of users that the logged in user might know. The provided list of `socialIds` is used to check whether these users are registered already.
-
-+ Request (application/json)
-
-        {"socialIds":[12345], "offset":"0", "count":"12"}
-        
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 94,
-              "streamablesCount": 0,
-              "username": "angel",
-              "avatarId": 0,
-              "email": "test3@test.com",
-              "followersCount": 1,
-              "lastname": "Hristov",
-              "coverId": 0,
-              "firstname": "Angel",
-              "followeesCount": 1,
-              "isFollowing": true
-            },
-            {
-              "id": 93,
-              "streamablesCount": 3,
-              "username": "lussi",
-              "avatarId": 93,
-              "email": "test2@test.com",
-              "followersCount": 3,
-              "lastname": "Hristova",
-              "coverId": 0,
-              "firstname": "Lussi",
-              "followeesCount": 1,
-              "isFollowing": true
-            }
-          ]
-        }
-        
-# Group Search API
-
-## Search Users [/21]
-
-### Search Users [POST /search/user]
- 
-Returns a list of users whose `username`, `firstName` or `lastName` contain the `query` paramter.
- 
-+ Request (application/json)
-
-        {"query":"jsmith", "offset":"0", "count":"12"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 97,
-              "streamablesCount": 0,
-              "username": "john.smith",
-              "avatarId": 0,
-              "email": "john.smith@test.com",
-              "followersCount": 0,
-              "lastname": "Smith",
-              "coverId": 0,
-              "firstname": "John",
-              "followeesCount": 0,
-              "isFollowing": false
-            }
-          ]
-        }
-
-## Search Hashtags [/22]
-
-### Search Hashtag [POST /search/hashtag]
- 
-Searches for all graffiti that have been tagged with a speciffic `query` hashtag.
- 
-+ Request (application/json)
-
-        {"query":"tag", "offset":"0", "count":"12"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "width": 320,
-              "likesCount": 1,
-              "commentsCount": 5,
-              "date": 1434372109305,
-              "type": "TAG",
-              "id": 136,
-              "height": 568,
-              "isPrivate": false,
-              "isLiked": true,
-              "graffitiId": 136,
-              "longitude": -0.1337,
-              "latitude": 51.50998,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "isFlagged": false
-            }
-          ]
-        }
-        
-### Search Hashtags [POST /search/hashtags]
- 
-Returns all existing hashtag strings that contain the `query` parameter.
-
-+ Request (application/json)
-
-        {"query":"test", "offset":"0", "count":"12"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            "test1",
-            "test2"
-          ]
-        }
-       
-# Group Notifications API
-
-## Notifications [/31]
-
-### Get Notifications [POST /notification/get]
-
-Returns a subset of the notifications for the current user.
-
-+ Request (application/json)
-
-        {"offset":"0", "count":"12"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 14,
-              "follower": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "type": "FOLLOW",
-              "date": 1435930907631,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "isRead": true
-            }
-          ]
-        }
-        
-### Get Number of Unseen Notifications [GET /notification/getUnseenCount]
-
-Returns the number of unseen notifications for the current user.
-    
-+ Response 200 (application/json)
-
-        {
-          "count": 0
-        }
-        
-## Activity [/32]
-        
-### Get Followers Activity [POST /activity/get]
-
-Returns the activity of the users that the current user is following. The `groupItemsCount` parameter specifies how many items of the same type should be grouped together.
-
-+ Request (application/json)
-
-        {"offset":"0", "count":"12", "groupItemsCount":"6"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "activityUser": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "activities": [
-                {
-                  "id": 431,
-                  "follower": {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  },
-                  "followedUser": {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  },
-                  "type": "FOLLOW",
-                  "date": 1435930907632,
-                  "user": {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  }
-                }
-              ],
-              "type": "FOLLOW",
-              "date": 1435930907632
-            },
-            {
-              "activityUser": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "activities": [
-                {
-                  "id": 392,
-                  "item": {
-                    "width": 300,
-                    "likesCount": 1,
-                    "commentsCount": 0,
-                    "date": 1431121080879,
-                    "type": "TAG",
-                    "id": 115,
-                    "height": 180,
-                    "isPrivate": false,
-                    "isLiked": true,
-                    "graffitiId": 116,
-                    "longitude": -0.1337,
-                    "latitude": 51.50998,
-                    "user": {
-                      "id": 93,
-                      "streamablesCount": 3,
-                      "username": "lussi",
-                      "avatarId": 93,
-                      "email": "test2@test.com",
-                      "followersCount": 3,
-                      "lastname": "Hristova",
-                      "coverId": 0,
-                      "firstname": "Lussi",
-                      "followeesCount": 1,
-                      "isFollowing": true
-                    },
-                    "isFlagged": false
-                  },
-                  "type": "CREATE_STREAMABLE",
-                  "date": 1431121080979,
-                  "user": {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  },
-                  "creator": {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  }
-                },
-                {
-                  "id": 389,
-                  "item": {
-                    "width": 320,
-                    "likesCount": 0,
-                    "commentsCount": 0,
-                    "date": 1431121070591,
-                    "type": "TAG",
-                    "id": 114,
-                    "height": 568,
-                    "isPrivate": false,
-                    "isLiked": false,
-                    "graffitiId": 115,
-                    "longitude": -0.1337,
-                    "latitude": 51.50998,
-                    "user": {
-                      "id": 93,
-                      "streamablesCount": 3,
-                      "username": "lussi",
-                      "avatarId": 93,
-                      "email": "test2@test.com",
-                      "followersCount": 3,
-                      "lastname": "Hristova",
-                      "coverId": 0,
-                      "firstname": "Lussi",
-                      "followeesCount": 1,
-                      "isFollowing": true
-                    },
-                    "isFlagged": false
-                  },
-                  "type": "CREATE_STREAMABLE",
-                  "date": 1431121070692,
-                  "user": {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  },
-                  "creator": {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  }
-                }
-              ],
-              "type": "CREATE_STREAMABLE",
-              "date": 1431121080979
-            },
-            {
-              "activityUser": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "activities": [
-                {
-                  "id": 386,
-                  "item": {
-                    "width": 320,
-                    "likesCount": 2,
-                    "commentsCount": 1,
-                    "date": 1431120972855,
-                    "type": "TAG",
-                    "id": 113,
-                    "height": 568,
-                    "isPrivate": false,
-                    "isLiked": true,
-                    "graffitiId": 114,
-                    "longitude": -0.1337,
-                    "latitude": 51.50998,
-                    "user": {
-                      "id": 93,
-                      "streamablesCount": 3,
-                      "username": "lussi",
-                      "avatarId": 93,
-                      "email": "test2@test.com",
-                      "followersCount": 3,
-                      "lastname": "Hristova",
-                      "coverId": 0,
-                      "firstname": "Lussi",
-                      "followeesCount": 1,
-                      "isFollowing": true
-                    },
-                    "isFlagged": false
-                  },
-                  "commenter": {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  },
-                  "type": "COMMENT",
-                  "date": 1431121008002,
-                  "comment": {
-                    "id": 237,
-                    "text": "sd",
-                    "date": 1431121007963,
-                    "itemId": 113,
-                    "user": {
-                      "id": 93,
-                      "streamablesCount": 3,
-                      "username": "lussi",
-                      "avatarId": 93,
-                      "email": "test2@test.com",
-                      "followersCount": 3,
-                      "lastname": "Hristova",
-                      "coverId": 0,
-                      "firstname": "Lussi",
-                      "followeesCount": 1,
-                      "isFollowing": true
-                    }
-                  },
-                  "user": {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  }
-                }
-              ],
-              "type": "COMMENT",
-              "date": 1431121008002
-            },
-            {
-              "activityUser": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "activities": [
-                {
-                  "id": 383,
-                  "liker": {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  },
-                  "item": {
-                    "width": 320,
-                    "likesCount": 2,
-                    "commentsCount": 1,
-                    "date": 1431120972855,
-                    "type": "TAG",
-                    "id": 113,
-                    "height": 568,
-                    "isPrivate": false,
-                    "isLiked": true,
-                    "graffitiId": 114,
-                    "longitude": -0.1337,
-                    "latitude": 51.50998,
-                    "user": {
-                      "id": 93,
-                      "streamablesCount": 3,
-                      "username": "lussi",
-                      "avatarId": 93,
-                      "email": "test2@test.com",
-                      "followersCount": 3,
-                      "lastname": "Hristova",
-                      "coverId": 0,
-                      "firstname": "Lussi",
-                      "followeesCount": 1,
-                      "isFollowing": true
-                    },
-                    "isFlagged": false
-                  },
-                  "type": "LIKE",
-                  "date": 1431121003368,
-                  "user": {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  }
-                }
-              ],
-              "type": "LIKE",
-              "date": 1431121003368
-            },
-            {
-              "activityUser": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "activities": [
-                {
-                  "id": 380,
-                  "item": {
-                    "width": 320,
-                    "likesCount": 2,
-                    "commentsCount": 1,
-                    "date": 1431120972855,
-                    "type": "TAG",
-                    "id": 113,
-                    "height": 568,
-                    "isPrivate": false,
-                    "isLiked": true,
-                    "graffitiId": 114,
-                    "longitude": -0.1337,
-                    "latitude": 51.50998,
-                    "user": {
-                      "id": 93,
-                      "streamablesCount": 3,
-                      "username": "lussi",
-                      "avatarId": 93,
-                      "email": "test2@test.com",
-                      "followersCount": 3,
-                      "lastname": "Hristova",
-                      "coverId": 0,
-                      "firstname": "Lussi",
-                      "followeesCount": 1,
-                      "isFollowing": true
-                    },
-                    "isFlagged": false
-                  },
-                  "type": "CREATE_STREAMABLE",
-                  "date": 1431120973045,
-                  "user": {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  },
-                  "creator": {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  }
-                }
-              ],
-              "type": "CREATE_STREAMABLE",
-              "date": 1431120973045
-            }
-          ]
-        }
-       
-# Group Locations API
-        
-## List Locations [/41]
-
-### Get All Locations [GET /location/get]
-
-Returns all locations for the current user.
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 32,
-              "address": "Cupertino‎ CA‎ 95014, United States",
-              "longitude": -122.029566,
-              "latitude": 37.3320289,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              }
-            },
-            {
-              "id": 30,
-              "address": "Coventry Street, London, England, W1J, United Kingdom",
-              "longitude": -0.1337113,
-              "latitude": 51.5100686,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              }
-            }
-          ]
-        }
-        
-## Edit Locations [/42]
-        
-### Delete Locations [POST /location/delete]
-
-Deletes all locations specified in the `locationIds` list for the current user.
-
-+ Request (application/json)
-
-        {"locationIds":[10, 9, 11]}
-
-+ Response 200 (application/json)
-
-        {}
-        
-### Create Location [POST /location/create]
-
-Creates a new location for the current user.
-
-+ Request (application/json)
-
-        {"address":"91 Goswell Road, Kulu Valley", "latitude":"55.12345", "longitude":"4.1234"}
-
-+ Response 200 (application/json)
-
-        {
-          "location": {
-            "id": 33,
-            "address": "91 Goswell Road, Kulu Valley",
-            "longitude": 4.1234,
-            "latitude": 55.12345,
-            "user": {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            }
-          }
-        }
-        
-#Group Feedback API
-        
-## Send Feedback [/51]
-
-### Send Feedback [POST /feedback/send]
-
-+ Request (application/json)
-
-        {"name":"Georgi", "email":"georgi.christov89@gmail.com", "text":"This is an awesome app :)"}
-
-+ Response 200 (application/json)
-
-        {}
-        
-#Group Devices API
-        
-## Registration [/61]
-
-These services are used by the app to register the user devices for push notifications.
-
-### Register Device [POST /device/register]
-
-Registers a new device for push notifications.
-
-+ Request (application/json)
-
-        {"token":"DEVICE_TOKEN", "os":"IOS|ANDROID"}
-
-+ Response 200 (application/json)
-
-        {}
-        
-### Unregister Device [POST /device/unregister]
-
-Unregisters the device with the specified `token`.
-
-+ Request (application/json)
-
-        {"token":"DEVICE_TOKEN"}
-
-+ Response 200 (application/json)
-
-        {}
-        
-# Group Conversations API
-
-## Edit Conversations [/71]
-
-### Create Conversation [POST /conversation/create]
- 
-Creates a new conversation between all users included in the `receiverIds` list and adds the first message whose author is the current user.
- 
-+ Request (application/json)
-
-        {"receiverIds":["26", "27"], "title":"Random banter", "text":"This is the first comment."}
-
-+ Response 200 (application/json)
-
-        {
-          "conversation": {
-            "id": 104,
-            "unseenMessagesCount": 0,
-            "imageId": 0,
-            "name": "Random banter",
-            "lastMessage": {
-              "id": 594,
-              "text": "This is the first comment.",
-              "state": "ACTIVE",
-              "conversationId": 104,
-              "date": 1444990861723,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "seenByUsers": []
-            },
-            "members": [
-              {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              {
-                "id": 91,
-                "streamablesCount": 0,
-                "username": "tinalovesmetal",
-                "avatarId": 0,
-                "email": "test@test.com",
-                "followersCount": 1,
-                "lastname": "Petros",
-                "coverId": 0,
-                "firstname": "Tina",
-                "followeesCount": 0,
-                "isFollowing": true
-              }
-            ]
-          }
-        }
-        
-### Edit Conversation Name [POST /conversation/editName]
- 
-Updates the conversation name.
- 
-+ Request (application/json)
-
-        {"conversationId":"95", "title":"Family"}
-
-+ Response 200 (application/json)
-        
-        {
-          "conversation": {
-            "id": 95,
-            "unseenMessagesCount": 0,
-            "imageId": 39,
-            "name": "Family",
-            "lastMessage": {
-              "id": 591,
-              "text": "asd",
-              "state": "ACTIVE",
-              "conversationId": 95,
-              "date": 1431120952088,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "seenByUsers": [
-                {
-                  "id": 93,
-                  "streamablesCount": 3,
-                  "username": "lussi",
-                  "avatarId": 93,
-                  "email": "test2@test.com",
-                  "followersCount": 3,
-                  "lastname": "Hristova",
-                  "coverId": 0,
-                  "firstname": "Lussi",
-                  "followeesCount": 1,
-                  "isFollowing": true
-                },
-                {
-                  "id": 86,
-                  "streamablesCount": 23,
-                  "username": "masterofpuppets",
-                  "avatarId": 96,
-                  "website": "www.digitalgrafiti.com",
-                  "email": "georgi.christov89@gmail.com",
-                  "about": "This is Georgi.",
-                  "followersCount": 1,
-                  "lastname": "Christov",
-                  "coverId": 28,
-                  "firstname": "Georgi",
-                  "followeesCount": 4,
-                  "externalId": "1191950632",
-                  "isFollowing": false
-                }
-              ]
-            },
-            "members": [
-              {
-                "id": 92,
-                "streamablesCount": 0,
-                "username": "maiabg98",
-                "avatarId": 0,
-                "email": "test1@test.com",
-                "followersCount": 1,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Maia",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              {
-                "id": 94,
-                "streamablesCount": 0,
-                "username": "angel",
-                "avatarId": 0,
-                "email": "test3@test.com",
-                "followersCount": 1,
-                "lastname": "Hristov",
-                "coverId": 0,
-                "firstname": "Angel",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              {
-                "id": 91,
-                "streamablesCount": 0,
-                "username": "tinalovesmetal",
-                "avatarId": 0,
-                "email": "test@test.com",
-                "followersCount": 1,
-                "lastname": "Petros",
-                "coverId": 0,
-                "firstname": "Tina",
-                "followeesCount": 0,
-                "isFollowing": true
-              }
-            ]
-          }
-        }
-
-### Edit Conversation Image [POST /conversation/editImage]
-
-Updates the image for the specified conversation. The `encodedImage` field must contain a Base64 encoded image.
-
-+ Request (application/json)
-
-        {"conversationId":"95", "encodedImage":"BASE_64_ENCODED_IMAGE"}
-        
-+ Response 200 (application/json)
-
-        {
-          "conversation": {
-            "id": 95,
-            "unseenMessagesCount": 0,
-            "imageId": 42,
-            "name": "Family",
-            "lastMessage": {
-              "id": 591,
-              "text": "asd",
-              "state": "ACTIVE",
-              "conversationId": 95,
-              "date": 1431120952088,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "seenByUsers": [
-                {
-                  "id": 93,
-                  "streamablesCount": 3,
-                  "username": "lussi",
-                  "avatarId": 93,
-                  "email": "test2@test.com",
-                  "followersCount": 3,
-                  "lastname": "Hristova",
-                  "coverId": 0,
-                  "firstname": "Lussi",
-                  "followeesCount": 1,
-                  "isFollowing": true
-                },
-                {
-                  "id": 86,
-                  "streamablesCount": 23,
-                  "username": "masterofpuppets",
-                  "avatarId": 96,
-                  "website": "www.digitalgrafiti.com",
-                  "email": "georgi.christov89@gmail.com",
-                  "about": "This is Georgi.",
-                  "followersCount": 1,
-                  "lastname": "Christov",
-                  "coverId": 28,
-                  "firstname": "Georgi",
-                  "followeesCount": 4,
-                  "externalId": "1191950632",
-                  "isFollowing": false
-                }
-              ]
-            },
-            "members": [
-              {
-                "id": 92,
-                "streamablesCount": 0,
-                "username": "maiabg98",
-                "avatarId": 0,
-                "email": "test1@test.com",
-                "followersCount": 1,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Maia",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              {
-                "id": 94,
-                "streamablesCount": 0,
-                "username": "angel",
-                "avatarId": 0,
-                "email": "test3@test.com",
-                "followersCount": 1,
-                "lastname": "Hristov",
-                "coverId": 0,
-                "firstname": "Angel",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              {
-                "id": 91,
-                "streamablesCount": 0,
-                "username": "tinalovesmetal",
-                "avatarId": 0,
-                "email": "test@test.com",
-                "followersCount": 1,
-                "lastname": "Petros",
-                "coverId": 0,
-                "firstname": "Tina",
-                "followeesCount": 0,
-                "isFollowing": true
-              }
-            ]
-          }
-        }
-
-## Actions [/72]
-
-### Leave Conversation [POST /conversation/leave]
- 
-The current user is removed from the specified conversation. If there are no more users associated with the conversation, it is automatically deleted.
- 
-+ Request (application/json)
-
-        {"conversationId":"7"}
-
-+ Response 200 (application/json)
-
-        {}
-        
-### Add Users [POST /conversation/addUsers]
- 
-Adds the specified users to the conversation.
- 
-+ Request (application/json)
-
-        {"receiverIds":["91", "92"], "conversationId":"95"}
-
-+ Response 200 (application/json)
-
-        {
-          "conversation": {
-            "id": 104,
-            "unseenMessagesCount": 2,
-            "imageId": 0,
-            "name": "Random banter",
-            "lastMessage": {
-              "id": 595,
-              "text": "This is a message.",
-              "state": "ACTIVE",
-              "conversationId": 104,
-              "date": 1444991660040,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "seenByUsers": []
-            },
-            "members": [
-              {
-                "id": 91,
-                "streamablesCount": 0,
-                "username": "tinalovesmetal",
-                "avatarId": 0,
-                "email": "test@test.com",
-                "followersCount": 1,
-                "lastname": "Petros",
-                "coverId": 0,
-                "firstname": "Tina",
-                "followeesCount": 0,
-                "isFollowing": true
-              },
-              {
-                "id": 97,
-                "streamablesCount": 0,
+            "user":{
                 "username": "john.smith",
-                "avatarId": 0,
-                "email": "john.smith@test.com",
-                "followersCount": 0,
-                "lastname": "Smith",
-                "coverId": 0,
-                "firstname": "John",
-                "followeesCount": 0,
-                "isFollowing": false
-              }
-            ]
-          }
+                "firstName": "John",
+                "lastName": "Smith",
+                "password": "password1",
+                "email": "john.smith@email.com"
+            }
         }
-        
-### Post Message [POST /conversation/postMessage]
- 
-Creates a new message in the specified conversation. The author of the message is the current user.
- 
-+ Request (application/json)
-
-        {"conversationId":"27", "text":"This is a message."}
 
 + Response 200 (application/json)
 
         {
-          "message": {
-            "id": 595,
-            "text": "This is a message.",
-            "state": "ACTIVE",
-            "conversationId": 104,
-            "date": 1444991660040,
-            "user": {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
+            "result": "OK"
+        }
+
+### Register with external provider [POST /users/externalproviders]
+
++ Request (application/json)
+
+        {
+            "user":{
+                "username": "juanito",
+                "firstName": "Juanito",
+                "lastName": "Rodríguez",
+                "password": "password",
+                "email": "pepe@pepe.com"
             },
-            "seenByUsers": []
-          }
+            "externalId":"1234567890",
+            "accessToken":"OAUTH_TOKEN",
+            "externalProviderType":"FACEBOOK"
         }
-        
-### Show Typing Indicator [POST /conversation/showTypingIndicator]
- 
-Sends push notifications to all members of the conversation to notify them that the current user is typing.
- 
-+ Request (application/json)
-
-        {"conversationId":"104"}
-
-+ Response 200 (application/json)
-
-        {}
-        
-### Hide Typing Indicator [POST /conversation/hideTypingIndicator]
- 
-Sends push notifications to all members of the conversation to notify them that the current user has stopped typing.
- 
-+ Request (application/json)
-
-        {"conversationId":"104"}
-
-+ Response 200 (application/json)
-
-        {}
-        
-### Get Unseen Messages Count [POST /conversation/getUnseenCount]
- 
-Returns the number of conversations that contain messages that the user has not seen yet.
 
 + Response 200 (application/json)
 
         {
-          "count": 0
+            "result": "OK"
         }
-        
-## List Conversations [/73]
 
-### Get Conversations [POST /conversation/get]
- 
-Returns a subset of the conversations for the current user.
- 
+### Activate account [GET /users/activate/{token}]
+
++ Parameters
+    + token (string) - The activation token associated with the user profile.
+    
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+## Login [/2]
+
+### Login [POST /login]
+
 + Request (application/json)
 
-        {"offset":"0", "count":"12"}
+        {
+            "username":"john.smith", 
+            "password":"password"
+        }
 
 + Response 200 (application/json)
 
         {
-          "items": [
-            {
-              "id": 103,
-              "unseenMessagesCount": 0,
-              "imageId": 0,
-              "lastMessage": {
-                "id": 590,
-                "text": "Yo ",
-                "state": "ACTIVE",
-                "conversationId": 103,
-                "date": 1430984433879,
-                "user": {
-                  "id": 86,
-                  "streamablesCount": 23,
-                  "username": "masterofpuppets",
-                  "avatarId": 96,
-                  "website": "www.digitalgrafiti.com",
-                  "email": "georgi.christov89@gmail.com",
-                  "about": "This is Georgi.",
-                  "followersCount": 1,
-                  "lastname": "Christov",
-                  "coverId": 28,
-                  "firstname": "Georgi",
-                  "followeesCount": 4,
-                  "externalId": "1191950632",
-                  "isFollowing": false
-                },
-                "seenByUsers": [
-                  {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  },
-                  {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  }
-                ]
-              },
-              "members": [
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+            }
+        }
+
+### Login with external provider [POST /externalproviders/login]
+
++ Request (application/json)
+
+        {
+            "externalProvider":{
+                "externalId":"1234567890",
+                "accessToken":"OAUTH_TOKEN",
+                "externalProviderType":"FACEBOOK"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+            }
+        }
+
+### Logout [POST /logout]
+
++ Response 200 (application/json)
+
+        {}
+
+### Request password reset [POST /users/resetpassword]
+
++ Request (application/json)
+
+        {
+            "email":"jsmith@gmail.com"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+### Reset password [PUT /users/resetpassword/{token}]
+
++ Parameters
+    + token (string) - The password reset token.
+
++ Request (application/json)
+
+        {
+            "password":"password"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+## Profile [/5]
+
+### Get profile [GET /users/{id}]
+
++ Parameters
+    + id (number) - The ID of the user to get.
+    
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+            }
+        }
+
+### Get full profile [GET /users/{id}/profile]
+
++ Parameters
+    + id (number) - The ID of the user to get.
+    
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000",
+                "followersCount": "123",
+                "followingCount": "12",
+                "streamablesCount": "54"
+            }
+        }
+
+### Get profile by username [GET /users/{username}]
+
++ Parameters
+    + username (string) - The username of the user to get.
+    
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+            }
+        }
+
+### Get full profile by username [GET /users/{username}/profile]
+
++ Parameters
+    + username (string) - The username of the user to get.
+    
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000",
+                "followersCount": "123",
+                "followingCount": "12",
+                "streamablesCount": "54"
+            }
+        }
+
+## Followers [/6]
+
+### Follow [POST /users/{id}/followers]
+
++ Parameters
+    + id (number) - The ID of the user to follow.
+    
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000",
+                "followersCount": "123",
+                "followingCount": "12",
+                "streamablesCount": "54"
+            }
+        }
+
+### Unfollow [DELETE /users/{id}/followers]
+
++ Parameters
+    + id (number) - The ID of the user to unfollow.
+    
++ Response 200 (application/json)
+
+        {
+            "user": {
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000",
+                "followersCount": "123",
+                "followingCount": "12",
+                "streamablesCount": "54"
+            }
+        }
+
+### Get followers [GET /users/{id}/followers]
+
++ Parameters
+    + id (number) - The ID of the user.
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
                 {
-                  "id": 93,
-                  "streamablesCount": 3,
-                  "username": "lussi",
-                  "avatarId": 93,
-                  "email": "test2@test.com",
-                  "followersCount": 3,
-                  "lastname": "Hristova",
-                  "coverId": 0,
-                  "firstname": "Lussi",
-                  "followeesCount": 1,
-                  "isFollowing": true
-                },
-                {
-                  "id": 86,
-                  "streamablesCount": 23,
-                  "username": "masterofpuppets",
-                  "avatarId": 96,
-                  "website": "www.digitalgrafiti.com",
-                  "email": "georgi.christov89@gmail.com",
-                  "about": "This is Georgi.",
-                  "followersCount": 1,
-                  "lastname": "Christov",
-                  "coverId": 28,
-                  "firstname": "Georgi",
-                  "followeesCount": 4,
-                  "externalId": "1191950632",
-                  "isFollowing": false
+                    "id": 40,
+                    "guid": "8DThjgKFjJpJj",
+                    "username": "john.smith",
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@email.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
                 }
-              ]
-            },
-            {
-              "id": 101,
-              "unseenMessagesCount": 0,
-              "imageId": 0,
-              "name": "Chat with family",
-              "lastMessage": {
-                "id": 589,
-                "text": "@masterofpuppets @maiabg98 ",
-                "state": "ACTIVE",
-                "conversationId": 101,
-                "date": 1430921173871,
-                "user": {
-                  "id": 86,
-                  "streamablesCount": 23,
-                  "username": "masterofpuppets",
-                  "avatarId": 96,
-                  "website": "www.digitalgrafiti.com",
-                  "email": "georgi.christov89@gmail.com",
-                  "about": "This is Georgi.",
-                  "followersCount": 1,
-                  "lastname": "Christov",
-                  "coverId": 28,
-                  "firstname": "Georgi",
-                  "followeesCount": 4,
-                  "externalId": "1191950632",
-                  "isFollowing": false
-                },
-                "seenByUsers": [
-                  {
-                    "id": 86,
-                    "streamablesCount": 23,
-                    "username": "masterofpuppets",
-                    "avatarId": 96,
-                    "website": "www.digitalgrafiti.com",
-                    "email": "georgi.christov89@gmail.com",
-                    "about": "This is Georgi.",
-                    "followersCount": 1,
-                    "lastname": "Christov",
-                    "coverId": 28,
-                    "firstname": "Georgi",
-                    "followeesCount": 4,
-                    "externalId": "1191950632",
-                    "isFollowing": false
-                  },
-                  {
-                    "id": 93,
-                    "streamablesCount": 3,
-                    "username": "lussi",
-                    "avatarId": 93,
-                    "email": "test2@test.com",
-                    "followersCount": 3,
-                    "lastname": "Hristova",
-                    "coverId": 0,
-                    "firstname": "Lussi",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  },
-                  {
-                    "id": 94,
-                    "streamablesCount": 0,
-                    "username": "angel",
-                    "avatarId": 0,
-                    "email": "test3@test.com",
-                    "followersCount": 1,
-                    "lastname": "Hristov",
-                    "coverId": 0,
-                    "firstname": "Angel",
-                    "followeesCount": 1,
-                    "isFollowing": true
-                  }
-                ]
-              },
-              "members": [
-                {
-                  "id": 92,
-                  "streamablesCount": 0,
-                  "username": "maiabg98",
-                  "avatarId": 0,
-                  "email": "test1@test.com",
-                  "followersCount": 1,
-                  "lastname": "Hristova",
-                  "coverId": 0,
-                  "firstname": "Maia",
-                  "followeesCount": 1,
-                  "isFollowing": true
-                },
-                {
-                  "id": 86,
-                  "streamablesCount": 23,
-                  "username": "masterofpuppets",
-                  "avatarId": 96,
-                  "website": "www.digitalgrafiti.com",
-                  "email": "georgi.christov89@gmail.com",
-                  "about": "This is Georgi.",
-                  "followersCount": 1,
-                  "lastname": "Christov",
-                  "coverId": 28,
-                  "firstname": "Georgi",
-                  "followeesCount": 4,
-                  "externalId": "1191950632",
-                  "isFollowing": false
-                },
-                {
-                  "id": 96,
-                  "streamablesCount": 0,
-                  "username": "angel.antonov",
-                  "avatarId": 0,
-                  "email": "test4@test.com",
-                  "followersCount": 0,
-                  "lastname": "Antonov",
-                  "coverId": 0,
-                  "firstname": "Angel",
-                  "followeesCount": 0,
-                  "isFollowing": false
-                },
-                {
-                  "id": 94,
-                  "streamablesCount": 0,
-                  "username": "angel",
-                  "avatarId": 0,
-                  "email": "test3@test.com",
-                  "followersCount": 1,
-                  "lastname": "Hristov",
-                  "coverId": 0,
-                  "firstname": "Angel",
-                  "followeesCount": 1,
-                  "isFollowing": true
-                },
-                {
-                  "id": 93,
-                  "streamablesCount": 3,
-                  "username": "lussi",
-                  "avatarId": 93,
-                  "email": "test2@test.com",
-                  "followersCount": 3,
-                  "lastname": "Hristova",
-                  "coverId": 0,
-                  "firstname": "Lussi",
-                  "followeesCount": 1,
-                  "isFollowing": true
-                }
-              ]
-            }
-          ]
-        }
-
-### Get Messages [POST /conversation/getMessages]
- 
-Returns a subset of the messages for a conversation.
- 
-+ Request (application/json)
-
-        {"conversationId":"27", "offset":"0", count:"12"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 594,
-              "text": "This is the first comment.",
-              "state": "ACTIVE",
-              "conversationId": 104,
-              "date": 1444990861723,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "seenByUsers": []
-            }
-          ]
-        }
-        
-## Conversation Metadata [/74]
-
-### Get Conversation Image [GET /conversation/getImage?{conversationImageId}=14]
-
-Returns the image as a byte stream.
-
-+ Parameters
-    + conversationImageId (number) - ID of the image for the conversation
-    
-+ Response 200 (application/json)
-
-        Specified image as a byte stream.
-        
-## Messages [/75]
-
-### Edit Message [POST /message/edit]
- 
-Update the text for the specified message.
- 
-+ Request (application/json)
-
-        {"messageId":"27", "text":"This is a new message."}
-
-+ Response 200 (application/json)
-
-        {
-          "message": {
-            "id": 457,
-            "text": "This is a new message.",
-            "state": "ACTIVE",
-            "conversationId": 95,
-            "date": 1444992642987,
-            "user": {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "seenByUsers": [
-              {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              {
-                "id": 91,
-                "streamablesCount": 0,
-                "username": "tinalovesmetal",
-                "avatarId": 0,
-                "email": "test@test.com",
-                "followersCount": 1,
-                "lastname": "Petros",
-                "coverId": 0,
-                "firstname": "Tina",
-                "followeesCount": 0,
-                "isFollowing": true
-              },
-              {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              }
             ]
-          }
         }
-        
-### Delete Messages [POST /message/delete]
 
-Deletes all messages specified in the `messageIds` list for the current user.
-
-+ Request (application/json)
-
-        {"messageIds":["27", "28"]}
-
-+ Response 200 (application/json)
-
-        {}
-        
-# Group Streamables API
-
-## Comments [/81]
-
-### Post Comment [POST /streamable/comments/post]
-
-Creates a new comment for the specified `streamable`. The author of the comment is the current user.
-
-+ Request (application/json)
-
-        {"streamableId":"139", "text":"This is a comment."}
-
-+ Response 200 (application/json)
-
-        {
-          "comment": {
-            "id": 248,
-            "text": "This is the first comment.",
-            "date": 1445249508783,
-            "itemId": 139,
-            "user": {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            }
-          }
-        }
-        
-### Get Comments [POST /streamable/comments/get]
-
-Returns a subset of the comments for this `streamable`.
-
-+ Request (application/json)
-
-        {"streamableId":"139", "offset":"0", "count":"4"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 248,
-              "text": "This is the first comment.",
-              "date": 1445249508783,
-              "itemId": 139,
-              "user": {
-                "id": 86,
-                "streamablesCount": 23,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              }
-            }
-          ]
-        }
-        
-### Edit Comment [POST /streamable/comments/edit]
-
-Edits the text for the specified comment. Only the original author of the comment can change its text.
-
-+ Request (application/json)
-
-        {"commentId":"248", "text":"This is an edit test"}
-
-+ Response 200 (application/json)
-
-        {
-          "comment": {
-            "id": 248,
-            "text": "This is an edit test",
-            "date": 1445250123747,
-            "itemId": 139,
-            "user": {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            }
-          }
-        }
-        
-### Delete Comment [POST /streamable/comments/delete]
-
-Deletes all comments with the ids specified in `commentIds`.
-
-+ Request (application/json)
-
-        {"commentIds":[11, 12]}
-
-+ Response 200 (application/json)
-
-        {}
-        
-## Likes [/82]
-
-### Like [POST /streamable/likes/like]
-
-Adds a new `like` for the specified `streamable`. The author of the like is the current user.
-
-+ Request (application/json)
-
-        {"streamableId":"139"}
-
-+ Response 200 (application/json)
-
-        {
-          "streamable": {
-            "width": 320,
-            "likesCount": 1,
-            "commentsCount": 1,
-            "date": 1444068158730,
-            "type": "TAG",
-            "id": 139,
-            "height": 568,
-            "isPrivate": false,
-            "isLiked": true,
-            "graffitiId": 139,
-            "longitude": -0.1337,
-            "latitude": 51.50998,
-            "user": {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": false
-          }
-        }
-        
-### Unlike [POST /streamable/likes/unlike]
-
-Remove this user's `like` for the specified `streamable`.
-
-+ Request (application/json)
-
-        {"streamableId":"139"}
-
-+ Response 200 (application/json)
-
-        {
-          "streamable": {
-            "width": 320,
-            "likesCount": 0,
-            "commentsCount": 1,
-            "date": 1444068158730,
-            "type": "TAG",
-            "id": 139,
-            "height": 568,
-            "isPrivate": false,
-            "isLiked": true,
-            "graffitiId": 139,
-            "longitude": -0.1337,
-            "latitude": 51.50998,
-            "user": {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": false
-          }
-        }
-        
-### Get Likers [POST /streamable/likes/get]
-
-Get a subset of this `streamable`'s likes.
-
-+ Request (application/json)
-
-        {"streamableId":"40", "offset":"0", "count":"4"}
-
-+ Response 200 (application/json)
-
-        {
-          "items": [
-            {
-              "id": 93,
-              "streamablesCount": 3,
-              "username": "lussi",
-              "avatarId": 93,
-              "email": "test2@test.com",
-              "followersCount": 3,
-              "lastname": "Hristova",
-              "coverId": 0,
-              "firstname": "Lussi",
-              "followeesCount": 1,
-              "isFollowing": true
-            },
-            {
-              "id": 86,
-              "streamablesCount": 23,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            }
-          ]
-        }
-        
-## Graffiti [/83]
-
-### Create Graffiti [POST /streamable/tag/create]
-
-Creates a new graffiti. The author of the graffiti is the current user. The `encodedImage` field must contain a Base64 encoded image.
-
-+ Request (application/json)
-
-        {"latitude":"55.4", "longitude":"-4.5", "encodedImage":"BASE_64_ENCODED_IMAGE"}
-
-+ Response 200 (application/json)
-
-        {
-          "streamable": {
-            "width": 1024,
-            "likesCount": 0,
-            "commentsCount": 0,
-            "date": 1445251398664,
-            "type": "TAG",
-            "id": 140,
-            "height": 255,
-            "isPrivate": false,
-            "graffitiId": 140,
-            "longitude": -4.5,
-            "latitude": 55.4,
-            "user": {
-              "id": 86,
-              "streamablesCount": 24,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": false
-          }
-        }
-        
-### Edit Graffiti [POST /streamable/tag/edit]
-
-Edit the specified graffiti. Only the original author can edit the graffiti. The `encodedImage` field must contain a Base64 encoded image.
-
-+ Request (application/json)
-
-        {"streamableId":"40", "latitude":"51.4", "longitude":"-1.5", "encodedImage":"BASE_64_ENCODED_IMAGE"}
-
-+ Response 200 (application/json)
-
-        {
-          "streamable": {
-            "width": 1024,
-            "likesCount": 0,
-            "commentsCount": 0,
-            "date": 1445251398664,
-            "type": "TAG",
-            "id": 140,
-            "height": 255,
-            "isPrivate": false,
-            "graffitiId": 140,
-            "longitude": -4.5,
-            "latitude": 55.4,
-            "user": {
-              "id": 86,
-              "streamablesCount": 24,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": false
-          }
-        }
-        
-### Get Graffiti Image [GET /streamable/tag/getImage?{graffitiId}=14]
-
-Returns the image as a byte stream.
+### Get following [GET /users/{id}/following]
 
 + Parameters
-    + graffitiId (number) - ID of the image for the graffiti
+    + id (number) - The ID of the user.
     
 + Response 200 (application/json)
 
-        Specified image as a byte stream.
-        
-### Get Graffiti Thumbnail [GET /streamable/tag/getThumbnail?{graffitiThumbnailId}=14]
+        {
+            "items": [
+                {
+                    "id": 40,
+                    "guid": "8DThjgKFjJpJj",
+                    "username": "john.smith",
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@email.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+                }
+            ]
+        }
 
-Returns the image as a byte stream.
+## Streamables [/7]
+
+### Get user streamables [GET /users/{id}/streamables]
 
 + Parameters
-    + graffitiThumbnailId (number) - ID of the image for the graffiti
+    + id (number) - The ID of the user.
     
 + Response 200 (application/json)
 
-        Specified image as a byte stream.
-        
-### Get Graffiti for Location [POST /streamable/tag/getForLocation]
-
-Returns a subset of the graffiti within a certain geographical region.
-
-+ Request (application/json)
-
-        {"neLatitude":"55.4", "neLongitude":"4.0", "swLatitude":"55.4", "swLongitude":"4.0", "offset":"0", "count":"12"}
-
-+ Response 200 (application/json)
-
         {
-          "items": [
-            {
-              "width": 300,
-              "likesCount": 1,
-              "commentsCount": 0,
-              "date": 1431121080879,
-              "type": "TAG",
-              "id": 115,
-              "height": 180,
-              "isPrivate": false,
-              "isLiked": true,
-              "graffitiId": 116,
-              "longitude": -0.1337,
-              "latitude": 51.50998,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "isFlagged": false
-            },
-            {
-              "width": 320,
-              "likesCount": 0,
-              "commentsCount": 0,
-              "date": 1431121070591,
-              "type": "TAG",
-              "id": 114,
-              "height": 568,
-              "isPrivate": false,
-              "isLiked": false,
-              "graffitiId": 115,
-              "longitude": -0.1337,
-              "latitude": 51.50998,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "isFlagged": false
-            },
-            {
-              "width": 320,
-              "likesCount": 2,
-              "commentsCount": 1,
-              "date": 1431120972855,
-              "type": "TAG",
-              "id": 113,
-              "height": 568,
-              "isPrivate": false,
-              "isLiked": true,
-              "graffitiId": 114,
-              "longitude": -0.1337,
-              "latitude": 51.50998,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "isFlagged": false
-            }
-          ]
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
         }
-        
-### Get Graffiti for User [POST /streamable/tag/getForUser]
 
-Returns a subset of the graffiti for the specified user.
+# Most active [/8]
 
-+ Request (application/json)
-
-        {"userId":"93", "offset":"0", "count":"12"}
-
+### Get most active users [GET /users/mostactive]
+    
 + Response 200 (application/json)
 
         {
-          "items": [
-            {
-              "width": 300,
-              "likesCount": 1,
-              "commentsCount": 0,
-              "date": 1431121080879,
-              "type": "TAG",
-              "id": 115,
-              "height": 180,
-              "isPrivate": false,
-              "isLiked": true,
-              "graffitiId": 116,
-              "longitude": -0.1337,
-              "latitude": 51.50998,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "isFlagged": false
-            },
-            {
-              "width": 320,
-              "likesCount": 0,
-              "commentsCount": 0,
-              "date": 1431121070591,
-              "type": "TAG",
-              "id": 114,
-              "height": 568,
-              "isPrivate": false,
-              "isLiked": false,
-              "graffitiId": 115,
-              "longitude": -0.1337,
-              "latitude": 51.50998,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "isFlagged": false
-            },
-            {
-              "width": 320,
-              "likesCount": 2,
-              "commentsCount": 1,
-              "date": 1431120972855,
-              "type": "TAG",
-              "id": 113,
-              "height": 568,
-              "isPrivate": false,
-              "isLiked": true,
-              "graffitiId": 114,
-              "longitude": -0.1337,
-              "latitude": 51.50998,
-              "user": {
-                "id": 93,
-                "streamablesCount": 3,
-                "username": "lussi",
-                "avatarId": 93,
-                "email": "test2@test.com",
-                "followersCount": 3,
-                "lastname": "Hristova",
-                "coverId": 0,
-                "firstname": "Lussi",
-                "followeesCount": 1,
-                "isFollowing": true
-              },
-              "isFlagged": false
-            }
-          ]
+            "items": [
+                {
+                    "id": 40,
+                    "guid": "8DThjgKFjJpJj",
+                    "username": "john.smith",
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@email.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+                }
+            ]
         }
-        
-### Delete Graffiti [POST /streamable/delete]
 
-Deletes all graffiti specified in the `streamableIds`.
+# Likes [/9]
 
-+ Request (application/json)
-
-        {"streamableIds":[25, 29]}
-
-+ Response 200 (application/json)
-
-        {}
-
-## Graffiti Metadata [/84]
-        
-### Full Graffiti Info [POST /streamable/fullInfo]
-
-Returns the full metadata information for the specified graffiti.
-
-+ Request (application/json)
-
-        {"streamableId":"79"}
-
+### Get user liked streamables [GET /users/{id}/liked]
+    
 + Response 200 (application/json)
 
         {
-          "streamable": {
-            "width": 1024,
-            "likesCount": 0,
-            "commentsCount": 0,
-            "date": 1445251398664,
-            "type": "TAG",
-            "id": 140,
-            "height": 255,
-            "isPrivate": false,
-            "isLiked": false,
-            "graffitiId": 140,
-            "longitude": -4.5,
-            "latitude": 55.4,
+            "items": [
+                {
+                    "isRead": false,
+                    "liker": {
+                        "id": 30,
+                        "guid": "P4aESkf6nLS17",
+                        "username": "mike",
+                        "firstName": "Mike",
+                        "lastName": "Langmayr",
+                        "email": "test@test.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000"
+                    },
+                    "likedStreamable": {
+                        "id": 5,
+                        "user": {
+                            "id": 29,
+                            "guid": "wYaGeNOHt8pyH",
+                            "username": "georgi",
+                            "firstName": "Georgi",
+                            "lastName": "Christov",
+                            "email": "georgi.christov89@gmail.com",
+                            "followedByCurrentUser": false,
+                            "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                            "avatar": {
+                                "guid": "zf7e73KJvpR22",
+                                "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                                "type": "IMAGE"
+                            },
+                            "cover": {
+                                "guid": "XHhUF4tNpceT6",
+                                "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                                "type": "IMAGE"
+                            }
+                        },
+                        "createdOn": "Mon, 14 Mar 2016 13:38:57 +0000",
+                        "isPrivate": false,
+                        "isFlagged": false,
+                        "asset": {
+                            "guid": "gRRK8N0oeJOv0",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/gRRK8N0oeJOv0",
+                            "type": "IMAGE"
+                        },
+                        "latitude": 55.123,
+                        "longitude": 3.123456,
+                        "roll": 12.3,
+                        "yaw": 13.4,
+                        "pitch": 1.234,
+                        "likersCount": 0,
+                        "commentsCount": 0,
+                        "type": "GRAFFITI"
+                    },
+                    "date": "Sat, 26 Mar 2016 15:35:41 +0000",
+                    "type": "LIKE"
+                }
+            ]
+        }
+
+# Search [/10]
+
+### Search [GET /users/search?query={query}]
+
++ Parameters
+    + query (string) - The query to search for.
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 40,
+                    "guid": "8DThjgKFjJpJj",
+                    "username": "john.smith",
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@email.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+                }
+            ]
+        }
+
+# Group Me
+
+## Profile [/4]
+
+### Get me [GET /users/me]
+    
++ Response 200 (application/json)
+
+        {
             "user": {
-              "id": 86,
-              "streamablesCount": 25,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": false
-          }
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+            }
         }
-     
-## Actions [/85]
 
-### Make Private [POST /streamable/makePrivate]
-
-Marks the specified graffiti as private.
-
-+ Request (application/json)
-
-        {"streamableId":"79"}
-
+### Get full profile [GET /users/me/profile]
+    
 + Response 200 (application/json)
 
         {
-          "streamable": {
-            "width": 1024,
-            "likesCount": 0,
-            "commentsCount": 0,
-            "date": 1445251398664,
-            "type": "TAG",
-            "id": 140,
-            "height": 255,
-            "isPrivate": true,
-            "isLiked": false,
-            "graffitiId": 140,
-            "longitude": -4.5,
-            "latitude": 55.4,
             "user": {
-              "id": 86,
-              "streamablesCount": 25,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": false
-          }
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000",
+                "followersCount": "123",
+                "followingCount": "12",
+                "streamablesCount": "54"
+            }
         }
-        
-### Make Public [POST /streamable/makePublic]
 
-Marks the specified graffiti as public.
+## Edit [/3]
+
+### Change password [PUT /users/me/changepassword]
 
 + Request (application/json)
 
-        {"streamableId":"79"}
-
+        {"currentPassword":"currentPassword", "newPassword":"newPassword"}
+        
 + Response 200 (application/json)
 
         {
-          "streamable": {
-            "width": 1024,
-            "likesCount": 0,
-            "commentsCount": 0,
-            "date": 1445251398664,
-            "type": "TAG",
-            "id": 140,
-            "height": 255,
-            "isPrivate": false,
-            "isLiked": false,
-            "graffitiId": 140,
-            "longitude": -4.5,
-            "latitude": 55.4,
+            "result": "OK"
+        }
+
+### Edit profile [PUT /users/me]
+
++ Request (application/json)
+
+        {
             "user": {
-              "id": 86,
-              "streamablesCount": 25,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": false
-          }
+                "firstName": "John",
+                "lastName": "Smith",
+                "about": "This is John",
+                "website": "www.google.com"
+            }
         }
-        
-### Flag [POST /streamable/flag]
-
-Flags the specified graffiti.
-
-+ Request (application/json)
-
-        {"streamableId":"79"}
 
 + Response 200 (application/json)
 
         {
-          "streamable": {
-            "width": 1024,
-            "likesCount": 0,
-            "commentsCount": 0,
-            "date": 1445251398664,
-            "type": "TAG",
-            "id": 140,
-            "height": 255,
-            "isPrivate": false,
-            "isLiked": false,
-            "graffitiId": 140,
-            "longitude": -4.5,
-            "latitude": 55.4,
             "user": {
-              "id": 86,
-              "streamablesCount": 25,
-              "username": "masterofpuppets",
-              "avatarId": 96,
-              "website": "www.digitalgrafiti.com",
-              "email": "georgi.christov89@gmail.com",
-              "about": "This is Georgi.",
-              "followersCount": 1,
-              "lastname": "Christov",
-              "coverId": 28,
-              "firstname": "Georgi",
-              "followeesCount": 4,
-              "externalId": "1191950632",
-              "isFollowing": false
-            },
-            "isFlagged": true
-          }
+                "id": 40,
+                "guid": "8DThjgKFjJpJj",
+                "username": "john.smith",
+                "firstName": "John",
+                "lastName": "Smith",
+                "email": "john.smith@email.com",
+                "followedByCurrentUser": false,
+                "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+            }
         }
-        
-## Lists [/86]
 
-### Latest Graffiti [POST /streamable/latest]
-
-Returns a subset of the most receit graffiti.
+### Edit avatar [PUT /users/me/avatar]
 
 + Request (application/json)
-
-        {"offset":"0", "count":"12"}
 
 + Response 200 (application/json)
 
         {
-          "items": [
-            {
-              "id": 141,
-              "height": 10,
-              "isPrivate": false,
-              "likesCount": 0,
-              "width": 10,
-              "videoId": 1,
-              "isLiked": false,
-              "commentsCount": 0,
-              "type": "VIDEO",
-              "date": 1445252147675,
-              "user": {
-                "id": 86,
-                "streamablesCount": 25,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "isFlagged": false
+            "asset": {
+                "guid": "g1h3nmn43",
+                "type": "IMAGE",
+                "link": "DOWNLOAD_LINK"
             }
-          ]
         }
-        
-### User Stream [POST /streamable/userStream]
 
-Returns a subset of the home stream for the specified user.
-
-+ Request (application/json)
-
-        {"userId":"26", "offset":"0", "count":"12"}
+### Delete avatar [DELETE /users/me/avatar]
 
 + Response 200 (application/json)
 
         {
-          "items": [
-            {
-              "id": 141,
-              "height": 10,
-              "isPrivate": false,
-              "likesCount": 0,
-              "width": 10,
-              "videoId": 1,
-              "isLiked": false,
-              "commentsCount": 0,
-              "type": "VIDEO",
-              "date": 1445252147675,
-              "user": {
-                "id": 86,
-                "streamablesCount": 25,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "isFlagged": false
-            }
-          ]
+            "result": "OK"
         }
-        
-### User Favourites [POST /streamable/userFavourites]
 
-Returns a subset of the favourite graffiti for the specified user.
+### Edit cover [PUT /users/me/cover]
 
 + Request (application/json)
-
-        {"userId":"26", "offset":"0", "count":"12"}
 
 + Response 200 (application/json)
 
         {
-          "items": [
-            {
-              "id": 141,
-              "height": 10,
-              "isPrivate": false,
-              "likesCount": 0,
-              "width": 10,
-              "videoId": 1,
-              "isLiked": false,
-              "commentsCount": 0,
-              "type": "VIDEO",
-              "date": 1445252147675,
-              "user": {
-                "id": 86,
-                "streamablesCount": 25,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "isFlagged": false
+            "asset": {
+                "guid": "g1h3nmn43",
+                "type": "IMAGE",
+                "link": "DOWNLOAD_LINK"
             }
-          ]
         }
-        
-### Popular Graffiti [POST /streamable/popular]
 
-Returns a subset of the most popular graffiti.
-
-+ Request (application/json)
-
-        {"offset":"0", "count":"12"}
+### Delete cover [DELETE /users/me/cover]
 
 + Response 200 (application/json)
 
         {
-          "items": [
-            {
-              "id": 141,
-              "height": 10,
-              "isPrivate": false,
-              "likesCount": 0,
-              "width": 10,
-              "videoId": 1,
-              "isLiked": false,
-              "commentsCount": 0,
-              "type": "VIDEO",
-              "date": 1445252147675,
-              "user": {
-                "id": 86,
-                "streamablesCount": 25,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "isFlagged": false
-            }
-          ]
+            "result": "OK"
         }
-        
-### Private Graffiti [POST /streamable/getPrivate]
 
-Returns a subset of the privater graffiti for the current user.
+## Notifications [/11]
 
-+ Request (application/json)
-
-        {"offset":"0", "count":"12"}
+### Get notifications [GET /users/me/notifications]
 
 + Response 200 (application/json)
 
         {
-          "items": [
-            {
-              "id": 141,
-              "height": 10,
-              "isPrivate": false,
-              "likesCount": 0,
-              "width": 10,
-              "videoId": 1,
-              "isLiked": false,
-              "commentsCount": 0,
-              "type": "VIDEO",
-              "date": 1445252147675,
-              "user": {
-                "id": 86,
-                "streamablesCount": 25,
-                "username": "masterofpuppets",
-                "avatarId": 96,
-                "website": "www.digitalgrafiti.com",
-                "email": "georgi.christov89@gmail.com",
-                "about": "This is Georgi.",
-                "followersCount": 1,
-                "lastname": "Christov",
-                "coverId": 28,
-                "firstname": "Georgi",
-                "followeesCount": 4,
-                "externalId": "1191950632",
-                "isFollowing": false
-              },
-              "isFlagged": false
+            "items": [
+                {
+                    "isRead": false,
+                    "liker": {
+                        "id": 30,
+                        "guid": "P4aESkf6nLS17",
+                        "username": "mike",
+                        "firstName": "Mike",
+                        "lastName": "Langmayr",
+                        "email": "test@test.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000"
+                    },
+                    "likedStreamable": {
+                        "id": 5,
+                        "user": {
+                            "id": 29,
+                            "guid": "wYaGeNOHt8pyH",
+                            "username": "georgi",
+                            "firstName": "Georgi",
+                            "lastName": "Christov",
+                            "email": "georgi.christov89@gmail.com",
+                            "followedByCurrentUser": false,
+                            "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                            "avatar": {
+                                "guid": "zf7e73KJvpR22",
+                                "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                                "type": "IMAGE"
+                            },
+                            "cover": {
+                                "guid": "XHhUF4tNpceT6",
+                                "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                                "type": "IMAGE"
+                            }
+                        },
+                        "createdOn": "Mon, 14 Mar 2016 13:38:57 +0000",
+                        "isPrivate": false,
+                        "isFlagged": false,
+                        "asset": {
+                            "guid": "gRRK8N0oeJOv0",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/gRRK8N0oeJOv0",
+                            "type": "IMAGE"
+                        },
+                        "latitude": 55.123,
+                        "longitude": 3.123456,
+                        "roll": 12.3,
+                        "yaw": 13.4,
+                        "pitch": 1.234,
+                        "likersCount": 0,
+                        "commentsCount": 0,
+                        "type": "GRAFFITI"
+                    },
+                    "date": "Sat, 26 Mar 2016 15:35:41 +0000",
+                    "type": "LIKE"
+                }
+            ]
+        }
+
+### Get number of unread notifications [GET /users/me/notifications/unreadcount]
+
++ Response 200 (application/json)
+
+        {
+            "count": "12"
+        }
+
+## Locations [/12]
+
+### Create location [POST /users/me/locations]
+
++ Request (application/json)
+
+        {
+            "location":{
+                "address": "Flat 9, West End Court",
+                "latitude": 55.43234,
+                "longitude": 3.12345
             }
-          ]
+        }
+
++ Response 200 (application/json)
+
+        {
+            "location": {
+                "id": 4,
+                "address": "Flat 9, West End Court",
+                "latitude": 55.43234,
+                "longitude": 3.12345,
+                "createdOn": "Tue, 29 Mar 2016 21:09:31 +0000"
+            }
+        }
+
+### Edit location [PUT /users/me/locations/{id}]
+
++ Parameters
+    + id (number) - The id of the location to update.
+
++ Request (application/json)
+
+        {
+            "location":{
+                "address": "Flat 9, West End Court",
+                "latitude": 55.43234,
+                "longitude": 3.12345
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "location": {
+                "id": 4,
+                "address": "Flat 9, West End Court",
+                "latitude": 55.43234,
+                "longitude": 3.12345,
+                "createdOn": "Tue, 29 Mar 2016 21:09:31 +0000",
+                "updatedOn": "Tue, 29 Mar 2016 21:09:31 +0000"
+            }
+        }
+
+### Delete location [DELETE /users/me/locations/{id}]
+
++ Parameters
+    + id (number) - The id of the location to delete.
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+### Get locations [GET /users/me/locations]
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 4,
+                    "address": "Flat 9, West End Court",
+                    "latitude": 55.43234,
+                    "longitude": 3.12345,
+                    "createdOn": "Tue, 29 Mar 2016 21:09:31 +0000",
+                    "updatedOn": "Tue, 29 Mar 2016 21:09:31 +0000"
+                }
+            ]
+        }
+
+## External providers [/13]
+
+### Link external provider [POST /users/me/externalproviders]
+
++ Request (application/json)
+
+        {
+            "externalProvider":{
+                "externalId":"1234567890",
+                "accessToken":"OAUTH_TOKEN",
+                "externalProviderType":"FACEBOOK"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+### Unlink external provider [DELETE /users/me/externalproviders]
+
++ Request (application/json)
+
+        {
+            "externalProvider":{
+                "externalId":"1234567890",
+                "accessToken":"OAUTH_TOKEN",
+                "externalProviderType":"FACEBOOK"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+## Devices [/14]
+
+### Register device [POST /users/me/devices]
+
++ Request (application/json)
+
+        {
+            "device":{
+                "token":"DEVICE_TOKEN",
+                "osType":"IOS"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+### Unregister device [DELETE /users/me/devices]
+
++ Request (application/json)
+
+        {
+            "device":{
+                "token":"DEVICE_TOKEN",
+                "osType":"IOS"
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+## Followers [/15]
+
+### Get followers [GET /users/me/followers]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 40,
+                    "guid": "8DThjgKFjJpJj",
+                    "username": "john.smith",
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@email.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+                }
+            ]
+        }
+
+### Get following [GET /users/me/following]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 40,
+                    "guid": "8DThjgKFjJpJj",
+                    "username": "john.smith",
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@email.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+                }
+            ]
+        }
+
+## Streamables [/16]
+
+### Create graffiti [POST /users/me/streamables/graffiti]
+
++ Request (application/json)
+
+        {
+            "properties": {
+                "latitude": 55.123, 
+                "longitude": 3.123456, 
+                "roll": 12.3, 
+                "yaw": 13.4, 
+                "pitch": 1.234
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": false,
+                "isFlagged": false,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+### Edit graffiti [POST /users/me/streamables/graffiti/{id}]
+
++ Parameters
+    + id (number) - The id of the streamable to edit.
+
++ Request (application/json)
+
+        {
+            "properties": {
+                "latitude": 55.123, 
+                "longitude": 3.123456, 
+                "roll": 12.3, 
+                "yaw": 13.4, 
+                "pitch": 1.234
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": false,
+                "isFlagged": false,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+### Delete streamable [DELETE /users/me/streamables/{id}]
+
++ Parameters
+    + id (number) - The id of the streamable to delete.
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+### Get streamables [GET /users/me/streamables]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+## Private streamables [/17]
+
+### Mark streamable as private [PUT /users/me/streamables/{id}/private]
+
++ Parameters
+    + id (number) - The id of the streamable.
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": true,
+                "isFlagged": false,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+### Mark streamable as public [DELETE /users/me/streamables/{id}/private]
+
++ Parameters
+    + id (number) - The id of the streamable.
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": false,
+                "isFlagged": false,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+### Get private streamables [GET /users/me/streamables/private]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+## Feed [/18]
+
+### Get feed [GET /users/me/feed]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+## Likes [/19]
+
+### Get liked streamables [GET /users/me/liked]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+## Social [/20]
+
+### Get social friends [GET /users/me/social/friends]
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "users": [
+                        {
+                            "id": 33,
+                            "guid": "MySXGYns4qCBH",
+                            "username": "david",
+                            "firstName": "David",
+                            "lastName": "Fernandez",
+                            "email": "test1@test.com",
+                            "followedByCurrentUser": false,
+                            "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000"
+                        }
+                    ],
+                    "type": "FACEBOOK",
+                    "resultsCount": 1,
+                    "offset": 0,
+                    "limit": 20
+                }
+            ],
+            "resultsCount": 1
+        }
+
+### Get social friends for network [GET /users/me/social/{type}/friends]
+
++ Parameters
+    + type (string) - The type of network.
+
++ Response 200 (application/json)
+
+        {
+            "users": [
+                {
+                    "id": 33,
+                    "guid": "MySXGYns4qCBH",
+                    "username": "david",
+                    "firstName": "David",
+                    "lastName": "Fernandez",
+                    "email": "test1@test.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000"
+                }
+            ],
+            "type": "FACEBOOK",
+            "resultsCount": 1,
+            "offset": 0,
+            "limit": 20
+        }
+
+# Group Streamables
+
+### Get streamable [POST /streamables/{id}]
+
++ Parameters
+    + id (number) - The ID of the streamable.
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": false,
+                "isFlagged": false,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+## Likes [/21]
+
+### Like streamable [POST /streamables/{id}/likes]
+
++ Parameters
+    + id (number) - The ID of the streamable to like.
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": false,
+                "isFlagged": false,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+### Unlike streamable [DELETE /streamables/{streamable_id}/likes]
+
++ Parameters
+    + streamable_id (number) - The ID of the streamable to unlike.
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": false,
+                "isFlagged": false,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+### Get likers [GET /streamable/{id}/likes]
+
++ Parameters
+    + id (number) - The ID of the streamable.
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 40,
+                    "guid": "8DThjgKFjJpJj",
+                    "username": "john.smith",
+                    "firstName": "John",
+                    "lastName": "Smith",
+                    "email": "john.smith@email.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Sun, 27 Mar 2016 22:23:25 +0000"
+                }
+            ]
+        }
+
+## Comments [/22]
+
+### Post comment [POST /streamable/{id}/comments]
+
++ Parameters
+    + id (number) - The ID of the streamable.
+
++ Request (application/json)
+
+        {
+            "comment": {
+                "text": "This is a comment."
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "comment": {
+                "id": 63,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "text": "This is a comment.",
+                "createdOn": "Tue, 29 Mar 2016 22:25:51 +0000"
+            }
+        }
+
+### Delete comment [DELETE /streamable/{streamable_id}/comments/{comment_id}]
+
++ Parameters
+    + streamable_id (number) - The ID of the streamable.
+    + comment_id (number) - The ID of the comment to delete.
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+### Edit comment [PUT /streamable/{streamable_id}/comments/{comment_id}]
+
++ Parameters
+    + streamable_id (number) - The ID of the streamable.
+    + comment_id (number) - The ID of the comment to edit.
+
++ Request (application/json)
+
+        {
+            "comment": {
+                "text": "This is a comment."
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "comment": {
+                "id": 63,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "text": "This is a comment.",
+                "createdOn": "Tue, 29 Mar 2016 22:25:51 +0000"
+                "updatedOn": "Tue, 29 Mar 2016 22:25:51 +0000"
+            }
+        }
+
+### Get comments [GET /streamable/{id}/comments]
+
++ Parameters
+    + id (number) - The ID of the streamable.
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "comment": {
+                        "id": 63,
+                        "user": {
+                            "id": 29,
+                            "guid": "wYaGeNOHt8pyH",
+                            "username": "georgi",
+                            "firstName": "Georgi",
+                            "lastName": "Christov",
+                            "email": "georgi.christov89@gmail.com",
+                            "followedByCurrentUser": false,
+                            "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                            "avatar": {
+                                "guid": "zf7e73KJvpR22",
+                                "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                                "type": "IMAGE"
+                            },
+                            "cover": {
+                                "guid": "XHhUF4tNpceT6",
+                                "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                                "type": "IMAGE"
+                            }
+                        },
+                        "text": "This is a comment.",
+                        "createdOn": "Tue, 29 Mar 2016 22:25:51 +0000"
+                        "updatedOn": "Tue, 29 Mar 2016 22:25:51 +0000"
+                    }
+                }
+            ]
+        }
+
+## Newest [/23]
+
+### Get newest streamables [GET /streamables/newest]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+## Popular [/24]
+
+### Get popular streamables [GET /streamables/popular]
+    
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+## Flag [/25]
+
+### Flag streamable [PUT /streamables/{id}/flag]
+
++ Parameters
+    + id (number) - The ID of the streamable to flag.
+
++ Response 200 (application/json)
+
+        {
+            "streamable": {
+                "id": 47,
+                "user": {
+                    "id": 29,
+                    "guid": "wYaGeNOHt8pyH",
+                    "username": "georgi",
+                    "firstName": "Georgi",
+                    "lastName": "Christov",
+                    "email": "georgi.christov89@gmail.com",
+                    "followedByCurrentUser": false,
+                    "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                    "avatar": {
+                        "guid": "zf7e73KJvpR22",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                        "type": "IMAGE"
+                    },
+                    "cover": {
+                        "guid": "XHhUF4tNpceT6",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                        "type": "IMAGE"
+                    }
+                },
+                "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                "isPrivate": false,
+                "isFlagged": true,
+                "asset": {
+                    "guid": "pehHj7p8yksWQ",
+                    "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                    "type": "IMAGE"
+                },
+                "latitude": 55.123,
+                "longitude": 3.123456,
+                "roll": 12.3,
+                "yaw": 13.4,
+                "pitch": 1.234,
+                "type": "GRAFFITI"
+            }
+        }
+
+## Search [/26]
+
+### Search location [GET /streamables/search/location?neLatitude={neLatitude}&neLongitude={neLongitude}&swLatitude={swLatitude}&swLongitude={swLongitude}]
+
++ Parameters
+    + neLatitude (number) - Top right corner of the boundary GPS rectangle.
+    + neLongitude (number) - Top right corner of the boundary GPS rectangle.
+    + swLatitude (number) - Bottom right corner of the boundary GPS rectangle.
+    + swLongitude (number) - Bottom right corner of the boundary GPS rectangle.
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+### Search hashtag [GET /streamables/search/hashtag?query={query}]
+
++ Parameters
+    + query (string) - The hash tag to search for.
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "id": 47,
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": false,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "avatar": {
+                            "guid": "zf7e73KJvpR22",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/zf7e73KJvpR22",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "createdOn": "Sat, 26 Mar 2016 20:09:19 +0000",
+                    "isPrivate": false,
+                    "isFlagged": false,
+                    "asset": {
+                        "guid": "pehHj7p8yksWQ",
+                        "link": "http://graffitab-eu1.s3.amazonaws.com/assets/pehHj7p8yksWQ",
+                        "type": "IMAGE"
+                    },
+                    "latitude": 55.123,
+                    "longitude": 3.123456,
+                    "roll": 12.3,
+                    "yaw": 13.4,
+                    "pitch": 1.234,
+                    "type": "GRAFFITI"
+                }
+            ]
+        }
+
+### Search hashtags [GET /streamables/search/hashtags?query={query}]
+
++ Parameters
+    + query (string) - The hash tag to search for.
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                "hashtag1",
+                "hashtag2"
+            ],
+            "resultsCount": 1,
+            "offset": 0,
+            "limit": 10
+        }
+
+# Group Feedback
+
+## General [/27]
+
+### Send feedback [POST /feedback]
+
++ Request (application/json)
+
+        {
+            "feedback": {
+                "name": "Georgi",
+                "email": "georgi.christov89@gmail.com",
+                "text": "This is some feedback."
+            }
+        }
+
++ Response 200 (application/json)
+
+        {
+            "result": "OK"
+        }
+
+# Group Status
+
+## Health check [/28]
+
+### Get status [GET /status]
+
++ Response 200 (application/json)
+
+        {
+            "status": "OK"
         }
