@@ -20,7 +20,6 @@ import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.user.ExternalUserDto;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
-import com.graffitab.server.api.dto.user.result.CreateUserResult;
 import com.graffitab.server.api.dto.user.result.GetFullUserResult;
 import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
@@ -28,7 +27,6 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.UserService;
-import com.graffitab.server.util.GuidGenerator;
 
 @RestController
 @RequestMapping("/api/users")
@@ -73,12 +71,9 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
 	@ResponseStatus(HttpStatus.CREATED)
 	@Transactional
-	public CreateUserResult createUser(@JsonProperty("user") UserDto userDto) {
-		CreateUserResult createUserResult = new CreateUserResult();
-		String userToken = GuidGenerator.generate();
-		User user = userService.createUser(mapper.map(userDto, User.class), userToken);
-		createUserResult.setToken(user.getMetadataItems().get(UserService.ACTIVATION_TOKEN_METADATA_KEY));
-		return createUserResult;
+	public ActionCompletedResult createUser(@JsonProperty("user") UserDto userDto) {
+		userService.createUser(mapper.map(userDto, User.class));
+		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = "/activate/{token}", method = RequestMethod.GET)

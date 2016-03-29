@@ -258,9 +258,11 @@ public class UserService {
 		return user;
 	}
 
-	public User createUser(User user, String userToken) {
+	public User createUser(User user) {
 		if (validationService.validateUser(user)) {
 			if (user.getId() == null) {
+				String userToken = GuidGenerator.generate();
+
 				transactionUtils.executeInTransaction(() -> {
 					user.setPassword(passwordEncoder.encode(user.getPassword()));
 					user.setGuid(GuidGenerator.generate());
