@@ -2,22 +2,18 @@ package com.graffitab.server.api.authentication;
 
 import java.util.Collection;
 
-import lombok.Data;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
+
+import lombok.Data;
 
 @Data
 public class ExternalIdAuthenticationToken implements Authentication {
 
 	private static final long serialVersionUID = 1L;
-
-	public enum ExternalProviderType {
-		FACEBOOK,
-		TWITTER,
-		GOOGLE;
-	}
 
 	private String externalId;
 	private String accessToken;

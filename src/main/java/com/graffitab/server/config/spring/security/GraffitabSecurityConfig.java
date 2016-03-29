@@ -1,7 +1,5 @@
 package com.graffitab.server.config.spring.security;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -27,13 +25,15 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
-import com.graffitab.server.api.authentication.SessionPrecedenceBasicAuthFilter;
 import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFilter;
 import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
 import com.graffitab.server.api.authentication.SessionInvalidationFilter;
+import com.graffitab.server.api.authentication.SessionPrecedenceBasicAuthFilter;
 import com.graffitab.server.service.GraffiTabUserDetailsService;
+
+import lombok.extern.log4j.Log4j2;
 
 
 @Configuration
@@ -178,7 +178,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
                         .anyRequest().hasAnyRole("ADMIN", "USER")
                     .and()
                     .logout()
-                       .deleteCookies("GRAFFITABSESSIONID").invalidateHttpSession(true)
+                       .deleteCookies("JSESSIONID").invalidateHttpSession(true)
  				       .logoutUrl("/api/logout").logoutSuccessHandler(new OkResponseLogoutHandler());
 
             // Add the invalidation session filter after this check, as it could be creating a new session

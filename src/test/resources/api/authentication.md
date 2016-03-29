@@ -11,7 +11,7 @@ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"user","pass
 * Protected endpoint: provide cookie returned by login endpoint to authenticate. Without the cookie should give 401 Unauthorized
 
 ```
-curl -i -H "Content-Type: application/json" --cookie "GRAFFITABSESSIONID=DB93559F55D32249D11C0E7EABC1083F" http://localhost:8091/api/users/me
+curl -i -H "Content-Type: application/json" --cookie "JSESSIONID=DB93559F55D32249D11C0E7EABC1083F" http://localhost:8091/api/users/me
 ```
 
 ## External provider authentication - return cookie for created session
@@ -31,7 +31,7 @@ curl -i -u username:password http://localhost:8090/api/users
 ## Logout - always provide the session cookie to log out from
 
 ```
-curl -i --cookie "GRAFFITABSESSIONID=E9DFBB37EC490A08BAA19295360F1EFA" http://localhost:8091/api/logout
+curl -i --cookie "JSESSIONID=E9DFBB37EC490A08BAA19295360F1EFA" http://localhost:8091/api/logout
 ```
 
 ## More public endpoints
