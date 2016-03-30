@@ -371,5 +371,16 @@ task devBuild() {
   }
 }
 
+task wakeUpHeroku() {
+
+   def data = "http://dev.graffitab.com/status".toURL().text
+
+   if (data.contains('OK')) {
+   	println("Heroku App started");
+   } else {
+   	println("Heroku Status endpoint did not return expected value: " + data);
+   }
+}
+
 // Spring Boot
 bootRun.dependsOn processResources
