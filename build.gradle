@@ -373,6 +373,7 @@ task devBuild() {
 
 task wakeUpHeroku() {
 
+  doLast {
    def data = "http://dev.graffitab.com/status".toURL().text
 
    if (data.contains('OK')) {
@@ -380,6 +381,7 @@ task wakeUpHeroku() {
    } else {
    	println("Heroku Status endpoint did not return expected value: " + data);
    }
+  }
 }
 
 // Spring Boot
