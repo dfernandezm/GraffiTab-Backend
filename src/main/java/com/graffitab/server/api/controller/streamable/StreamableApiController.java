@@ -140,7 +140,7 @@ public class StreamableApiController {
 		return streamableService.getPopularStreamablesResult(offset, limit);
 	}
 
-	@RequestMapping(value = {"/{id}/flag"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/{id}/flag"}, method = RequestMethod.PUT)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullStreamableResult flag(@PathVariable("id") Long streamableId) {
 		GetFullStreamableResult getFullStreamableResult = new GetFullStreamableResult();

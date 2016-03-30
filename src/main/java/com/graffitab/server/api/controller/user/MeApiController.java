@@ -132,7 +132,7 @@ public class MeApiController {
 		return activityService.getFollowersActivityResult(numberOfItemsInGroup, offset, limit);
 	}
 
-	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
+	@RequestMapping(value = {""}, method = RequestMethod.PUT, consumes={"application/json"})
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult edit(@JsonProperty("user") UserDto userDto) {
@@ -142,7 +142,7 @@ public class MeApiController {
 		return updateUserResult;
 	}
 
-	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/avatar"}, method = RequestMethod.PUT)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public CreateAssetResult editAvatar(HttpServletRequest request) throws IOException {
 		CreateAssetResult editAvatarResult = new CreateAssetResult();
@@ -158,7 +158,7 @@ public class MeApiController {
 		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/cover"}, method = RequestMethod.PUT)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public CreateAssetResult editCover(HttpServletRequest request) throws IOException {
 		CreateAssetResult editcoverResult = new CreateAssetResult();
@@ -245,13 +245,12 @@ public class MeApiController {
 		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.PUT)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
-		ActionCompletedResult getUserResult = new ActionCompletedResult();
 		userService.changePassword(changePasswordDto.getCurrentPassword(), changePasswordDto.getNewPassword());
-		return getUserResult;
+		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = {"/followers"}, method = RequestMethod.GET)
@@ -324,7 +323,7 @@ public class MeApiController {
 		return streamableService.getUserStreamablesResult(userService.getCurrentUser().getId(), offset, limit);
 	}
 
-	@RequestMapping(value = {"/streamables/{id}/private"}, method = RequestMethod.POST)
+	@RequestMapping(value = {"/streamables/{id}/private"}, method = RequestMethod.PUT)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullStreamableResult makePublic(@PathVariable("id") Long streamableId) {
@@ -359,7 +358,7 @@ public class MeApiController {
 	public ListItemsResult<StreamableDto> getFeed(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
-		return streamableService.getUserFeedResult(userService.getCurrentUser().getId(), offset, limit);
+		return streamableService.getUserFeedResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/liked"}, method = RequestMethod.GET)

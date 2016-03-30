@@ -251,17 +251,13 @@ public class StreamableService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getUserFeedResult(Long userId, Integer offset, Integer limit) {
-		User user = userService.findUserById(userId);
+	public ListItemsResult<StreamableDto> getUserFeedResult(Integer offset, Integer limit) {
+		User currentUser = userService.getCurrentUser();
 
-		if (user != null) {
-			Query query = userDao.createNamedQuery("Streamable.getUserFeed");
-			query.setParameter("currentUser", user);
+		Query query = userDao.createNamedQuery("Streamable.getUserFeed");
+		query.setParameter("currentUser", currentUser);
 
-			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
-		} else {
-			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
-		}
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 	}
 
 	public Streamable flag(Long streamableId) {

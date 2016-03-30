@@ -51,6 +51,16 @@ public class UserApiController extends BaseApiController {
 		return getUserResult;
 	}
 
+	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public GetFullUserResult getUserProfile(@PathVariable("id") Long id) {
+		GetFullUserResult userProfileResult = new GetFullUserResult();
+		User user = userService.getUserProfile(id);
+		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
+		return userProfileResult;
+	}
+
 	@RequestMapping(value = "/username/{username}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
@@ -58,6 +68,16 @@ public class UserApiController extends BaseApiController {
 		GetUserResult getUserResult = new GetUserResult();
 		User user = (User) userService.getUserByUsername(username);
 		getUserResult.setUser(mapper.map(user, UserDto.class));
+		return getUserResult;
+	}
+
+	@RequestMapping(value = "/username/{username}/profile", method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public GetUserResult getUserProfileByUsername(@PathVariable("username") String username) {
+		GetUserResult getUserResult = new GetUserResult();
+		User user = (User) userService.getUserByUsername(username);
+		getUserResult.setUser(mapper.map(user, FullUserDto.class));
 		return getUserResult;
 	}
 
@@ -78,16 +98,14 @@ public class UserApiController extends BaseApiController {
 
 	@RequestMapping(value = "/activate/{token}", method = RequestMethod.GET)
 	public ActionCompletedResult activateAccount(@PathVariable("token") String token) {
-		ActionCompletedResult activateUserResult = new ActionCompletedResult();
 		userService.activateUser(token);
-		return activateUserResult;
+		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = "/resetpassword", method = RequestMethod.POST)
 	public ActionCompletedResult resetPassword(@JsonProperty(value = "email") String email) {
-		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
 		userService.resetPassword(email);
-		return resetPasswordResult;
+		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = "/resetpassword/{token}", method = RequestMethod.PUT)
@@ -95,19 +113,8 @@ public class UserApiController extends BaseApiController {
 	public ActionCompletedResult completePasswordReset(
 			@PathVariable(value = "token") String token,
 			@JsonProperty(value = "password") String password) {
-		ActionCompletedResult resetPasswordResult = new ActionCompletedResult();
 		userService.completePasswordReset(token, password);
-		return resetPasswordResult;
-	}
-
-	@RequestMapping(value = {"/{id}/profile"}, method = RequestMethod.GET)
-	@Transactional(readOnly = true)
-	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetFullUserResult getUserProfile(@PathVariable("id") Long id) {
-		GetFullUserResult userProfileResult = new GetFullUserResult();
-		User user = userService.getUserProfile(id);
-		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
-		return userProfileResult;
+		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = {"/{id}/followers"}, method = RequestMethod.POST)
@@ -157,16 +164,6 @@ public class UserApiController extends BaseApiController {
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return streamableService.getUserStreamablesResult(userId, offset, limit);
-	}
-
-	@RequestMapping(value = {"/{id}/feed"}, method = RequestMethod.GET)
-	@Transactional(readOnly = true)
-	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getFeed(
-			@PathVariable("id") Long userId,
-			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="limit", required = false) Integer limit) {
-		return streamableService.getUserFeedResult(userId, offset, limit);
 	}
 
 	@RequestMapping(value = {"/mostactive"}, method = RequestMethod.GET)
