@@ -5,6 +5,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -191,7 +192,7 @@ public class UserApiTest {
 	    public void addAssetTest() throws IOException, Exception {
 	    	User loggedInUser = createUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
-	    	mockMvc.perform(post("/api/users/me/avatar")
+	    	mockMvc.perform(put("/api/users/me/avatar")
 	    			.with(user(loggedInUser))
 	                .contentType("application/octet-stream")
 	                .content(IOUtils.toByteArray(in)))
