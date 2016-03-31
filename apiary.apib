@@ -5,6 +5,22 @@ HOST: http://dev.graffitab.com/api/
 
 Use our API to quickly integrate GraffiTab's services in your application.
 
+# Group Authentication
+
+## Basic authentication [/28]
+
+### Get basic authentication token [GET /auth/token/basic?username={username}&password={password}]
+
++ Parameters
+    + username (string) - The username of the user to authenticate.
+    + password (string) - The password of the user to authenticate.
+    
++ Response 200 (application/json)
+
+        {
+            "token": "[basic_auth_token]"
+        }
+
 # Group Users
 
 ## Register [/1]
@@ -159,7 +175,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the user to get.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -179,7 +200,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the user to get.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -202,7 +228,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + username (string) - The username of the user to get.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -222,7 +253,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + username (string) - The username of the user to get.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -247,7 +283,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the user to follow.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -270,7 +311,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the user to unfollow.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -293,7 +339,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the user.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -315,7 +366,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the user.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -339,7 +395,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the user.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -387,7 +448,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 # Most active [/8]
 
 ### Get most active users [GET /users/mostactive]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -408,7 +474,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 # Likes [/9]
 
 ### Get user liked streamables [GET /users/{id}/liked]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -476,7 +547,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + query (string) - The query to search for.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -499,7 +575,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Profile [/4]
 
 ### Get me [GET /users/me]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -516,7 +597,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get full profile [GET /users/me/profile]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -541,8 +627,15 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Request (application/json)
 
-        {"currentPassword":"currentPassword", "newPassword":"newPassword"}
-        
+        {
+            "currentPassword": "currentPassword", 
+            "newPassword": "newPassword"
+        }
+
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -562,6 +655,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -580,6 +677,9 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ### Edit avatar [PUT /users/me/avatar]
 
 + Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -593,6 +693,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Delete avatar [DELETE /users/me/avatar]
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -602,6 +707,9 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ### Edit cover [PUT /users/me/cover]
 
 + Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -615,6 +723,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Delete cover [DELETE /users/me/cover]
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -624,6 +737,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Notifications [/11]
 
 ### Get notifications [GET /users/me/notifications]
+
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -688,6 +806,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get number of unread notifications [GET /users/me/notifications/unreadcount]
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -707,6 +830,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
                 "longitude": 3.12345
             }
         }
+
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -735,6 +862,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -753,6 +884,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + id (number) - The id of the location to delete.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -760,6 +896,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get locations [GET /users/me/locations]
+
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -790,6 +931,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -807,6 +952,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
                 "externalProviderType":"FACEBOOK"
             }
         }
+
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -827,6 +976,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -844,6 +997,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -853,7 +1010,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Followers [/15]
 
 ### Get followers [GET /users/me/followers]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -871,8 +1033,53 @@ Use our API to quickly integrate GraffiTab's services in your application.
             ]
         }
 
-### Get following [GET /users/me/following]
+### Get followers activity [GET /users/me/followers/activity]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
++ Response 200 (application/json)
+
+        {
+            "items": [
+                {
+                    "user": {
+                        "id": 29,
+                        "guid": "wYaGeNOHt8pyH",
+                        "username": "georgi",
+                        "firstName": "Georgi",
+                        "lastName": "Christov",
+                        "email": "georgi.christov89@gmail.com",
+                        "followedByCurrentUser": true,
+                        "createdOn": "Tue, 22 Mar 2016 16:36:48 +0000",
+                        "updatedOn": "Wed, 30 Mar 2016 21:34:14 +0000",
+                        "avatar": {
+                            "guid": "C7bo0yZbeUl07",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/C7bo0yZbeUl07",
+                            "type": "IMAGE"
+                        },
+                        "cover": {
+                            "guid": "XHhUF4tNpceT6",
+                            "link": "http://graffitab-eu1.s3.amazonaws.com/assets/XHhUF4tNpceT6",
+                            "type": "IMAGE"
+                        }
+                    },
+                    "activities": [],
+                    "date": "Tue, 29 Mar 2016 22:25:51 +0000",
+                    "type": "COMMENT"
+                }
+            ]
+        }
+
+### Get following [GET /users/me/following]
+
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -905,6 +1112,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
                 "pitch": 1.234
             }
         }
+
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -965,6 +1176,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1012,6 +1227,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + id (number) - The id of the streamable to delete.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1019,7 +1239,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get streamables [GET /users/me/streamables]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1071,6 +1296,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + id (number) - The id of the streamable.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1118,6 +1348,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + id (number) - The id of the streamable.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1161,7 +1396,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get private streamables [GET /users/me/streamables/private]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1209,7 +1449,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Feed [/18]
 
 ### Get feed [GET /users/me/feed]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1257,7 +1502,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Likes [/19]
 
 ### Get liked streamables [GET /users/me/liked]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1306,6 +1556,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get social friends [GET /users/me/social/friends]
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1337,6 +1592,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + type (string) - The type of network.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1364,6 +1624,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the streamable.
+
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -1414,6 +1679,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + id (number) - The ID of the streamable to like.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1461,6 +1731,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + streamable_id (number) - The ID of the streamable to unlike.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1507,7 +1782,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the streamable.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1539,6 +1819,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
                 "text": "This is a comment."
             }
         }
+
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -1576,6 +1860,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
     + streamable_id (number) - The ID of the streamable.
     + comment_id (number) - The ID of the comment to delete.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1595,6 +1884,10 @@ Use our API to quickly integrate GraffiTab's services in your application.
                 "text": "This is a comment."
             }
         }
+
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -1631,7 +1924,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the streamable.
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1670,7 +1968,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Newest [/23]
 
 ### Get newest streamables [GET /streamables/newest]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1718,7 +2021,12 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Popular [/24]
 
 ### Get popular streamables [GET /streamables/popular]
+
++ Request (application/json)
+    + Headers
     
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1769,6 +2077,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + id (number) - The ID of the streamable to flag.
+
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -1822,6 +2135,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
     + swLatitude (number) - Bottom right corner of the boundary GPS rectangle.
     + swLongitude (number) - Bottom right corner of the boundary GPS rectangle.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1870,6 +2188,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 + Parameters
     + query (string) - The hash tag to search for.
+
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
 
 + Response 200 (application/json)
 
@@ -1920,6 +2243,11 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Parameters
     + query (string) - The hash tag to search for.
 
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
 + Response 200 (application/json)
 
         {
@@ -1952,16 +2280,4 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
         {
             "result": "OK"
-        }
-
-# Group Health
-
-## Status [/28]
-
-### Get status [GET /status]
-
-+ Response 200 (application/json)
-
-        {
-            "status": "OK"
         }
