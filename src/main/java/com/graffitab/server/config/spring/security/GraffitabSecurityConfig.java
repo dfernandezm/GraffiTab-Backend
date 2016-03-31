@@ -134,7 +134,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             http.csrf().disable()
                   .requestMatchers()
                     .antMatchers(HttpMethod.POST, "/api/users", "/api/users/resetpassword", "/api/users/externalproviders", "/api/feedback")
-                    .antMatchers(HttpMethod.GET, "/api/users/activate/**")
+                    .antMatchers(HttpMethod.GET, "/api/users/activate/**", "/api/auth/**")
                     .antMatchers(HttpMethod.PUT, "/api/users/resetpassword/**")
                     .and()
                     .authorizeRequests()

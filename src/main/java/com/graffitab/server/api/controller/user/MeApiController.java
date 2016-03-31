@@ -122,16 +122,6 @@ public class MeApiController {
 		return countResult;
 	}
 
-	@RequestMapping(value = {"/activity/followers"}, method = RequestMethod.GET)
-	@Transactional(readOnly = true)
-	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<ActivityContainerDto> getFollowersActivity(
-			@RequestParam(value="numberOfItemsInGroup", required = false) Integer numberOfItemsInGroup,
-			@RequestParam(value="offset", required = false) Integer offset,
-			@RequestParam(value="limit", required = false) Integer limit) {
-		return activityService.getFollowersActivityResult(numberOfItemsInGroup, offset, limit);
-	}
-
 	@RequestMapping(value = {""}, method = RequestMethod.PUT, consumes={"application/json"})
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
@@ -260,6 +250,16 @@ public class MeApiController {
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return userService.getFollowingOrFollowersForUserResult(true, null, offset, limit);
+	}
+
+	@RequestMapping(value = {"/followers/activity"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<ActivityContainerDto> getFollowersActivity(
+			@RequestParam(value="numberOfItemsInGroup", required = false) Integer numberOfItemsInGroup,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return activityService.getFollowersActivityResult(numberOfItemsInGroup, offset, limit);
 	}
 
 	@RequestMapping(value = {"/following"}, method = RequestMethod.GET)
