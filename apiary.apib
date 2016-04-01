@@ -228,7 +228,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
-### Get profile by username [GET /users/{username}]
+### Get profile by username [GET /users/username/{username}]
 
 🔒 __Requires authentication__
 
@@ -1002,11 +1002,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
 + Request (application/json)
 
         {
-            "externalProvider":{
-                "externalId":"1234567890",
-                "accessToken":"OAUTH_TOKEN",
-                "externalProviderType":"FACEBOOK"
-            }
+            "externalProviderType":"FACEBOOK"
         }
 
     + Headers
@@ -1864,7 +1860,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
                     "type": "IMAGE"
                 },
                 "latitude": 55.123,
-                "longitude": 3.123456,
+                "longitude": 3.123456
                 "roll": 12.3,
                 "yaw": 13.4,
                 "pitch": 1.234,
@@ -1872,7 +1868,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
-### Get likers [GET /streamable/{id}/likes]
+### Get likers [GET /streamables/{id}/likes]
 
 🔒 __Requires authentication__
 
@@ -1903,7 +1899,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ## Comments [/22]
 
-### Post comment [POST /streamable/{id}/comments]
+### Post comment [POST /streamables/{id}/comments]
 
 🔒 __Requires authentication__
 
@@ -1952,7 +1948,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
-### Delete comment [DELETE /streamable/{streamable_id}/comments/{comment_id}]
+### Delete comment [DELETE /streamables/{streamable_id}/comments/{comment_id}]
 
 🔒 __Requires authentication__
 
@@ -1971,7 +1967,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
             "result": "OK"
         }
 
-### Edit comment [PUT /streamable/{streamable_id}/comments/{comment_id}]
+### Edit comment [PUT /streamables/{streamable_id}/comments/{comment_id}]
 
 🔒 __Requires authentication__
 
@@ -2022,7 +2018,7 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
-### Get comments [GET /streamable/{id}/comments]
+### Get comments [GET /streamables/{id}/comments]
 
 🔒 __Requires authentication__
 
