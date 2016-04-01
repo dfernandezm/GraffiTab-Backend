@@ -173,6 +173,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get profile [GET /users/{id}]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The ID of the user to get.
 
@@ -197,6 +199,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get full profile [GET /users/{id}/profile]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The ID of the user to get.
@@ -226,6 +230,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get profile by username [GET /users/{username}]
 
+🔒 __Requires authentication__
+
 + Parameters
     + username (string) - The username of the user to get.
 
@@ -250,6 +256,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get full profile by username [GET /users/{username}/profile]
+
+🔒 __Requires authentication__
 
 + Parameters
     + username (string) - The username of the user to get.
@@ -281,6 +289,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Follow [POST /users/{id}/followers]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The ID of the user to follow.
 
@@ -308,6 +318,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Unfollow [DELETE /users/{id}/followers]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The ID of the user to unfollow.
@@ -337,6 +349,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get followers [GET /users/{id}/followers]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The ID of the user.
 
@@ -363,6 +377,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get following [GET /users/{id}/following]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The ID of the user.
@@ -392,6 +408,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Streamables [/7]
 
 ### Get user streamables [GET /users/{id}/streamables]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The ID of the user.
@@ -449,6 +467,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get most active users [GET /users/mostactive]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -474,6 +494,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 # Likes [/9]
 
 ### Get user liked streamables [GET /users/{id}/liked]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -545,6 +567,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Search [GET /users/search?query={query}]
 
+🔒 __Requires authentication__
+
 + Parameters
     + query (string) - The query to search for.
 
@@ -576,6 +600,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get me [GET /users/me]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -597,6 +623,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get full profile [GET /users/me/profile]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -625,6 +653,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Change password [PUT /users/me/changepassword]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
 
         {
@@ -643,6 +673,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Edit profile [PUT /users/me]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
 
@@ -676,6 +708,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Edit avatar [PUT /users/me/avatar]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -693,6 +727,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Delete avatar [DELETE /users/me/avatar]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -705,6 +741,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Edit cover [PUT /users/me/cover]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -723,6 +761,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Delete cover [DELETE /users/me/cover]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -737,6 +777,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Notifications [/11]
 
 ### Get notifications [GET /users/me/notifications]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -806,6 +848,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get number of unread notifications [GET /users/me/notifications/unreadcount]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -820,6 +864,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Locations [/12]
 
 ### Create location [POST /users/me/locations]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
 
@@ -848,6 +894,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Edit location [PUT /users/me/locations/{id}]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The id of the location to update.
@@ -881,6 +929,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Delete location [DELETE /users/me/locations/{id}]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The id of the location to delete.
 
@@ -896,6 +946,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get locations [GET /users/me/locations]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -921,6 +973,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Link external provider [POST /users/me/externalproviders]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
 
         {
@@ -942,6 +996,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Unlink external provider [DELETE /users/me/externalproviders]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
 
@@ -967,6 +1023,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Register device [POST /users/me/devices]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
 
         {
@@ -987,6 +1045,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Unregister device [DELETE /users/me/devices]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
 
@@ -1011,6 +1071,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get followers [GET /users/me/followers]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -1034,6 +1096,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get followers activity [GET /users/me/followers/activity]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -1075,6 +1139,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get following [GET /users/me/following]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -1100,6 +1166,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Streamables [/16]
 
 ### Create graffiti [POST /users/me/streamables/graffiti]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
 
@@ -1160,6 +1228,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Edit graffiti [POST /users/me/streamables/graffiti/{id}]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The id of the streamable to edit.
@@ -1224,6 +1294,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Delete streamable [DELETE /users/me/streamables/{id}]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The id of the streamable to delete.
 
@@ -1239,6 +1311,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get streamables [GET /users/me/streamables]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -1293,6 +1367,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Mark streamable as private [PUT /users/me/streamables/{id}/private]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The id of the streamable.
 
@@ -1345,6 +1421,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Mark streamable as public [DELETE /users/me/streamables/{id}/private]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The id of the streamable.
 
@@ -1396,6 +1474,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Get private streamables [GET /users/me/streamables/private]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -1450,6 +1530,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get feed [GET /users/me/feed]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -1502,6 +1584,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Likes [/19]
 
 ### Get liked streamables [GET /users/me/liked]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -1556,6 +1640,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get social friends [GET /users/me/social/friends]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -1589,6 +1675,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get social friends for network [GET /users/me/social/{type}/friends]
 
+🔒 __Requires authentication__
+
 + Parameters
     + type (string) - The type of network.
 
@@ -1621,6 +1709,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 # Group Streamables
 
 ### Get streamable [POST /streamables/{id}]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The ID of the streamable.
@@ -1676,6 +1766,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Like streamable [POST /streamables/{id}/likes]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The ID of the streamable to like.
 
@@ -1727,6 +1819,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Unlike streamable [DELETE /streamables/{streamable_id}/likes]
+
+🔒 __Requires authentication__
 
 + Parameters
     + streamable_id (number) - The ID of the streamable to unlike.
@@ -1780,6 +1874,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get likers [GET /streamable/{id}/likes]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The ID of the streamable.
 
@@ -1808,6 +1904,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Comments [/22]
 
 ### Post comment [POST /streamable/{id}/comments]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The ID of the streamable.
@@ -1856,6 +1954,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Delete comment [DELETE /streamable/{streamable_id}/comments/{comment_id}]
 
+🔒 __Requires authentication__
+
 + Parameters
     + streamable_id (number) - The ID of the streamable.
     + comment_id (number) - The ID of the comment to delete.
@@ -1872,6 +1972,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Edit comment [PUT /streamable/{streamable_id}/comments/{comment_id}]
+
+🔒 __Requires authentication__
 
 + Parameters
     + streamable_id (number) - The ID of the streamable.
@@ -1922,6 +2024,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get comments [GET /streamable/{id}/comments]
 
+🔒 __Requires authentication__
+
 + Parameters
     + id (number) - The ID of the streamable.
 
@@ -1968,6 +2072,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Newest [/23]
 
 ### Get newest streamables [GET /streamables/newest]
+
+🔒 __Requires authentication__
 
 + Request (application/json)
     + Headers
@@ -2022,6 +2128,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Get popular streamables [GET /streamables/popular]
 
+🔒 __Requires authentication__
+
 + Request (application/json)
     + Headers
     
@@ -2074,6 +2182,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Flag [/25]
 
 ### Flag streamable [PUT /streamables/{id}/flag]
+
+🔒 __Requires authentication__
 
 + Parameters
     + id (number) - The ID of the streamable to flag.
@@ -2128,6 +2238,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 ## Search [/26]
 
 ### Search location [GET /streamables/search/location?neLatitude={neLatitude}&neLongitude={neLongitude}&swLatitude={swLatitude}&swLongitude={swLongitude}]
+
+🔒 __Requires authentication__
 
 + Parameters
     + neLatitude (number) - Top right corner of the boundary GPS rectangle.
@@ -2186,6 +2298,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
 
 ### Search hashtag [GET /streamables/search/hashtag?query={query}]
 
+🔒 __Requires authentication__
+
 + Parameters
     + query (string) - The hash tag to search for.
 
@@ -2239,6 +2353,8 @@ Use our API to quickly integrate GraffiTab's services in your application.
         }
 
 ### Search hashtags [GET /streamables/search/hashtags?query={query}]
+
+🔒 __Requires authentication__
 
 + Parameters
     + query (string) - The hash tag to search for.
