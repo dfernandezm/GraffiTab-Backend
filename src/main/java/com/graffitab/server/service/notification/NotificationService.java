@@ -5,8 +5,6 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import lombok.extern.log4j.Log4j;
-
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +25,8 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
@@ -98,7 +98,7 @@ public class NotificationService {
 	}
 
 	private void addNotificationToUser(User receiver, Notification notification) {
-		executor.execute(() -> {
+		executor.submit(() -> {
 			if (log.isDebugEnabled()) {
 				log.debug("About to add notification " + notification + " to user " + receiver);
 			}

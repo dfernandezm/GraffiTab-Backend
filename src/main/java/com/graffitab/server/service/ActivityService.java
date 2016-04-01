@@ -6,8 +6,6 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import lombok.extern.log4j.Log4j;
-
 import org.hibernate.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +24,8 @@ import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.paging.ActivityPagingService;
 import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
@@ -79,7 +79,7 @@ public class ActivityService {
 	}
 
 	private void addUserActivityToFollowersAsync(User user, Activity activity) {
-		executor.execute(() -> {
+		executor.submit(() -> {
 			if (log.isDebugEnabled()) {
 				log.debug("About to add activity " + activity + " to followers of user " + user);
 			}
