@@ -28,9 +28,6 @@ import javax.persistence.OrderColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
 import org.joda.time.DateTime;
@@ -46,6 +43,9 @@ import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by david.
@@ -82,15 +82,17 @@ import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 		name = "User.searchUser",
 		query = "select u "
 			  + "from User u "
-			  + "where u.username like :username "
+			  + "where (u.username like :username "
 			  + "or u.firstName like :firstName "
-			  + "or u.lastName like :lastName"
+			  + "or u.lastName like :lastName) "
+			  + "and u.accountStatus != 'PENDING_ACTIVATION'"
 	),
 	@NamedQuery(
 		name = "User.getMostActiveUsers",
 		query = "select u "
 			  + "from User u "
 			  + "left join u.streamables s "
+			  + "where u.accountStatus != 'PENDING_ACTIVATION' "
 			  + "group by u.id "
 			  + "order by count(s) desc"
 	),
@@ -99,7 +101,24 @@ import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 		query = "select u "
 			  + "from Streamable s "
 			  + "join s.likers u "
-			  + "where s = :currentStreamable"
+			  + "where s = :currentStreamable "
+			  + "and u.accountStatus != 'PENDING_ACTIVATION'"
+	),
+	@NamedQuery(
+		name = "User.getFollowers",
+		query = "select f "
+			  + "from User u "
+			  + "join u.followers f "
+			  + "where u = :currentUser "
+			  + "and u.accountStatus != 'PENDING_ACTIVATION'"
+	),
+	@NamedQuery(
+		name = "User.getFollowing",
+		query = "select f "
+			  + "from User u "
+			  + "join u.following f "
+			  + "where u = :currentUser "
+			  + "and u.accountStatus != 'PENDING_ACTIVATION'"
 	)
 })
 

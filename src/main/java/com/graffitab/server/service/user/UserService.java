@@ -6,8 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
@@ -47,6 +45,8 @@ import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -121,22 +121,11 @@ public class UserService {
 	public User getUser(Long id) {
 		User user = findUserById(id);
 
-		if (user != null) {
+		if (user == null) {
 			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user with id " + id);
 		}
 
 		return user;
-	}
-
-	@Transactional(readOnly = true)
-	public User getUserProfile(Long id) {
-		User user = findUserById(id);
-
-		if (user != null) {
-			return user;
-		} else {
-			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find user with id " + id);
-		}
 	}
 
 	public User getCurrentUser() {
@@ -329,13 +318,17 @@ public class UserService {
 	}
 
 	@Transactional
-	public User editUser(User user) {
-		if (validationService.validateUser(user)) {
-			user.setUpdatedOn(new DateTime());
-
+	public User editUser(String firstname, String lastname, String about, String website) {
+		if (validationService.validateEditInfo(firstname, lastname, website, about)) {
 			User currentUser = getCurrentUser();
+
+			currentUser.setUpdatedOn(new DateTime());
+			currentUser.setFirstName(firstname);
+			currentUser.setLastName(lastname);
+			currentUser.setAbout(about);
+			currentUser.setWebsite(website);
 			merge(currentUser);
-			mapper.map(user, currentUser);
+
 			return currentUser;
 
 		} else {
@@ -467,16 +460,17 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public ListItemsResult<UserDto> getFollowingOrFollowersForUserResult(boolean shouldGetFollowers, Long userId, Integer offset, Integer limit) {
-		User requestedUser = (userId == null) ? getCurrentUser() : findUserById(userId);
+		User user = (userId == null) ? getCurrentUser() : findUserById(userId);
 
-		Query query = userDao.createQuery(
-				"select f "
-			  + "from User u "
-			  + "join u." + (shouldGetFollowers ? "followers" : "following") + " f "
-			  + "where u = :currentUser");
-		query.setParameter("currentUser", requestedUser);
+		if (user != null) {
+			Query query = userDao.createNamedQuery("User." + (shouldGetFollowers ? "getFollowers" : "getFollowing"));
+			query.setParameter("currentUser", user);
 
-		return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
+			return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
+		}
+		else {
+			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND, "Could not find user with id " + userId);
+		}
 	}
 
 	public User follow(Long toFollowId) {
@@ -527,9 +521,8 @@ public class UserService {
 
 		if (toUnfollow != null) {
 			User currentUser = getCurrentUser();
-			merge(currentUser);
-
 			currentUser.getFollowing().remove(toUnfollow);
+			merge(currentUser);
 
 			return toUnfollow;
 		} else {

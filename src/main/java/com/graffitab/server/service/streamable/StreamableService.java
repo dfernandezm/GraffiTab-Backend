@@ -7,8 +7,6 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import lombok.extern.log4j.Log4j;
-
 import org.hibernate.Query;
 import org.javatuples.Pair;
 import org.javatuples.Triplet;
@@ -20,6 +18,7 @@ import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.user.UserDto;
+import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
@@ -36,6 +35,8 @@ import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
@@ -69,6 +70,17 @@ public class StreamableService {
 	private HibernateDaoImpl<User, Long> userDao;
 
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
+
+	@Transactional(readOnly = true)
+	public Streamable getStreamable(Long id) {
+		Streamable streamable = findStreamableById(id);
+
+		if (streamable == null) {
+			throw new EntityNotFoundException(ResultCode.STREAMABLE_NOT_FOUND, "Streamable with id " + id + " not found");
+		}
+
+		return streamable;
+	}
 
 	public Streamable createStreamableGraffiti(StreamableGraffitiDto streamableGraffitiDto, InputStream assetInputStream, long contentLength) {
 		Asset assetToAdd = Asset.asset(AssetType.IMAGE);

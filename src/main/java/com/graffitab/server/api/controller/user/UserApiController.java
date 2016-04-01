@@ -46,7 +46,7 @@ public class UserApiController extends BaseApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult getUser(@PathVariable("id") Long id) {
 		GetUserResult getUserResult = new GetUserResult();
-		User user = userService.findUserById(id);
+		User user = userService.getUser(id);
 		getUserResult.setUser(mapper.map(user, UserDto.class));
 		return getUserResult;
 	}
@@ -55,10 +55,10 @@ public class UserApiController extends BaseApiController {
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullUserResult getUserProfile(@PathVariable("id") Long id) {
-		GetFullUserResult userProfileResult = new GetFullUserResult();
-		User user = userService.getUserProfile(id);
-		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
-		return userProfileResult;
+		GetFullUserResult getFullUserResult = new GetFullUserResult();
+		User user = userService.getUser(id);
+		getFullUserResult.setUser(mapper.map(user, FullUserDto.class));
+		return getFullUserResult;
 	}
 
 	@RequestMapping(value = "/username/{username}", method = RequestMethod.GET)
@@ -74,11 +74,11 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = "/username/{username}/profile", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserResult getUserProfileByUsername(@PathVariable("username") String username) {
-		GetUserResult getUserResult = new GetUserResult();
+	public GetFullUserResult getUserProfileByUsername(@PathVariable("username") String username) {
+		GetFullUserResult getFullUserResult = new GetFullUserResult();
 		User user = (User) userService.getUserByUsername(username);
-		getUserResult.setUser(mapper.map(user, FullUserDto.class));
-		return getUserResult;
+		getFullUserResult.setUser(mapper.map(user, FullUserDto.class));
+		return getFullUserResult;
 	}
 
 	@RequestMapping(value = {"/externalproviders"}, method = RequestMethod.POST, consumes={"application/json"})

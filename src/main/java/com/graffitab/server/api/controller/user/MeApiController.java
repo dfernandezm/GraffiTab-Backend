@@ -98,7 +98,7 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullUserResult getProfile() {
 		GetFullUserResult userProfileResult = new GetFullUserResult();
-		User user = userService.getUserProfile(userService.getCurrentUser().getId());
+		User user = userService.getUser(userService.getCurrentUser().getId());
 		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
 		return userProfileResult;
 	}
@@ -127,7 +127,7 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetUserResult edit(@JsonProperty("user") UserDto userDto) {
 		GetUserResult updateUserResult = new GetUserResult();
-		User user = userService.editUser(mapper.map(userDto, User.class));
+		User user = userService.editUser(userDto.getFirstName(), userDto.getLastName(), userDto.getAbout(), userDto.getWebsite());
 		updateUserResult.setUser(mapper.map(user, UserDto.class));
 		return updateUserResult;
 	}

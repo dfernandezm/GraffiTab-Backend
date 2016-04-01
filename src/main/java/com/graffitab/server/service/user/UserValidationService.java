@@ -37,6 +37,19 @@ public class UserValidationService {
 		return validationResult;
 	}
 
+	public Boolean validateEditInfo(String firstname, String lastname, String website, String about) {
+		boolean validationResult = false;
+
+		if (StringUtils.isEmpty(firstname) || StringUtils.isEmpty(lastname)) {
+			validationResult = false;
+		}
+		else {
+			validationResult = true;
+		}
+
+		return validationResult;
+	}
+
 	private Boolean isUsernameTaken(String username, Long userId) {
 		if ( userId != null){
 			return !userService.findUsersByUsernameWithDifferentId(username, userId).isEmpty();

@@ -44,7 +44,7 @@ public class StreamableApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullStreamableResult getStreamable(@PathVariable("id") Long streamableId) {
 		GetFullStreamableResult getFullStreamableResult = new GetFullStreamableResult();
-		Streamable streamable = streamableService.findStreamableById(streamableId);
+		Streamable streamable = streamableService.getStreamable(streamableId);
 		getFullStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 		return getFullStreamableResult;
 	}
