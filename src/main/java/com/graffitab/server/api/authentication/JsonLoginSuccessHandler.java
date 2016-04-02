@@ -6,6 +6,9 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import lombok.extern.log4j.Log4j2;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -18,6 +21,7 @@ import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.user.UserSessionService;
 
+@Log4j2
 public class JsonLoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	@Resource(name = "delegateJacksonHttpMessageConverter")
@@ -39,7 +43,13 @@ public class JsonLoginSuccessHandler implements AuthenticationSuccessHandler {
 		result.setUser(dto);
 
 		// Store session
-		userSessionService.saveOrUpdateSessionData(request.getSession(false));
+		if (request.getSession(false) == null) {
+			log.warn("The HTTP Session is null at this point, but it should not be");
+		}
+
+		HttpSession httpSession = request.getSession(false);
+
+		userSessionService.saveOrUpdateSessionData(httpSession);
 
 		response.setStatus(HttpStatus.OK.value());
 		response.setContentType("application/json");
