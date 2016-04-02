@@ -175,7 +175,7 @@ public class CommentService {
 		executor.submit(() -> {
 
 			if (log.isDebugEnabled()) {
-				log.debug("About to parse comment " + comment);
+				log.debug("About to parse comment with ID=" + comment.getId());
 			}
 
 			try {
