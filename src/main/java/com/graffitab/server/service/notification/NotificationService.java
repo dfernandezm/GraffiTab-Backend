@@ -1,5 +1,6 @@
 package com.graffitab.server.service.notification;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -14,6 +15,7 @@ import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Comment;
+import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.notification.NotificationComment;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
@@ -52,14 +54,25 @@ public class NotificationService {
 
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
-	@Transactional(readOnly = true)
 	public ListItemsResult<NotificationDto> getNotificationsResult(Integer offset, Integer limit) {
-		User currentUser = userService.getCurrentUser();
+		// Get original notifications.
+		PagedList<Notification> notifications = transactionUtils.executeInTransactionWithResult(() -> {
+			User currentUser = userService.getCurrentUser();
 
-		Query query = notificationDao.createNamedQuery("Notification.getNotifications");
-		query.setParameter("currentUser", currentUser);
+			Query query = notificationDao.createNamedQuery("Notification.getNotifications");
+			query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItems(Notification.class, NotificationDto.class, offset, limit, query);
+			return pagingService.getItems(query, offset, limit);
+		});
+
+		// Map list so that it can be returned later.
+		ListItemsResult<NotificationDto> mappedList = pagingService.mapResults(notifications, NotificationDto.class);
+
+		// Mark retrieved notifications as read.
+		markNotificationsAsRead(notifications);
+
+		// Return original list of unread notifications.
+		return mappedList;
 	}
 
 	@Transactional(readOnly = true)
@@ -95,6 +108,25 @@ public class NotificationService {
 	public void addMentionNotificationAsync(User user, User mentioner, Streamable mentionedStreamable) {
 		Notification notification = new NotificationMention(mentioner, mentionedStreamable);
 		addNotificationToUser(user, notification);
+	}
+
+	private void markNotificationsAsRead(List<Notification> notifications) {
+		executor.submit(() -> {
+			if (log.isDebugEnabled()) {
+				log.debug("About to mark " + notifications.size() + " notifications as read");
+			}
+
+			notifications.forEach(notification -> {
+				transactionUtils.executeInTransaction(() -> {
+					notification.setIsRead(true);
+					notificationDao.merge(notification);
+				});
+			});
+
+			if (log.isDebugEnabled()) {
+				log.debug("Finished marking notifications as unread");
+			}
+		});
 	}
 
 	private void addNotificationToUser(User receiver, Notification notification) {

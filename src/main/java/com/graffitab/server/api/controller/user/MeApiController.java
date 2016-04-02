@@ -104,7 +104,6 @@ public class MeApiController {
 	}
 
 	@RequestMapping(value = {"/notifications"}, method = RequestMethod.GET)
-	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<NotificationDto> getNotifications(
 			@RequestParam(value="offset", required = false) Integer offset,
