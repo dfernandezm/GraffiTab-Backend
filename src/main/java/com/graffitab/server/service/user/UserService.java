@@ -350,20 +350,6 @@ public class UserService {
 		query.setParameter("lastName", userQuery);
 
 		return pagingService.getPagedItems(User.class, UserDto.class, offset, limit, query);
-
-		// Example with Criteria.
-//		Criterion usernameRestriction = Restrictions.like("username", query, MatchMode.ANYWHERE);
-//		Criterion firstNameRestriction = Restrictions.like("firstName", query, MatchMode.ANYWHERE);
-//		Criterion lastNameRestriction = Restrictions.like("lastName", query, MatchMode.ANYWHERE);
-//		Criterion orRestriction = Restrictions.or(usernameRestriction, firstNameRestriction, lastNameRestriction);
-//
-//		Integer total = (Integer) userDao.getSession().createCriteria(User.class).add(orRestriction)
-//				.setProjection(Projections.rowCount()).uniqueResult();
-//
-//		List<User> listUsers = (List<User>) userDao.getSession().createCriteria(User.class).add(orRestriction)
-//				.setFirstResult(offset).setMaxResults(count).list();
-//
-//		return new PagedList<User>(listUsers, total, offset);
 	}
 
 	public Asset editAvatar(InputStream assetInputStream, long contentLength) {
@@ -578,7 +564,7 @@ public class UserService {
 		user.setPassword(passwordEncoder.encode(newPassword));
 
 		// Logout from all devices
-		userSessionService.logoutEverywhere(user);
+		userSessionService.logoutEverywhere(user, false);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully reset password for user " + user.getUsername());
@@ -601,8 +587,8 @@ public class UserService {
 		user.setPassword(passwordEncoder.encode(newPassword));
 		user.setUpdatedOn(new DateTime());
 
-		// Logout from all devices
-        userSessionService.logoutEverywhere(user);
+		// Logout from all devices but this one
+        userSessionService.logoutEverywhere(user, true);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully changed password for user " + user.getUsername());

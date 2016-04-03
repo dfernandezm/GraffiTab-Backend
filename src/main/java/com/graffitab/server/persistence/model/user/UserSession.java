@@ -30,10 +30,6 @@ import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 		query = "select us from UserSession us where us.user = :user"
 	),
 	@NamedQuery(
-		name = "UserSession.deleteAllSessionsForUser",
-		query = "delete from UserSession us where us.user = :user"
-	),
-	@NamedQuery(
 		name = "UserSession.deleteSession",
 		query = "delete "
 			  + "from UserSession us "

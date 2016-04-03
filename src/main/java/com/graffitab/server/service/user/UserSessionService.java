@@ -120,12 +120,6 @@ public class UserSessionService {
 		}
 	}
 
-	public void pingSession(String sessionId) {
-	 sessionOperationsExecutor.submit(() -> {
-		  // TODO: update pingTime for sessionId
-	  });
-	}
-
 	private Map<String, Object> getSessionAttributeMap(HttpSession session) {
 		Map<String, Object> sessionAttributeMap = new HashMap<>();
 		if (session != null) {
@@ -142,13 +136,28 @@ public class UserSessionService {
 		return sessionAttributeMap;
 	}
 
-	public void logoutEverywhere(User user) {
-		Integer deletedSessionCount = userSessionDao
-				  .createNamedQuery("UserSession.deleteAllSessionsForUser")
-				  .setParameter("user", user).executeUpdate();
+	public void logoutEverywhere(User user, boolean keepCurrentSession) {
+
+		HttpSession session = httpServletRequest.getSession(false);
+
+		if (session == null) {
+			String msg = "Current session is null -- this is not possible, investigate!";
+			log.error(msg);
+			throw new IllegalStateException(msg);
+		}
+
+		String queryString = "delete from UserSession us " +
+							 " where us.user = :user" +
+							 (keepCurrentSession ? " and us.sessionId != :keepSessionId": "");
+
+		Integer deletedSessionsCount = userSessionDao.createQuery(queryString)
+						.setParameter("user", user)
+						.setParameter("keepSessionId", session.getId())
+						.executeUpdate();
+
 
 		if (log.isDebugEnabled()) {
-			log.debug("Deleted {} sessions for user ID {}", deletedSessionCount, user.getId());
+			log.debug("Deleted {} sessions for user ID {}", deletedSessionsCount, user.getId());
 		}
 	}
 
