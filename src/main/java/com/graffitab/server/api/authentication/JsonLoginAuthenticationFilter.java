@@ -56,21 +56,7 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 			username = "";
 			return super.attemptAuthentication(request, response);
 		} else {
-
-			User user = userService.findByUsername(username);
-
-			if (user == null) {
-				throw new UsernameNotFoundException("The username [" + username + "] cannot be found");
-			} else if (user != null && user.getAccountStatus() == AccountStatus.ACTIVE) {
-				return super.attemptAuthentication(request, response);
-			} else {
-				String msg = "Current user is not in the expected state [" +
-							AccountStatus.ACTIVE.name() + "], it is " +
-							user.getAccountStatus().name();
-				RestApiException failureCause = new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE,
-												msg);
-				throw new LoginUserNotActiveException(msg, failureCause);
-			}
+			return attemptAuthenticationIfActiveUser(username, request, response);
 		}
 	}
 
@@ -84,5 +70,23 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 	@Override
 	protected String obtainPassword(HttpServletRequest request) {
 		return json.getString("password");
+	}
+
+	protected Authentication attemptAuthenticationIfActiveUser(String username, HttpServletRequest request, HttpServletResponse response) {
+
+		User user = userService.findByUsername(username);
+
+		if (user == null) {
+			throw new UsernameNotFoundException("The username [" + username + "] cannot be found");
+		} else if (user != null && user.getAccountStatus() == AccountStatus.ACTIVE) {
+			return super.attemptAuthentication(request, response);
+		} else {
+			String msg = "Current user is not in the expected state [" +
+						AccountStatus.ACTIVE.name() + "], it is " +
+						user.getAccountStatus().name();
+			RestApiException failureCause = new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE,
+											msg);
+			throw new LoginUserNotActiveException(msg, failureCause);
+		}
 	}
 }

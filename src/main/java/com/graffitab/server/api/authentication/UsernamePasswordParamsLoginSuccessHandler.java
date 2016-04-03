@@ -22,7 +22,7 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.user.UserSessionService;
 
 @Log4j2
-public class JsonLoginSuccessHandler implements AuthenticationSuccessHandler {
+public class UsernamePasswordParamsLoginSuccessHandler implements AuthenticationSuccessHandler {
 
 	@Resource(name = "delegateJacksonHttpMessageConverter")
 	private MappingJackson2HttpMessageConverter jsonConverter;

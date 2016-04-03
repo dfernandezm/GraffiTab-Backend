@@ -31,6 +31,7 @@ import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
 import com.graffitab.server.api.authentication.SessionInvalidationFilter;
 import com.graffitab.server.api.authentication.SessionPrecedenceBasicAuthFilter;
+import com.graffitab.server.api.authentication.UsernamePasswordQueryParamsAuthenticationFilter;
 import com.graffitab.server.service.GraffiTabUserDetailsService;
 
 import lombok.extern.log4j.Log4j2;
@@ -161,6 +162,9 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 		private JsonLoginAuthenticationFilter jsonAuthenticationFilter;
 
 		@Autowired
+		private UsernamePasswordQueryParamsAuthenticationFilter usernamePasswordQueryParamsAuthenticationFilter;
+
+		@Autowired
 		private SessionInvalidationFilter invalidateSessionFilter;
 
 		@Autowired
@@ -190,11 +194,14 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             Boolean basicAuthenticationEnabled = Boolean.parseBoolean(basicAuthEnabled);
             if (basicAuthenticationEnabled) {
             	if (log.isDebugEnabled()) {
-            		log.debug("Basic Authentication will be enabled");
+            		log.debug("Basic and URL parameters Authentication will be enabled");
             	}
 	            // Add the basic auth filter before the jsonLogin filter (check first)
 	            http.addFilterBefore(new SessionPrecedenceBasicAuthFilter(authenticationManager(), commonAuthenticationEntryPoint),
 	            		    JsonLoginAuthenticationFilter.class);
+
+	            // Also add the username / password as query parameters check before basic authentication
+	            http.addFilterBefore(usernamePasswordQueryParamsAuthenticationFilter, SessionPrecedenceBasicAuthFilter.class);
             }
 
             // Common entry points: 401 Unauthorized and access denied handlers

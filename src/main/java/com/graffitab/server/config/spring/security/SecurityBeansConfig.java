@@ -11,16 +11,22 @@ import com.graffitab.server.api.authentication.CommonAuthenticationEntryPoint;
 import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFilter;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.JsonLoginFailureHandler;
-import com.graffitab.server.api.authentication.JsonLoginSuccessHandler;
+import com.graffitab.server.api.authentication.JsonResponseLoginSuccessHandler;
 import com.graffitab.server.api.authentication.SessionInvalidationFilter;
+import com.graffitab.server.api.authentication.UsernamePasswordQueryParamsAuthenticationFilter;
 
 @Configuration
 @Order(5) // one more than the latest block in GraffitabSecurityConfig
 public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
-	public JsonLoginSuccessHandler jsonLoginSuccessHandler() {
-		return new JsonLoginSuccessHandler();
+	public JsonResponseLoginSuccessHandler storeSessionJsonLoginSuccessHandler() {
+		return new JsonResponseLoginSuccessHandler(true);
+	}
+
+	@Bean
+	public JsonResponseLoginSuccessHandler statelessJsonLoginSuccessHandler() {
+		return new JsonResponseLoginSuccessHandler(false);
 	}
 
 	@Bean
@@ -30,7 +36,7 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
         authFilter.setAuthenticationManager(authenticationManager());
 
         // Custom success handler - send 200 OK
-        authFilter.setAuthenticationSuccessHandler(jsonLoginSuccessHandler());
+        authFilter.setAuthenticationSuccessHandler(storeSessionJsonLoginSuccessHandler());
 
         // Custom failure handler - send 401 unauthorized
         authFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
@@ -55,9 +61,25 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
 		ExternalProviderAuthenticationFilter externalProviderFilter =
 												new ExternalProviderAuthenticationFilter();
 		externalProviderFilter.setAuthenticationManager(authenticationManager());
-		externalProviderFilter.setAuthenticationSuccessHandler(jsonLoginSuccessHandler());
+		externalProviderFilter.setAuthenticationSuccessHandler(storeSessionJsonLoginSuccessHandler());
 		externalProviderFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
 		return externalProviderFilter;
 	}
+
+	@Bean
+    public UsernamePasswordQueryParamsAuthenticationFilter usernamePasswordQueryParamsAuthenticationFilter() throws Exception {
+		UsernamePasswordQueryParamsAuthenticationFilter authFilter = new UsernamePasswordQueryParamsAuthenticationFilter();
+		authFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher("/api/**"));
+		authFilter.setAuthenticationManager(authenticationManager());
+
+        // Custom success handler - send 200 OK
+        authFilter.setAuthenticationSuccessHandler(statelessJsonLoginSuccessHandler());
+
+        // Custom failure handler - send 401 unauthorized
+        authFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
+        authFilter.setUsernameParameter("username");
+        authFilter.setPasswordParameter("password");
+        return authFilter;
+    }
 
 }
