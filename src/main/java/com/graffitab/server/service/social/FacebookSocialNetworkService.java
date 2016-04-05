@@ -1,13 +1,13 @@
 package com.graffitab.server.service.social;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import lombok.extern.log4j.Log4j;
-
+import org.javatuples.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,6 +22,7 @@ import facebook4j.FacebookFactory;
 import facebook4j.Friend;
 import facebook4j.Reading;
 import facebook4j.auth.AccessToken;
+import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Service
@@ -58,24 +59,16 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public List<User> getFriendsList(User user, Integer offset, Integer limit) {
 		if (log.isDebugEnabled()) {
 			log.debug("[FACEBOOK] About to fetch user friends");
 		}
 
-		// Fetch user ID and access token.
-		String userId = user.getMetadataItems().get(String.format(UserService.EXTERNAL_PROVIDER_ID_KEY, providerType.name()));
-		String userAccessToken = user.getMetadataItems().get(String.format(UserService.EXTERNAL_PROVIDER_TOKEN_KEY, providerType.name()));
-
-		if (userId == null) {
-			String msg = "Error fetching friends list from Facebook: Missing user Facebook ID";
-			throw new SocialNetworkException(msg);
-		}
-		if (userAccessToken == null) {
-			String msg = "Error fetching friends list from Facebook: Missing user Facebook Access Token";
-			throw new SocialNetworkException(msg);
-		}
+		Pair<String, String> externalProviderMetadata = fetchExternalProviderMetadata(user);
+		String userId = externalProviderMetadata.getValue0();
+		String userAccessToken = externalProviderMetadata.getValue1();
 
 		try {
 			// At this point we should have the access token and user ID.
@@ -113,5 +106,53 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 			log.error(msg, e);
 			throw new SocialNetworkException(msg, e);
 		}
+	}
+
+	@SuppressWarnings("unused")
+	@Override
+	public URL getProfilePictureUrl(User user, int width, int height) {
+		if (log.isDebugEnabled()) {
+			log.debug("[FACEBOOK] About to fetch user profile picture");
+		}
+
+		Pair<String, String> externalProviderMetadata = fetchExternalProviderMetadata(user);
+		String userId = externalProviderMetadata.getValue0();
+		String userAccessToken = externalProviderMetadata.getValue1();
+
+		try {
+			// At this point we should have the access token and user ID.
+			AccessToken extendedToken = facebook.extendTokenExpiration(userAccessToken);
+			facebook.setOAuthAccessToken(extendedToken);
+
+			URL pictureUrl = facebook.getPictureURL(width, height);
+
+			if (log.isDebugEnabled()) {
+				log.debug("[FACEBOOK] Finished fetching user profile picture");
+			}
+
+			return pictureUrl;
+		} catch (FacebookException e) {
+			String msg = "Error fetching user profile picture";
+			log.error(msg, e);
+			throw new SocialNetworkException(msg, e);
+		}
+	}
+
+	@Override
+	public Pair<String, String> fetchExternalProviderMetadata(User user) {
+		// Fetch user ID and access token.
+		String userId = user.getMetadataItems().get(String.format(UserService.EXTERNAL_PROVIDER_ID_KEY, providerType.name()));
+		String userAccessToken = user.getMetadataItems().get(String.format(UserService.EXTERNAL_PROVIDER_TOKEN_KEY, providerType.name()));
+
+		if (userId == null) {
+			String msg = "Error fetching friends list from Facebook: Missing user Facebook ID";
+			throw new SocialNetworkException(msg);
+		}
+		if (userAccessToken == null) {
+			String msg = "Error fetching friends list from Facebook: Missing user Facebook Access Token";
+			throw new SocialNetworkException(msg);
+		}
+
+		return new Pair<String, String>(userId, userAccessToken);
 	}
 }

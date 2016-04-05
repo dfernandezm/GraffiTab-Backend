@@ -386,4 +386,13 @@ public class MeApiController {
 		UserSocialFriendsContainer container = userService.getSocialFriendsForProviderResult(type, offset, limit);
 		return mapper.map(container, UserSocialFriendsContainerDto.class);
 	}
+
+	@RequestMapping(value = {"/social/{type}/avatar"}, method = RequestMethod.PUT)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public CreateAssetResult importSocialAvatar(@PathVariable("type") ExternalProviderType type) {
+		CreateAssetResult createAssetResult = new CreateAssetResult();
+		Asset asset = userService.importSocialAvatar(type);
+		createAssetResult.setAsset(mapper.map(asset, AssetDto.class));
+		return createAssetResult;
+	}
 }

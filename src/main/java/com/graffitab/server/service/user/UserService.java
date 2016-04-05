@@ -277,6 +277,9 @@ public class UserService {
 
 	public User createExternalUser(User user, final String externalProviderId, String externalProviderToken,
 			ExternalProviderType externalProviderType) {
+		// Generate random password for the external user, so that the validation is passed.
+		user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
+
 		if (validationService.validateUser(user)) {
 			if (user.getId() == null) {
 				User validatedExternalProviderUser = transactionUtils.executeInTransactionWithResult(() -> {
@@ -286,7 +289,6 @@ public class UserService {
 
 				if (validatedExternalProviderUser == null) {
 					transactionUtils.executeInTransaction(() -> {
-						user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
 						user.setGuid(GuidGenerator.generate());
 						user.setAccountStatus(AccountStatus.ACTIVE);
 						user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
@@ -305,7 +307,7 @@ public class UserService {
 					return user;
 				}
 				else {
-					throw new RestApiException(ResultCode.BAD_REQUEST,
+					throw new RestApiException(ResultCode.ALREADY_EXISTS,
 							"This external provider is already used for another user.");
 				}
 			} else {
@@ -622,6 +624,10 @@ public class UserService {
 
 	public UserSocialFriendsContainer getSocialFriendsForProviderResult(ExternalProviderType type, Integer offset, Integer limit) {
 		return socialNetworksService.getSocialFriendsForProviderResult(type, offset, limit);
+	}
+
+	public Asset importSocialAvatar(ExternalProviderType type) {
+		return socialNetworksService.setAvatarFromExternalProvider(type);
 	}
 
 	@Transactional(readOnly = true)
