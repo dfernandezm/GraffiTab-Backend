@@ -725,6 +725,28 @@ Use our API to quickly integrate GraffiTab's services in your application.
             }
         }
 
+### Import avatar from external provider [PUT /users/me/social/{type}/avatar]
+
+🔒 __Requires authentication__
+
++ Parameters
+    + type (string) - The type of network.
+
++ Request (application/json)
+    + Headers
+    
+            Authorization:Basic [access_token]
+
++ Response 200 (application/json)
+
+        {
+            "asset": {
+                "guid": "g1h3nmn43",
+                "type": "IMAGE",
+                "link": "DOWNLOAD_LINK"
+            }
+        }
+
 ### Delete avatar [DELETE /users/me/avatar]
 
 🔒 __Requires authentication__
