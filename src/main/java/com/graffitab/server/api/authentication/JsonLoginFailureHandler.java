@@ -15,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.util.StringUtils;
 
 import com.graffitab.server.api.errors.LoginUserNotActiveException;
 import com.graffitab.server.api.errors.RestApiException;
@@ -52,8 +53,23 @@ public class JsonLoginFailureHandler implements AuthenticationFailureHandler {
 		json.put("resultCode", resultCode);
 		json.put("resultMessage", message);
 
+		// Dirty hack to get rid once and for all of the session cookie, as it always added by login endpoints
+		// even when the session is invalidated. An 'invalidation cookie' (with 0 age) does not work as
+		// expected as the 'Set-Cookie' header is added twice. Overriding the header overcomes this.
+		String cookiePath = request.getContextPath();
+
+		if (!StringUtils.hasLength(cookiePath)) {
+			cookiePath = "/";
+		}
+
+		response.setHeader("Set-Cookie", "JSESSIONID=\"\"; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=" +
+							cookiePath);
+
 		response.setContentType("application/json");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		IOUtils.write(json.toString(), response.getOutputStream());
+
+		// Invalidate the created session as login failed
+		request.getSession(false).invalidate();
 	}
 }

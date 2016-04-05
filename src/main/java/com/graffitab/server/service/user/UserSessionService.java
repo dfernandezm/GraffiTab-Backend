@@ -69,25 +69,35 @@ public class UserSessionService {
 	}
 
 	public void saveOrUpdateSessionData(HttpSession session) {
-
-		log.warn("Saving session with ID: " + session.getId());
+		if (log.isDebugEnabled()) {
+			log.debug("Saving session with ID: " + session.getId());
+		}
 
 		Map<String, Object> sessionAttributeMap = getSessionAttributeMap(session);
 		byte[] sessionData = SerializationUtils.serialize(sessionAttributeMap);
 
 		if (sessionAttributeMap.isEmpty()) {
-			log.warn("Session attribute data is empty");
+			if (log.isDebugEnabled()) {
+				if (sessionAttributeMap.isEmpty()) {
+					log.debug("Session attribute data is empty");
+				}
+			}
 		}
 
-		if (sessionData == null) {
-			log.warn("sessionData is null");
+		if (log.isDebugEnabled()) {
+			if (sessionData == null) {
+				log.debug("sessionData is null");
+			}
 		}
 
 		transactionUtils.executeInTransaction(() -> {
-			log.warn("Starting transaction to save session with ID: " + session.getId());
+			if (log.isDebugEnabled()) {
+				log.debug("Starting transaction to save session with ID: " + session.getId());
+			}
+
 			UserSession currentUserSession = findBySessionIdAndInitialize(session.getId());
+
 			if (currentUserSession == null) {
-				log.warn("Session with ID {} not found, creating new ", session.getId());
 				User currentUser = userService.getCurrentUser();
 				userService.merge(currentUser);
 				UserSession userSession = new UserSession();
@@ -96,7 +106,10 @@ public class UserSessionService {
 				userSession.setContent(sessionData);
 				userSession.setUser(currentUser);
 
-				log.warn("About to persist session with ID {}", session.getId());
+				if (log.isDebugEnabled()) {
+					log.debug("Persisting session with ID {}", session.getId());
+				}
+
 				userSessionDao.persist(userSession);
 			} else {
 				currentUserSession.setContent(sessionData);
