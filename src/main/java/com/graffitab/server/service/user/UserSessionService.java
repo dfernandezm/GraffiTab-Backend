@@ -11,8 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
-import lombok.extern.log4j.Log4j2;
-
+import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
 import org.springframework.security.oauth2.common.util.SerializationUtils;
@@ -25,6 +24,8 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.UserSession;
 import com.graffitab.server.service.ProxyUtilities;
 import com.graffitab.server.service.TransactionUtils;
+
+import lombok.extern.log4j.Log4j2;
 
 @Service
 @Log4j2
@@ -150,10 +151,9 @@ public class UserSessionService {
 	}
 
 	public void logoutEverywhere(User user, boolean keepCurrentSession) {
-
 		HttpSession session = httpServletRequest.getSession(false);
 
-		if (session == null) {
+		if (keepCurrentSession && session == null) {
 			String msg = "Current session is null -- this is not possible, investigate!";
 			log.error(msg);
 			throw new IllegalStateException(msg);
@@ -163,11 +163,13 @@ public class UserSessionService {
 							 " where us.user = :user" +
 							 (keepCurrentSession ? " and us.sessionId != :keepSessionId": "");
 
-		Integer deletedSessionsCount = userSessionDao.createQuery(queryString)
-						.setParameter("user", user)
-						.setParameter("keepSessionId", session.getId())
-						.executeUpdate();
+		Query deleteSessionsQuery = userSessionDao.createQuery(queryString)
+				.setParameter("user", user);
+		if (keepCurrentSession) {
+			deleteSessionsQuery.setParameter("keepSessionId", session.getId());
+		}
 
+		Integer deletedSessionsCount = deleteSessionsQuery.executeUpdate();
 
 		if (log.isDebugEnabled()) {
 			log.debug("Deleted {} sessions for user ID {}", deletedSessionsCount, user.getId());
