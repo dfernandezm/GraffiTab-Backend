@@ -34,6 +34,12 @@ import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 		query = "delete "
 			  + "from UserSession us "
 			  + "where sessionId = :sessionId"
+	),
+	@NamedQuery(
+			name = "UserSession.findExpiredSessionIds",
+			query = "select us.sessionId "
+				  + "from UserSession us "
+				  + "where us.createdOn <= :expiryInterval"
 	)
 })
 

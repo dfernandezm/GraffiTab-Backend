@@ -11,6 +11,7 @@ import javax.servlet.ServletResponse;
 
 import org.springframework.stereotype.Component;
 
+import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
 
 @Component
@@ -31,6 +32,7 @@ public class ClearThreadLocalsFilter implements Filter {
 			 // After every request the thread local has to be cleared, as threads
 			 // are constantly reused
 			 UserService.clearThreadLocalUserCache();
+			 RunAsUser.clear();
 		 }
 	}
 

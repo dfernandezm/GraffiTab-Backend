@@ -29,6 +29,7 @@ import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFil
 import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
+import com.graffitab.server.api.authentication.PersistedSessionSecurityContext;
 import com.graffitab.server.api.authentication.SessionInvalidationFilter;
 import com.graffitab.server.api.authentication.SessionPrecedenceBasicAuthFilter;
 import com.graffitab.server.api.authentication.UsernamePasswordQueryParamsAuthenticationFilter;
@@ -170,10 +171,16 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
 
+		@Autowired
+		private PersistedSessionSecurityContext securityContextRepository;
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable()
                     .anonymous().disable()
+                    .securityContext()
+                    	.securityContextRepository(securityContextRepository)
+                    .and()
                     .antMatcher("/api/**")
             	    .sessionManagement()
             	    	.sessionCreationPolicy(SessionCreationPolicy.NEVER)
@@ -187,6 +194,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
             // Add the invalidation session filter after this check, as it could be creating a new session
             http.addFilterAfter(invalidateSessionFilter, SecurityContextPersistenceFilter.class);
+
 
             // Add the custom authentication filter before the regular one
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

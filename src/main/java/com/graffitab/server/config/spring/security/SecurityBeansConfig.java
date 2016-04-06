@@ -12,6 +12,7 @@ import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFil
 import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
 import com.graffitab.server.api.authentication.JsonLoginFailureHandler;
 import com.graffitab.server.api.authentication.JsonResponseLoginSuccessHandler;
+import com.graffitab.server.api.authentication.PersistedSessionSecurityContext;
 import com.graffitab.server.api.authentication.SessionInvalidationFilter;
 import com.graffitab.server.api.authentication.UsernamePasswordQueryParamsAuthenticationFilter;
 
@@ -81,5 +82,12 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
         authFilter.setPasswordParameter("password");
         return authFilter;
     }
+
+	@Bean
+	public PersistedSessionSecurityContext securityContextRepository() {
+		PersistedSessionSecurityContext persistedSessionSecurityContext = new PersistedSessionSecurityContext();
+		persistedSessionSecurityContext.setAllowSessionCreation(false);
+		return persistedSessionSecurityContext;
+	}
 
 }

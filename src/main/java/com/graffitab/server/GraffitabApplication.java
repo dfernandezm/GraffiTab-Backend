@@ -18,6 +18,7 @@ import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -28,6 +29,7 @@ import com.graffitab.server.config.spring.MainConfig;
 import com.graffitab.server.config.spring.MainDatabaseConfig;
 
 @SpringBootApplication
+@EnableScheduling
 @EnableAutoConfiguration(exclude={SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SpringBootWebSecurityConfiguration.class})
 public class GraffitabApplication extends SpringBootServletInitializer {
 

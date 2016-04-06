@@ -22,7 +22,7 @@ import com.graffitab.server.service.user.UserSessionService;
 /**
  *
  * Filter needed to detect if the incoming session is still valid or should
- * be invalidated an force the request to authenticate again.
+ * be invalidated and force the request to authenticate again.
  *
  * All valid sessions must be stored in the database (or other storage for active sessions),
  * otherwise they are detected as invalid.
@@ -51,6 +51,8 @@ public class SessionInvalidationFilter extends GenericFilterBean {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 
+		String requestedSessionId = request.getRequestedSessionId();
+
 		if (request.getAttribute(FILTER_APPLIED) != null) {
 			// ensure that filter is only applied once per request
 			chain.doFilter(request, response);
@@ -63,12 +65,14 @@ public class SessionInvalidationFilter extends GenericFilterBean {
 
 	    HttpSession session = request.getSession(false);
 	    String currentSessionId = session == null ? null : session.getId();
-	    // Performance??
+
 	    if (currentSessionId != null && !userSessionService.exists(currentSessionId)) {
+
 	        // Request is coming from an invalid session.
 	    	if (log.isDebugEnabled()) {
 				log.debug("Invalidating session: {}",currentSessionId);
 			}
+
 	    	// Invalidate this session
 	        session.invalidate();
 
@@ -82,9 +86,18 @@ public class SessionInvalidationFilter extends GenericFilterBean {
 	    }
 
 	    try {
+
 	    	chain.doFilter(request, response);
+
 	    } finally {
+
 	    	request.removeAttribute(FILTER_APPLIED);
+
+	    	if (currentSessionId != null) {
+	    		userSessionService.touchSession(currentSessionId);
+	    	} else {
+	    		log.warn("The actual session for the current request was NULL and the requested session ID was [{}]", requestedSessionId);
+	    	}
 	    }
 	}
 

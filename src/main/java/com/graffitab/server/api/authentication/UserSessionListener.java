@@ -1,4 +1,4 @@
-package com.graffitab.server.config.web;
+package com.graffitab.server.api.authentication;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSessionEvent;
@@ -19,13 +19,17 @@ public class UserSessionListener implements HttpSessionListener {
 
 	@Override
 	public void sessionCreated(HttpSessionEvent se) {
-		log.info("Session created: {}", se.getSession().getId());
+		if (log.isDebugEnabled()) {
+			log.debug("Session created: {}", se.getSession().getId());
+		}
 	}
 
 	@Override
 	public void sessionDestroyed(HttpSessionEvent se) {
-		log.info("Session destroyed: {}", se.getSession().getId());
-		//TODO: performance?
+		if (log.isDebugEnabled()) {
+			log.debug("Session destroyed: {}", se.getSession().getId());
+		}
+
 		userSessionService.deleteSession(se.getSession().getId());
 	}
 
