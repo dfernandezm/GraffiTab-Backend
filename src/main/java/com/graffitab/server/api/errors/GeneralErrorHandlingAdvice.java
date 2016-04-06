@@ -47,6 +47,11 @@ public class GeneralErrorHandlingAdvice {
     		errorResult.setResultCode(ResultCode.BAD_REQUEST);
     		errorResult.setResultMessage("The required property " +
     				missingJsonPropertyException.getRequestedJsonProperty() + " is not present in the request");
+    	} else if (throwable.getCause() instanceof RestApiException) { // This is needed for the TransactionUtils runWithResult, which throws a RuntimeException.
+    		RestApiException restApiException = (RestApiException) throwable.getCause();
+    		response.setStatus(restApiException.getResultCode().getStatusCode());
+    		errorResult.setResultCode(restApiException.getResultCode());
+    		errorResult.setResultMessage(restApiException.getMessage());
     	} else {
     		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     		errorResult.setResultCode(ResultCode.GENERAL_ERROR);
