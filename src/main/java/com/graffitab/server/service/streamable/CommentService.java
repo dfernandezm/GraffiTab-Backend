@@ -192,7 +192,7 @@ public class CommentService {
 						User foundUser = userService.findByUsername(match);
 						if (foundUser != null) {
 							if (!foundUser.equals(currentUser)) { // User can mention himself without notifications.
-								notificationService.addMentionNotificationAsync(foundUser, currentUser, streamable);
+								notificationService.addMentionNotificationAsync(foundUser, currentUser, streamable, comment);
 							}
 						}
 						else if (log.isDebugEnabled()) {

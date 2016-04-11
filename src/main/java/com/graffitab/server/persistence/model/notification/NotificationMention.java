@@ -5,11 +5,12 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
-import lombok.Getter;
-import lombok.Setter;
-
+import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -27,14 +28,19 @@ public class NotificationMention extends Notification {
 	@JoinColumn(name = "mentioned_item_id")
 	private Streamable mentionedStreamable;
 
+	@OneToOne(targetEntity = Comment.class)
+	@JoinColumn(name = "mentioned_comment_id")
+	private Comment mentionedComment;
+
 	public NotificationMention() {
 		super(NotificationType.MENTION);
 	}
 
-	public NotificationMention(User mentioner, Streamable mentionedStreamable) {
+	public NotificationMention(User mentioner, Streamable mentionedStreamable, Comment comment) {
 		super(NotificationType.MENTION);
 
 		this.mentioner = mentioner;
 		this.mentionedStreamable = mentionedStreamable;
+		this.mentionedComment = comment;
 	}
 }

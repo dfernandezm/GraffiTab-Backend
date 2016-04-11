@@ -308,3 +308,7 @@ alter table streamable add updated_on bigint(20);
 
 --changeset georgi:v100cs54
 ALTER TABLE gt_user_metadata MODIFY metadata_value varchar(1000);
+
+--changeset georgi:v100cs55
+alter table notification add mentioned_comment_id bigint(20);
+ALTER TABLE notification ADD CONSTRAINT notification_mentioned_comment_fk FOREIGN KEY (mentioned_comment_id) REFERENCES comment(id);

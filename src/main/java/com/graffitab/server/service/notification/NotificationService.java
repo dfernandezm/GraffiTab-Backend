@@ -105,8 +105,8 @@ public class NotificationService {
 		addNotificationToUser(user, notification);
 	}
 
-	public void addMentionNotificationAsync(User user, User mentioner, Streamable mentionedStreamable) {
-		Notification notification = new NotificationMention(mentioner, mentionedStreamable);
+	public void addMentionNotificationAsync(User user, User mentioner, Streamable mentionedStreamable, Comment comment) {
+		Notification notification = new NotificationMention(mentioner, mentionedStreamable, comment);
 		addNotificationToUser(user, notification);
 	}
 
