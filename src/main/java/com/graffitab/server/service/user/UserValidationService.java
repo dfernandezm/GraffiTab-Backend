@@ -37,14 +37,19 @@ public class UserValidationService {
 		return validationResult;
 	}
 
-	public Boolean validateEditInfo(String firstname, String lastname, String website, String about) {
+	@Transactional
+	public Boolean validateEditInfo(Long currentUserId, String firstname, String lastname, String email, String website, String about) {
 		boolean validationResult = false;
 
 		if (StringUtils.isEmpty(firstname) || StringUtils.isEmpty(lastname)) {
 			validationResult = false;
 		}
 		else {
-			validationResult = true;
+			if (isEmailTaken(email, currentUserId) ){
+				validationResult = false;
+			} else {
+				validationResult = true;
+			}
 		}
 
 		return validationResult;

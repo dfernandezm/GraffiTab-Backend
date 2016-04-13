@@ -320,13 +320,16 @@ public class UserService {
 	}
 
 	@Transactional
-	public User editUser(String firstname, String lastname, String about, String website) {
-		if (validationService.validateEditInfo(firstname, lastname, website, about)) {
+	public User editUser(String firstname, String lastname, String email, String about, String website) {
+		User user = getCurrentUser();
+
+		if (validationService.validateEditInfo(user.getId(), firstname, lastname, email, website, about)) {
 			User currentUser = getCurrentUser();
 
 			currentUser.setUpdatedOn(new DateTime());
 			currentUser.setFirstName(firstname);
 			currentUser.setLastName(lastname);
+			currentUser.setEmail(email);
 			currentUser.setAbout(about);
 			currentUser.setWebsite(website);
 			merge(currentUser);
