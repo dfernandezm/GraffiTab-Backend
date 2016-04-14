@@ -5,12 +5,11 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.streamable.Streamable;
-import com.graffitab.server.persistence.model.user.User;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -19,10 +18,6 @@ import com.graffitab.server.persistence.model.user.User;
 public class ActivityComment extends Activity {
 
 	private static final long serialVersionUID = 1L;
-
-	@OneToOne(targetEntity = User.class)
-	@JoinColumn(name = "commenter_id")
-	private User commenter;
 
 	@OneToOne(targetEntity = Streamable.class)
 	@JoinColumn(name = "commented_item_id")
@@ -36,10 +31,9 @@ public class ActivityComment extends Activity {
 		super(ActivityType.COMMENT);
 	}
 
-	public ActivityComment(User commenter, Streamable commentedStreamable, Comment comment) {
-		super(ActivityType.LIKE);
+	public ActivityComment(Streamable commentedStreamable, Comment comment) {
+		super(ActivityType.COMMENT);
 
-		this.commenter = commenter;
 		this.commentedStreamable = commentedStreamable;
 		this.comment = comment;
 	}
@@ -52,10 +46,5 @@ public class ActivityComment extends Activity {
 
 		ActivityComment activityComment = (ActivityComment) other;
 		return activityComment.getCommentedStreamable().equals(this.commentedStreamable);
-	}
-
-	@Override
-	public User getActivityUser() {
-		return this.commenter;
 	}
 }

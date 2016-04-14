@@ -318,3 +318,15 @@ alter table asset add width int(10);
 alter table asset add height int(10);
 alter table asset add thumbnail_width int(10);
 alter table asset add thumbnail_height int(10);
+
+--changeset georgi:v100cs57
+alter table activity add ip_address varchar(100);
+alter table activity add user_agent varchar(500);
+ALTER TABLE activity DROP FOREIGN KEY activity_commenter_id;
+ALTER TABLE activity DROP FOREIGN KEY activity_creator_id;
+ALTER TABLE activity DROP FOREIGN KEY activity_follower_id;
+ALTER TABLE activity DROP FOREIGN KEY activity_liker_id;
+ALTER TABLE activity DROP COLUMN commenter_id;
+ALTER TABLE activity DROP COLUMN creator_id;
+ALTER TABLE activity DROP COLUMN follower_id;
+ALTER TABLE activity DROP COLUMN liker_id;

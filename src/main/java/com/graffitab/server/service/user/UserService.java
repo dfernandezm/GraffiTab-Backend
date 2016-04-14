@@ -503,10 +503,8 @@ public class UserService {
 				}
 
 				if (!currentUser.isFollowing(toFollow)) {
-					//User innerCurrentUser = findUserById(currentUser.getId());
-					User innerUser = currentUser;
+					User innerUser = findUserById(currentUser.getId());
 					innerUser.getFollowing().add(toFollow);
-					merge(currentUser);
 					isFollowed = true;
 				}
 

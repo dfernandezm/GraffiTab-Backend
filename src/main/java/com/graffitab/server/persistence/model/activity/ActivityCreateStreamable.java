@@ -5,11 +5,10 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import com.graffitab.server.persistence.model.streamable.Streamable;
+
 import lombok.Getter;
 import lombok.Setter;
-
-import com.graffitab.server.persistence.model.streamable.Streamable;
-import com.graffitab.server.persistence.model.user.User;
 
 @Getter
 @Setter
@@ -19,10 +18,6 @@ public class ActivityCreateStreamable extends Activity {
 
 	private static final long serialVersionUID = 1L;
 
-	@OneToOne(targetEntity = User.class)
-	@JoinColumn(name = "creator_id")
-	private User creator;
-
 	@OneToOne(targetEntity = Streamable.class)
 	@JoinColumn(name = "created_item_id")
 	private Streamable createdStreamable;
@@ -31,20 +26,14 @@ public class ActivityCreateStreamable extends Activity {
 		super(ActivityType.CREATE_STREAMABLE);
 	}
 
-	public ActivityCreateStreamable(User creator, Streamable createdStreamable) {
+	public ActivityCreateStreamable(Streamable createdStreamable) {
 		super(ActivityType.CREATE_STREAMABLE);
 
-		this.creator = creator;
 		this.createdStreamable = createdStreamable;
 	}
 
 	@Override
 	public boolean isSameActivity(Activity other) {
 		return false;
-	}
-
-	@Override
-	public User getActivityUser() {
-		return this.creator;
 	}
 }

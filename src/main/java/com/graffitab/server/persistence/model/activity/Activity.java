@@ -12,11 +12,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
@@ -26,13 +24,20 @@ import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 @NamedQueries({
 	@NamedQuery(
 		name = "Activity.getFollowersActivity",
 		query = "select a "
 			  + "from User u "
 			  + "join u.activity a "
-			  + "where u = :currentUser "
+			  + "where u in (select following "
+			  			  + "from User currentUser "
+			  			  + "join currentUser.following following "
+			  			  + "where currentUser = :currentUser) "
 			  + "order by a.createdOn desc"
 	)
 })
@@ -56,6 +61,10 @@ public abstract class Activity implements Identifiable<Long> {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 
+	@ManyToOne(targetEntity = User.class)
+	@JoinColumn(name = "user_id", insertable = false, updatable = false)
+	private User user;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "activity_type", nullable = false, insertable = false, updatable = false)
 	private ActivityType activityType;
@@ -63,6 +72,12 @@ public abstract class Activity implements Identifiable<Long> {
 	@Convert(converter = DateTimeToLongConverter.class)
 	@Column(name = "created_on", nullable = false)
 	private DateTime createdOn;
+
+	@Column(name = "ip_address")
+	private String ipAddress;
+
+	@Column(name = "user_agent")
+	private String userAgent;
 
 	@Override
 	public Long getId() {
@@ -84,9 +99,8 @@ public abstract class Activity implements Identifiable<Long> {
 	}
 
 	public boolean isSameTypeOfActivity(Activity other) {
-		return this.activityType == other.activityType && getActivityUser().equals(other.getActivityUser());
+		return this.activityType == other.activityType && user.equals(other.user);
 	}
 
 	public abstract boolean isSameActivity(Activity other);
-	public abstract User getActivityUser();
 }

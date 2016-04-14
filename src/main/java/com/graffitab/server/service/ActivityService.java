@@ -1,12 +1,13 @@
 package com.graffitab.server.service;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,9 @@ public class ActivityService {
 	@Resource
 	private TransactionUtils transactionUtils;
 
+	@Autowired
+	private HttpServletRequest request;
+
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
 	@Transactional(readOnly = true)
@@ -58,41 +62,47 @@ public class ActivityService {
 		return activityPagingService.getPagedItems(Activity.class, ActivityContainerDto.class, numberOfItemsInGroup, offset, limit, query);
 	}
 
-	public void addCreateStreamableActivityAsync(User creator, Streamable createdStreamable) {
-		Activity activity = new ActivityCreateStreamable(creator, createdStreamable);
-		addUserActivityToFollowersAsync(creator, activity);
+	public void addCreateStreamableActivityAsync(User currentUser, Streamable createdStreamable) {
+		Activity activity = new ActivityCreateStreamable(createdStreamable);
+		addUserActivityToFollowersAsync(currentUser, activity);
 	}
 
-	public void addFollowActivityAsync(User follower, User followed) {
-		Activity activity = new ActivityFollow(followed, follower);
-		addUserActivityToFollowersAsync(follower, activity);
+	public void addFollowActivityAsync(User currentUser, User followed) {
+		Activity activity = new ActivityFollow(followed);
+		addUserActivityToFollowersAsync(currentUser, activity);
 	}
 
-	public void addLikeActivityAsync(User liker, Streamable likedStreamable) {
-		Activity activity = new ActivityLike(liker, likedStreamable);
-		addUserActivityToFollowersAsync(liker, activity);
+	public void addLikeActivityAsync(User currentUser, Streamable likedStreamable) {
+		Activity activity = new ActivityLike(likedStreamable);
+		addUserActivityToFollowersAsync(currentUser, activity);
 	}
 
-	public void addCommentActivityAsync(User commenter, Streamable commentedStreamable, Comment comment) {
-		Activity activity = new ActivityComment(commenter, commentedStreamable, comment);
-		addUserActivityToFollowersAsync(commenter, activity);
+	public void addCommentActivityAsync(User currentUser, Streamable commentedStreamable, Comment comment) {
+		Activity activity = new ActivityComment(commentedStreamable, comment);
+		addUserActivityToFollowersAsync(currentUser, activity);
 	}
 
-	private void addUserActivityToFollowersAsync(User user, Activity activity) {
+	private void addUserActivityToFollowersAsync(User currentUser, Activity activity) {
+		String userAgent = request.getHeader("User-Agent");
+
+		// Is client behind something?
+		String ipAddress = request.getHeader("X-FORWARDED-FOR");
+		if (ipAddress == null) {
+		    ipAddress = request.getRemoteAddr();
+		}
+
+		activity.setUserAgent(userAgent);
+		activity.setIpAddress(ipAddress);
+
 		executor.submit(() -> {
 			if (log.isDebugEnabled()) {
-				log.debug("About to add activity " + activity + " to followers of user " + user);
+				log.debug("About to add activity " + activity + " to user " + currentUser);
 			}
 
-			// Find all followers for the given user.
-			List<Long> followersIds = userService.getUserFollowersIds(user);
-
 			// Add the user activity to each follower.
-			followersIds.forEach(userId -> {
-				transactionUtils.executeInTransaction(() -> {
-					User follower = userService.findUserById(userId);
-					follower.getActivity().add(activity);
-				});
+			transactionUtils.executeInTransaction(() -> {
+				User inner = userService.findUserById(currentUser.getId());
+				inner.getActivity().add(activity);
 			});
 
 			if (log.isDebugEnabled()) {

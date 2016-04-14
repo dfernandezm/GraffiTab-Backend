@@ -53,8 +53,9 @@ public class ActivityPagingService extends PagingService {
     		// There's at least one activity item, so setup the first container for it.
     		ActivityContainer container = new ActivityContainer();
     		container.setActivityType(previous.getActivityType());
-    		container.setUser(previous.getActivityUser());
+    		container.setUser(previous.getUser());
     		container.setCreatedOn(previous.getCreatedOn());
+    		container.getActivities().add(previous);
     		groups.add(container);
 
     		for (Activity activity : activities) {
@@ -68,7 +69,7 @@ public class ActivityPagingService extends PagingService {
     				// The current activity item is not the same as the previous one or the max items count has been reached for the container, so create a new container and add the activity to it.
     				container = new ActivityContainer();
     				container.setActivityType(activity.getActivityType());
-    	    		container.setUser(activity.getActivityUser());
+    	    		container.setUser(activity.getUser());
     	    		container.setCreatedOn(activity.getCreatedOn());
     	    		container.getActivities().add(activity);
     	    		groups.add(container);
