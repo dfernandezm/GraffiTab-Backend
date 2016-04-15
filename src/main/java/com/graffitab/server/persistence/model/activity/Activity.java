@@ -34,10 +34,13 @@ import lombok.Setter;
 		query = "select a "
 			  + "from User u "
 			  + "join u.activity a "
+			  + "left join a.createdStreamable s "
 			  + "where u in (select following "
 			  			  + "from User currentUser "
 			  			  + "join currentUser.following following "
 			  			  + "where currentUser = :currentUser) "
+			  + "and s is null or (s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  			  + "and s.isPrivate = 'N') "
 			  + "order by a.createdOn desc"
 	)
 })
