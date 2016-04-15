@@ -39,8 +39,8 @@ import lombok.Setter;
 			  			  + "from User currentUser "
 			  			  + "join currentUser.following following "
 			  			  + "where currentUser = :currentUser) "
-			  + "and s is null or (s.isDeleted = 'N' " // Enforce rules for hidden items.
-			  			  + "and s.isPrivate = 'N') "
+			  + "and (s is null or (s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  			  + "and s.isPrivate = 'N')) "
 			  + "order by a.createdOn desc"
 	),
 	@NamedQuery(
