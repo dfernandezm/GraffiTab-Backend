@@ -117,16 +117,6 @@ import lombok.Setter;
 			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
-		name = "Streamable.getUserFeed",
-		query = "select f "
-			  + "from User u "
-			  + "join u.feed f "
-			  + "where u = :currentUser "
-			  + "and f.isDeleted = 'N' " // Enforce rules for hidden items.
-			  + "and f.isPrivate = 'N' "
-			  + "order by f.createdOn desc"
-	),
-	@NamedQuery(
 		name = "Streamable.getPrivateStreamables",
 		query = "select s "
 			  + "from User u "

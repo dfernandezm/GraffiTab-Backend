@@ -42,7 +42,23 @@ import lombok.Setter;
 			  + "and s is null or (s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  			  + "and s.isPrivate = 'N') "
 			  + "order by a.createdOn desc"
-	)
+	),
+	@NamedQuery(
+		name = "Activity.getUserFeed",
+		query = "select s " // Return the streamable only for now.
+			  + "from User u "
+			  + "join u.activity a "
+			  + "left join a.createdStreamable s "
+			  + "where (u in (select following "
+			  			  + "from User currentUser "
+			  			  + "join currentUser.following following "
+			  			  + "where currentUser = :currentUser) "
+			  + "or u = :currentUser) " // We would like the user's items to appear in their feed too.
+			  + "and s is not null " // We only allow streamables in the feed for now.
+			  			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  			  + "and s.isPrivate = 'N' "
+			  + "order by a.createdOn desc"
+		)
 })
 
 @Getter

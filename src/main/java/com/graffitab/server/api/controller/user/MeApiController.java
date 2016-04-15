@@ -370,7 +370,7 @@ public class MeApiController {
 	public ListItemsResult<StreamableDto> getFeed(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
-		return streamableService.getUserFeedResult(offset, limit);
+		return activityService.getUserFeedResult(offset, limit);
 	}
 
 	@RequestMapping(value = {"/liked"}, method = RequestMethod.GET)

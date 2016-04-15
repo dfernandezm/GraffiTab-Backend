@@ -1,9 +1,6 @@
 package com.graffitab.server.service.streamable;
 
 import java.io.InputStream;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
@@ -35,12 +32,8 @@ import com.graffitab.server.service.image.ImageUtilsService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
-import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
 
-import lombok.extern.log4j.Log4j;
-
-@Log4j
 @Service
 public class StreamableService {
 
@@ -74,8 +67,6 @@ public class StreamableService {
 	@Resource
 	private ImageUtilsService imageUtilsService;
 
-	private ExecutorService executor = Executors.newFixedThreadPool(2);
-
 	@Transactional(readOnly = true)
 	public Streamable getStreamable(Long id) {
 		Streamable streamable = findStreamableById(id);
@@ -108,9 +99,6 @@ public class StreamableService {
 			currentUser.getStreamables().add(streamableGraffiti);
 			return streamableGraffiti;
 		});
-
-		// Update the current user stream and the streams of all his followers.
-		addStreamableToOwnAndFollowersStream(streamable);
 
 		// Add activity to all followers.
 		activityService.addCreateStreamableActivityAsync(streamable.getUser(), streamable);
@@ -283,16 +271,6 @@ public class StreamableService {
 		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
 	}
 
-	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getUserFeedResult(Integer offset, Integer limit) {
-		User currentUser = userService.getCurrentUser();
-
-		Query query = userDao.createNamedQuery("Streamable.getUserFeed");
-		query.setParameter("currentUser", currentUser);
-
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
-	}
-
 	public Streamable flag(Long streamableId) {
 		Pair<Streamable, Boolean> resultPair = transactionUtils.executeInTransactionWithResult(() -> {
 			Streamable innerStreamable = findStreamableById(streamableId);
@@ -413,50 +391,52 @@ public class StreamableService {
 		return streamableDao.find(id);
 	}
 
-	@SuppressWarnings("unchecked")
-	private void addStreamableToOwnAndFollowersStream(Streamable streamable) {
-		User currentUser = userService.getCurrentUser();
-		executor.submit(() -> {
+	// Example of background execution thread.
 
-			if (log.isDebugEnabled()) {
-				log.debug("About to add streamable " + streamable + " to followers of user " + currentUser);
-			}
-
-			try {
-				RunAsUser.set(currentUser);
-
-				// Get list of followers.
-				List<Long> followeesIds = transactionUtils.executeInTransactionWithResult(() -> {
-					Query query = userDao.createNamedQuery("User.getFollowerIds");
-					query.setParameter("currentUser", currentUser);
-					List<Long> ids = (List<Long>) query.list();
-					return ids;
-				});
-
-				// We want to add the streamable to the user's feed as well.
-				followeesIds.add(currentUser.getId());
-
-				if (log.isDebugEnabled()) {
-					log.debug("Adding streamable to " + followeesIds.size() + " followers");
-				}
-
-				// For each follower, add the item to their feed.
-				followeesIds.forEach(userId -> {
-					transactionUtils.executeInTransaction(() -> {
-						Streamable innerStreamable = findStreamableById(streamable.getId());
-						User follower = userService.findUserById(userId);
-						follower.getFeed().add(innerStreamable);
-					});
-				});
-
-				if (log.isDebugEnabled()) {
-					log.debug("Finished adding streamable to followers' feed");
-				}
-			} catch (Throwable t) {
-				log.error("Error updating followers feed", t);
-			} finally {
-				RunAsUser.clear();
-			}
-		});
-	}
+//	@SuppressWarnings("unchecked")
+//	private void addStreamableToOwnAndFollowersStream(Streamable streamable) {
+//		User currentUser = userService.getCurrentUser();
+//		executor.submit(() -> {
+//
+//			if (log.isDebugEnabled()) {
+//				log.debug("About to add streamable " + streamable + " to followers of user " + currentUser);
+//			}
+//
+//			try {
+//				RunAsUser.set(currentUser);
+//
+//				// Get list of followers.
+//				List<Long> followeesIds = transactionUtils.executeInTransactionWithResult(() -> {
+//					Query query = userDao.createNamedQuery("User.getFollowerIds");
+//					query.setParameter("currentUser", currentUser);
+//					List<Long> ids = (List<Long>) query.list();
+//					return ids;
+//				});
+//
+//				// We want to add the streamable to the user's feed as well.
+//				followeesIds.add(currentUser.getId());
+//
+//				if (log.isDebugEnabled()) {
+//					log.debug("Adding streamable to " + followeesIds.size() + " followers");
+//				}
+//
+//				// For each follower, add the item to their feed.
+//				followeesIds.forEach(userId -> {
+//					transactionUtils.executeInTransaction(() -> {
+//						Streamable innerStreamable = findStreamableById(streamable.getId());
+//						User follower = userService.findUserById(userId);
+//						follower.getFeed().add(innerStreamable);
+//					});
+//				});
+//
+//				if (log.isDebugEnabled()) {
+//					log.debug("Finished adding streamable to followers' feed");
+//				}
+//			} catch (Throwable t) {
+//				log.error("Error updating followers feed", t);
+//			} finally {
+//				RunAsUser.clear();
+//			}
+//		});
+//	}
 }

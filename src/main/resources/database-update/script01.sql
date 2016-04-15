@@ -330,3 +330,8 @@ ALTER TABLE activity DROP COLUMN commenter_id;
 ALTER TABLE activity DROP COLUMN creator_id;
 ALTER TABLE activity DROP COLUMN follower_id;
 ALTER TABLE activity DROP COLUMN liker_id;
+
+--changeset georgi:v100cs58
+ALTER TABLE feed DROP FOREIGN KEY feed_streamable_fk;
+ALTER TABLE feed DROP FOREIGN KEY feed_user_fk;
+DROP TABLE feed;

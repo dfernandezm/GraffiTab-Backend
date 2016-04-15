@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.activity.ActivityContainerDto;
+import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Comment;
@@ -24,6 +25,7 @@ import com.graffitab.server.persistence.model.activity.ActivityLike;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.paging.ActivityPagingService;
+import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.user.UserService;
 
 import lombok.extern.log4j.Log4j;
@@ -47,10 +49,23 @@ public class ActivityService {
 	@Resource
 	private TransactionUtils transactionUtils;
 
+	@Resource
+	private PagingService pagingService;
+
 	@Autowired
 	private HttpServletRequest request;
 
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
+
+	@Transactional(readOnly = true)
+	public ListItemsResult<StreamableDto> getUserFeedResult(Integer offset, Integer limit) {
+		User currentUser = userService.getCurrentUser();
+
+		Query query = activityDao.createNamedQuery("Activity.getUserFeed");
+		query.setParameter("currentUser", currentUser);
+
+		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+	}
 
 	@Transactional(readOnly = true)
 	public ListItemsResult<ActivityContainerDto> getFollowersActivityResult(Integer numberOfItemsInGroup, Integer offset, Integer limit) {
