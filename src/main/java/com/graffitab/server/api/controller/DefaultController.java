@@ -33,4 +33,11 @@ public class DefaultController {
 	public ModelAndView getBasePage(HttpServletRequest request, Model model) {
 		return new ModelAndView("home");
 	}
+
+	@RequestMapping(value = "/app/{[path:[^\\.]*}")
+	public String redirect() {
+
+	  return "forward:/";
+	}
+
 }
