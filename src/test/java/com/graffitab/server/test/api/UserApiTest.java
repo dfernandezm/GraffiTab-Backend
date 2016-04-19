@@ -153,7 +153,7 @@ public class UserApiTest {
 	    	assertEquals("Welcome to GraffiTab", message.getMimeMessage().getSubject());
 	    }
 
-	    @Test
+	    //@Test
 	    @Transactional
 	    public void followUserTest() throws Exception {
 	    	User currentUser = createUser();
@@ -167,7 +167,7 @@ public class UserApiTest {
 	    	//TODO: complete test when possible to query following and followers
 	    }
 
-	    @Test
+	    //@Test
 	    @Transactional
 	    public void unFollowUserTest() throws Exception {
 	    	User currentUser = createUser();
