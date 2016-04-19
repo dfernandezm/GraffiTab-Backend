@@ -149,6 +149,11 @@ public class UserService {
 		return user;
 	}
 
+	public void invalidateUserCache() {
+		threadLocalUserCache.remove();
+		RunAsUser.clear();
+	}
+
 	@Transactional(readOnly = true)
 	public User getUserByUsername(String username) {
 		try {
@@ -443,6 +448,8 @@ public class UserService {
 				throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + toFollowId + " not found");
 			}
 		});
+
+		invalidateUserCache();
 
 		User followedUser = resultPair.getValue0();
 		Boolean followed = resultPair.getValue1();

@@ -125,4 +125,9 @@ public class ActivityService {
 			}
 		});
 	}
+
+	@Transactional
+	public void removeAll() {
+		activityDao.createQuery("delete from Activity").executeUpdate();
+	}
 }

@@ -88,7 +88,7 @@ public class AssetService {
         return assetGuid;
     }
 
-    public File transferAssetToTemporaryArea(TransferableStream transferableAsset, String assetGuid) {
+    private File transferAssetToTemporaryArea(TransferableStream transferableAsset, String assetGuid) {
         File tempFile = getTemporaryFile(assetGuid);
 
         if (log.isDebugEnabled()) {
@@ -120,6 +120,7 @@ public class AssetService {
         return FILE_SYSTEM_TEMP_ROOT + File.separatorChar + temporaryFilename;
     }
 
+    @SuppressWarnings("unchecked")
     @Scheduled(fixedDelay = 1000)
     public void uploadAndResizeImagesForProcessingAssets() {
 
@@ -188,6 +189,7 @@ public class AssetService {
         newAssetGuidToPreviousAssetGuidMap.put(newAssetGuid, previousAssetGuid);
     }
 
+    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public Asset findAssetByGuid(String assetGuid) {
         Query query = assetDao.createNamedQuery("Asset.findByGuid")

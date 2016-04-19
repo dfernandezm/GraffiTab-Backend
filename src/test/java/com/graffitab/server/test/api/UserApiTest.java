@@ -5,14 +5,16 @@ import com.graffitab.server.config.spring.MainConfig;
 import com.graffitab.server.config.web.WebConfig;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.asset.Asset;
-import com.graffitab.server.persistence.model.asset.Asset.AssetType;
 import com.graffitab.server.persistence.model.user.User;
-import com.graffitab.server.persistence.model.user.User.AccountStatus;
+import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.email.Email;
 import com.graffitab.server.service.email.EmailSenderService;
 import com.graffitab.server.service.email.EmailService;
+import com.graffitab.server.service.image.ImageUtilsService;
+import com.graffitab.server.service.store.AmazonS3DatastoreService;
 import com.graffitab.server.service.store.DatastoreService;
+import com.graffitab.server.service.user.RunAsUser;
 import com.graffitab.server.service.user.UserService;
 import com.graffitab.server.util.GuidGenerator;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +35,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -49,12 +53,12 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.Filter;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -64,7 +68,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes={MainConfig.class, TestDatabaseConfig.class, WebConfig.class})
-@Rollback(value = true)
 @ActiveProfiles("unit-test")
 public class UserApiTest {
 
@@ -83,8 +86,14 @@ public class UserApiTest {
 		@Resource
 		private TransactionUtils transactionUtils;
 
+		@Resource
+		private ActivityService activityService;
+
 	    @Autowired
 	    private Filter springSecurityFilterChain;
+
+	    @Autowired
+	    private ImageUtilsService imageUtilsService;
 
 	    private Wiser wiser;
 
@@ -96,40 +105,37 @@ public class UserApiTest {
 
 	    private static User user2;
 
-	    @Before
-	    public void setUp() throws Exception {
-	        this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
-	        		                      .addFilters(springSecurityFilterChain)
-	        		                      .build();
+		@Before
+		public void setUp() throws Exception {
+			this.mockMvc = MockMvcBuilders.webAppContextSetup(ctx)
+					.addFilters(springSecurityFilterChain).build();
 
-	         wiser = startWiser();
-	         replaceEmailSenderService();
-	         replaceDatastoreService();
-	    }
+			wiser = startWiser();
+			replaceEmailSenderService();
+			replaceDatastoreService();
+		}
 
-	    @After
-	    public void clear() {
-	    	//deleteUser(user1);
-	    	//deleteUser(user2);
-	    }
+		// Runs after every test
+		@After
+		public void nukeDb() {
+			transactionUtils.executeInTransaction(() -> {
+				userDao.createSQLQuery("TRUNCATE SCHEMA public AND COMMIT");
+			});
+		}
 
 	    @Test
-	    @Transactional
 	    public void getUserByIdTest() throws Exception {
 	    	User loggedInUser = createUser();
 	    	User testUser = createUser2();
-
-	        mockMvc.perform(get("/api/users/{id}",testUser.getId()).
-	        		with(user(loggedInUser))
-	        		.accept(MediaType.APPLICATION_JSON))
+	        mockMvc.perform(get("/api/users/" + testUser.getId())
+	        		.with(user(loggedInUser))
+	        		.contentType(MediaType.APPLICATION_JSON))
 	                .andExpect(status().isOk())
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
 	                .andExpect(jsonPath("$.user.id").value(testUser.getId().intValue()));
-
 	    }
 
 	    @Test
-	    @Transactional
 	    public void createUserTest() throws Exception {
 	    	fillTestUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/user.json");
@@ -150,42 +156,76 @@ public class UserApiTest {
 	    	assertEquals("Welcome to GraffiTab", message.getMimeMessage().getSubject());
 	    }
 
-	    //@Test
-	    @Transactional
+	    @Test
 	    public void followUserTest() throws Exception {
+
 	    	User currentUser = createUser();
 	    	User userToFollow = createUser2();
 
-	    	ResultActions ra = mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
-	    			.with(user(currentUser)))
-	                .andExpect(status().is(200))
-	                .andExpect(content().contentType("application/json;charset=UTF-8"));
-	    	assertFollowEndpointResponse(ra);
-	    	//TODO: complete test when possible to query following and followers
+	    	RunAsUser.set(currentUser);
+
+	    	try {
+
+				// Follow someone
+		    	ResultActions followResultActions = mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
+		    			.with(user(currentUser)))
+		                .andExpect(status().is(200))
+		                .andExpect(content().contentType("application/json;charset=UTF-8"));
+
+		    	assertFollowEndpointResponse(followResultActions);
+
+				//TODO: assertFollowActivityIsCorrect();
+
+				// Check the followers
+				ResultActions getFollowersResultActions = mockMvc.perform(get("/api/users/" + userToFollow.getId() + "/followers" )
+						.with(user(currentUser)));
+
+				assertGetFollowersResponse(getFollowersResultActions, currentUser, 1, 0);
+
+	    	} finally {
+	    		RunAsUser.clear();
+	    	}
 	    }
 
-	    //@Test
-	    @Transactional
+		@Test
+		public void followYourselfTest() throws Exception {
+
+			User currentUser = createUser();
+			RunAsUser.set(currentUser);
+			mockMvc.perform(post("/api/users/" + currentUser.getId() + "/followers")
+					.with(user(currentUser)))
+					.andExpect(status().is(400))
+					.andExpect(content().contentType("application/json;charset=UTF-8"))
+					.andExpect(jsonPath("$.resultMessage").value("You cannot follow yourself"));
+			RunAsUser.clear();
+		}
+
+	    @Test
 	    public void unFollowUserTest() throws Exception {
 	    	User currentUser = createUser();
 	    	User userToFollow = createUser2();
 
-	    	// Follow first
-	    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
-	    			.with(user(currentUser)))
-	                .andExpect(status().is(200));
+	    	RunAsUser.set(currentUser);
 
-	    	// Unfollow afterwards
-	    	mockMvc.perform(delete("/api/users/" + userToFollow.getId() + "/followers")
-	    			.with(user(currentUser)))
-	                .andExpect(status().is(200));
+	    	try {
 
-	    	//TODO: Complete test when possible to query following and followers
+		    	// Follow first
+		    	mockMvc.perform(post("/api/users/" + userToFollow.getId() + "/followers")
+		    			.with(user(currentUser)))
+		                .andExpect(status().is(200));
+
+		    	// Unfollow afterwards
+		    	mockMvc.perform(delete("/api/users/" + userToFollow.getId() + "/followers")
+		    			.with(user(currentUser)))
+		                .andExpect(status().is(200));
+
+	    	} finally {
+	    		RunAsUser.clear();
+	    	}
 	    }
 
 	    @Test
 	    @Transactional
-	    @Rollback(value = true)
 	    public void addAvatarAssetTest() throws Exception {
 	    	User loggedInUser = createUser();
 	    	InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
@@ -200,18 +240,42 @@ public class UserApiTest {
 	                .andExpect(status().is(200))
 	                .andExpect(content().contentType("application/json;charset=UTF-8"))
 	                .andExpect(jsonPath("$.asset.guid").isNotEmpty())
-	                .andExpect(jsonPath("$.asset.type").value(AssetType.IMAGE.name()))
+	                .andExpect(jsonPath("$.asset.type").value(Asset.AssetType.IMAGE.name()))
 					.andExpect(jsonPath("$.asset.state").value(Asset.AssetState.PROCESSING.name()));
+
 	    }
-	
-	    private User fillTestUser() {
+
+	@Test
+	@Transactional
+	public void addCoverAssetTest() throws Exception {
+		User loggedInUser = createUser();
+		InputStream in = this.getClass().getResourceAsStream("/api/test-asset.jpg");
+		MockMultipartFile assetFile = new MockMultipartFile("file", "test-asset.jpg", "image/jpeg", in);
+		HashMap<String, String> contentTypeParams = new HashMap<>();
+		contentTypeParams.put("boundary", "265001916915724");
+		MediaType mediaType = new MediaType("multipart", "form-data", contentTypeParams);
+		MvcResult result  = mockMvc.perform(MockMvcRequestBuilders.fileUpload("/api/users/me/cover")
+				.file(assetFile)
+				.with(user(loggedInUser))
+				.contentType(mediaType))
+				.andExpect(status().is(200))
+				.andExpect(content().contentType("application/json;charset=UTF-8"))
+				.andExpect(jsonPath("$.asset.guid").isNotEmpty())
+				.andExpect(jsonPath("$.asset.type").value(Asset.AssetType.IMAGE.name()))
+				.andExpect(jsonPath("$.asset.state").value(Asset.AssetState.PROCESSING.name()))
+				.andReturn();
+		String content = result.getResponse().getContentAsString();
+	}
+
+
+	private User fillTestUser() {
 	    	User testUser = new User();
 	    	testUser.setFirstName("John");
 	    	testUser.setLastName("Doe");
 	    	testUser.setEmail("john.doe@mailinator.com");
 	    	testUser.setUsername("johnd");
 	    	testUser.setPassword("password");
-	    	testUser.setAccountStatus(AccountStatus.ACTIVE);
+	    	testUser.setAccountStatus(User.AccountStatus.ACTIVE);
 	    	testUser.setCreatedOn(new DateTime());
 	    	testUser.setGuid(GuidGenerator.generate());
 	    	return testUser;
@@ -225,12 +289,11 @@ public class UserApiTest {
 	    	testUser2.setUsername("janed");
 	    	testUser2.setPassword("password2");
 	    	testUser2.setCreatedOn(new DateTime());
-	    	testUser2.setAccountStatus(AccountStatus.ACTIVE);
+	    	testUser2.setAccountStatus(User.AccountStatus.ACTIVE);
 	    	testUser2.setGuid(GuidGenerator.generate());
 	    	return testUser2;
 	    }
 
-		@Transactional
 	    public User createUser() {
 			User u = transactionUtils.executeInTransactionWithResult(() -> {
 				User testUser = fillTestUser();
@@ -244,16 +307,17 @@ public class UserApiTest {
 	    }
 
 		public void deleteUser(User user) {
-			transactionUtils.executeInNewTransaction(() -> {
-				user.getFollowers().clear();
-				user.getFollowing().clear();
+			transactionUtils.executeInTransaction(() -> {
+				User inner = userService.findUserById(user.getId());
+				inner.getFollowers().clear();
 				userDao.flush();
-				userDao.remove(user);
+				inner.getFollowing().clear();
+				userDao.remove(inner);
 			});
 		}
 
-		@Transactional
 	    public User createUser2() {
+
 			User u = transactionUtils.executeInTransactionWithResult(() -> {
 				User user = fillTestUser2();
 		    	userDao.persist(user);
@@ -296,7 +360,9 @@ public class UserApiTest {
 	    private void replaceDatastoreService() throws Exception {
 	    	DatastoreService testDatastoreService = new TestDatastoreService();
 	    	UserService unwrapped = (UserService) unwrapSpringProxy(userService);
+	    	ImageUtilsService imageUtilsUnwrapped = (ImageUtilsService) unwrapSpringProxy(imageUtilsService);
 	    	ReflectionTestUtils.setField(unwrapped, "datastoreService", testDatastoreService);
+	    	ReflectionTestUtils.setField(imageUtilsUnwrapped, "datastoreService", testDatastoreService);
 	    }
 
 	    /**
@@ -370,38 +436,41 @@ public class UserApiTest {
 
 	public static class TestDatastoreService implements DatastoreService {
 
+		private ConcurrentHashMap<String, Object> mockStore = new ConcurrentHashMap<String, Object>();
+
 		@Override
 		public void saveAsset(InputStream inputStream, long contentLength, String assetGuid) {
-			// TODO Auto-generated method stub
+			mockStore.put(assetGuid, inputStream);
 
 		}
 
 		@Override
 		public void updateAsset(InputStream inputStream, long contentLength, String assetGuid) {
-			// TODO Auto-generated method stub
-
+			mockStore.put(assetGuid, inputStream);
 		}
 
 		@Override
 		public void deleteAsset(String assetGuid) {
-			// TODO Auto-generated method stub
-
+			mockStore.remove(assetGuid);
 		}
 
 		@Override
 		public String generateDownloadLink(String assetGuid) {
-			// TODO Auto-generated method stub
-			return null;
+			return "http://" + AmazonS3DatastoreService.BUCKET_NAME + ".s3.amazonaws.com/" + generateKey(assetGuid);
+		}
+
+		private static String generateKey(String assetGuid) {
+			return AmazonS3DatastoreService.ASSETS_ROOT_KEY + "/" + assetGuid;
 		}
 
 		@Override
 		public String generateThumbnailLink(String assetGuid) {
-			// TODO Auto-generated method stub
-			return null;
+			return "http://bucket/" + assetGuid + "_thumb";
 		}
 	}
 
 	private ResultActions assertFollowEndpointResponse(ResultActions ra) throws Exception {
+
 		return ra.andExpect(jsonPath("$.user.username").isNotEmpty())
 				.andExpect(jsonPath("$.user.firstName").isNotEmpty())
 				.andExpect(jsonPath("$.user.lastName").isNotEmpty())
@@ -414,5 +483,17 @@ public class UserApiTest {
 				.andExpect(jsonPath("$.user.streamablesCount").isNotEmpty());
 	}
 
+	private ResultActions assertGetFollowersResponse(ResultActions resultActions, User currentUser, Integer totalCount, Integer offset) throws Exception {
+		return resultActions.andExpect(status().is(200))
+				.andExpect(jsonPath("$.items[0]").exists())
+				.andExpect(jsonPath("$.items[1]").doesNotExist())
+				.andExpect(jsonPath("$.items[0].id").value(currentUser.getId().intValue()))
+				.andExpect(jsonPath("$.resultsCount").value(totalCount))
+				.andExpect(jsonPath("$.offset").value(offset));
+	}
+
+	private void assertFollowActivityIsCorrect(User currentUser, User followedUser) {
+		//TODO: create helper method in activity to check correctness
+	}
 
 }
