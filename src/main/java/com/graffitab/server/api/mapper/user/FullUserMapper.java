@@ -18,11 +18,7 @@ public class FullUserMapper extends CustomMapper<User, FullUserDto> {
 	private UserService userService;
 
 	@Override
-	public void mapAtoB(User a, FullUserDto b, MappingContext context) {
-		super.mapAtoB(a, b, context);
-
-		b.setFollowersCount(0);
-		b.setFollowingCount(0);
-		b.setStreamablesCount(0);
+	public void mapAtoB(User user, FullUserDto userDto, MappingContext context) {
+		userService.processStats(user, userDto);
 	}
 }

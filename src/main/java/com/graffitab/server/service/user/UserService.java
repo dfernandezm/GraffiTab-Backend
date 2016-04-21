@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import com.graffitab.server.api.dto.user.FullUserDto;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
@@ -712,8 +713,7 @@ public class UserService {
 	}
 
 	private String generateUserAccountActivationLink(String userToken) {
-		String activationLink = generateBaseLink() + "/api/users/activate/" + userToken;
-		return activationLink;
+		return generateBaseLink() + "/api/users/activate/" + userToken;
 	}
 
 	public void merge(User user) {
@@ -732,5 +732,20 @@ public class UserService {
 
 		Boolean followedByCurrentUser = query.uniqueResult() != null;
 		userDto.setFollowedByCurrentUser(followedByCurrentUser);
+	}
+
+	@Transactional
+	public void processStats(User user, FullUserDto userDto) {
+		Query query = userDao.createNamedQuery("User.stats");
+		query.setParameter("user", user);
+		Object[] result = (Object[]) query.uniqueResult();
+
+        Integer graffitiCount = (Integer) result[0];
+        Integer followersCount = (Integer) result[1];
+        Integer followingCount = (Integer) result[2];
+
+        userDto.setFollowersCount(followersCount);
+        userDto.setStreamablesCount(graffitiCount);
+        userDto.setFollowingCount(followingCount);
 	}
 }

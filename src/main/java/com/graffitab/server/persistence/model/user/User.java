@@ -129,7 +129,15 @@ import lombok.Setter;
 				  + "where f = :otherUser and "
 				  + "u = :currentUser"
 
-		)
+		),
+	@NamedQuery(
+			name = "User.stats",
+			query = "select u.streamables.size as streamablesCount, u.followers.size as followersCount, "
+					+ " u.following.size as followingCount "
+					+ "from User u "
+					+ "where u = :user"
+
+	)
 })
 
 @Getter
