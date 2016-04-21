@@ -18,10 +18,8 @@ public class AssetMapper extends CustomMapper<Asset, AssetDto> {
 	private DatastoreService datastoreService;
 
 	@Override
-	public void mapAtoB(Asset a, AssetDto b, MappingContext context) {
-		super.mapAtoB(a, b, context);
-
-		b.setLink(datastoreService.generateDownloadLink(a.getGuid()));
-		b.setThumbnail(datastoreService.generateThumbnailLink(a.getGuid()));
+	public void mapAtoB(Asset asset, AssetDto assetDto, MappingContext context) {
+		assetDto.setLink(datastoreService.generateDownloadLink(asset.getGuid()));
+		assetDto.setThumbnail(datastoreService.generateThumbnailLink(asset.getGuid()));
 	}
 }

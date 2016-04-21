@@ -18,9 +18,7 @@ public class UserMapper extends CustomMapper<User, UserDto> {
 	private UserService userService;
 
 	@Override
-	public void mapAtoB(User a, UserDto b, MappingContext context) {
-		super.mapAtoB(a, b, context);
-
-		b.setFollowedByCurrentUser(userService.getCurrentUser().isFollowing(a));
+	public void mapAtoB(User user, UserDto userDto, MappingContext context) {
+		userService.processFollowedByCurrentUser(user, userDto);
 	}
 }

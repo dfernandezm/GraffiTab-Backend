@@ -8,6 +8,7 @@ import ma.glasnost.orika.MappingContext;
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
+import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 import com.graffitab.server.service.streamable.StreamableService;
 
@@ -18,10 +19,14 @@ public class FullStreamableMapper extends CustomMapper<StreamableGraffiti, FullS
 	private StreamableService streamableService;
 
 	@Override
-	public void mapAtoB(StreamableGraffiti a, FullStreamableDto b, MappingContext context) {
-		super.mapAtoB(a, b, context);
+	public void mapAtoB(StreamableGraffiti streamableGraffiti, FullStreamableDto fullStreamableDto, MappingContext context) {
+		processStats(streamableGraffiti, fullStreamableDto);
+	}
 
-		b.setLikersCount(0);
-		b.setCommentsCount(0);
+	public void processStats(Streamable streamableGraffiti, FullStreamableDto streamableDto) {
+		// likersCount
+		// commentsCount
+		// isLikedByCurrentUser
+		streamableService.processStreamableStats(streamableGraffiti, streamableDto);
 	}
 }

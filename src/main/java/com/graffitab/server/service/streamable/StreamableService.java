@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
+import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.user.UserDto;
@@ -391,52 +392,18 @@ public class StreamableService {
 		return streamableDao.find(id);
 	}
 
-	// Example of background execution thread.
+	@Transactional
+	public void processStreamableStats(Streamable streamable, FullStreamableDto streamableDto) {
+		Query query = streamableDao.createNamedQuery("Streamable.stats");
+		query.setParameter("currentUser", userService.getCurrentUser());
+		query.setParameter("streamable", streamable);
+		Object[] result = (Object[]) query.uniqueResult();
 
-//	@SuppressWarnings("unchecked")
-//	private void addStreamableToOwnAndFollowersStream(Streamable streamable) {
-//		User currentUser = userService.getCurrentUser();
-//		executor.submit(() -> {
-//
-//			if (log.isDebugEnabled()) {
-//				log.debug("About to add streamable " + streamable + " to followers of user " + currentUser);
-//			}
-//
-//			try {
-//				RunAsUser.set(currentUser);
-//
-//				// Get list of followers.
-//				List<Long> followeesIds = transactionUtils.executeInTransactionWithResult(() -> {
-//					Query query = userDao.createNamedQuery("User.getFollowerIds");
-//					query.setParameter("currentUser", currentUser);
-//					List<Long> ids = (List<Long>) query.list();
-//					return ids;
-//				});
-//
-//				// We want to add the streamable to the user's feed as well.
-//				followeesIds.add(currentUser.getId());
-//
-//				if (log.isDebugEnabled()) {
-//					log.debug("Adding streamable to " + followeesIds.size() + " followers");
-//				}
-//
-//				// For each follower, add the item to their feed.
-//				followeesIds.forEach(userId -> {
-//					transactionUtils.executeInTransaction(() -> {
-//						Streamable innerStreamable = findStreamableById(streamable.getId());
-//						User follower = userService.findUserById(userId);
-//						follower.getFeed().add(innerStreamable);
-//					});
-//				});
-//
-//				if (log.isDebugEnabled()) {
-//					log.debug("Finished adding streamable to followers' feed");
-//				}
-//			} catch (Throwable t) {
-//				log.error("Error updating followers feed", t);
-//			} finally {
-//				RunAsUser.clear();
-//			}
-//		});
-//	}
+		streamableDto.setCommentsCount((Integer) result[0]);
+		streamableDto.setLikersCount((Integer) result[1]);
+
+		Long likedByCurrentUserInt = (Long) result[2];
+		streamableDto.setLikedByCurrentUser(likedByCurrentUserInt == 1);
+
+	}
 }

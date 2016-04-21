@@ -125,6 +125,13 @@ import lombok.Setter;
 			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
 			  + "and s.isPrivate = 'Y' "
 			  + "order by s.createdOn desc"
+	),
+	@NamedQuery(
+			name = "Streamable.stats",
+			query = "select s.comments.size as commentsCount, s.likers.size as likersCount, "
+					+ "(select count(*) from Streamable s2 where :currentUser in elements(s2.likers) and s2 = s) as isLiked "
+				    + "from Streamable s "
+				    + "where s = :streamable"
 	)
 })
 

@@ -119,7 +119,17 @@ import lombok.Setter;
 			  + "join u.following f "
 			  + "where u = :currentUser "
 			  + "and u.accountStatus != 'PENDING_ACTIVATION'"
-	)
+
+	),
+	@NamedQuery(
+			name = "User.isFollowedByCurrentUser",
+			query = "select u.id "
+				  + "from User u "
+				  + "join u.following f "
+				  + "where f = :otherUser and "
+				  + "u = :currentUser"
+
+		)
 })
 
 @Getter

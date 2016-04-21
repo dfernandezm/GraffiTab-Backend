@@ -9,4 +9,5 @@ public class FullStreamableDto extends StreamableDto {
 
 	private Integer likersCount;
 	private Integer commentsCount;
+	private Boolean likedByCurrentUser;
 }

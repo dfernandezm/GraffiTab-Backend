@@ -723,4 +723,14 @@ public class UserService {
 	public static void clearThreadLocalUserCache() {
 		threadLocalUserCache.remove();
 	}
+
+	@Transactional
+	public void processFollowedByCurrentUser(User user, UserDto userDto) {
+		Query query = userDao.createNamedQuery("User.isFollowedByCurrentUser");
+		query.setParameter("currentUser", getCurrentUser());
+		query.setParameter("otherUser", user);
+
+		Boolean followedByCurrentUser = query.uniqueResult() != null;
+		userDto.setFollowedByCurrentUser(followedByCurrentUser);
+	}
 }
