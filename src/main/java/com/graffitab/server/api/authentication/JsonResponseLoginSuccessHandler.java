@@ -53,8 +53,8 @@ public class JsonResponseLoginSuccessHandler implements AuthenticationSuccessHan
 				log.warn("The HTTP Session is null at this point, but it should not be");
 			}
 
-			HttpSession httpSession = request.getSession(false);
-			userSessionService.saveOrUpdateSessionData(httpSession);
+			HttpSession session = request.getSession(false);
+			userSessionService.saveSessionDataInBackground(session);
 		} else {
 			if (log.isDebugEnabled()) {
 				log.debug("Session won't be stored for this request -- there must be username / password query params");

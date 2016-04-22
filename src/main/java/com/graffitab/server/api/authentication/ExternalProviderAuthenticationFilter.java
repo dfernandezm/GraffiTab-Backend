@@ -43,8 +43,7 @@ public class ExternalProviderAuthenticationFilter extends AbstractAuthentication
 			if (request.getContentType().equals("application/json")) {
 				String payload = IOUtils.toString(request.getInputStream());
 				if (payload.length() > 0) {
-					JSONObject json = new JSONObject(payload);
-					return json;
+					return new JSONObject(payload);
 				}
 			}
 			return null;
@@ -63,6 +62,11 @@ public class ExternalProviderAuthenticationFilter extends AbstractAuthentication
 		}
 
 		JSONObject json = getPayload(request);
+
+		if (json == null) {
+			throw new InternalAuthenticationServiceException("Request content type is not JSON -- this is not allowed");
+		}
+
 		JSONObject baseObject = json.getJSONObject("externalProvider");
 
 		if (baseObject != null) {

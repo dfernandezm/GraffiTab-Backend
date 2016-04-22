@@ -17,6 +17,6 @@ public class GraffiTabUserDetailsService implements UserDetailsService {
 	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return userService.findUserByUsername(username);
+		return userService.findByUsernameOrEmail(username);
 	}
 }

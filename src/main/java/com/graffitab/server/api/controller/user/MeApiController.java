@@ -223,7 +223,8 @@ public class MeApiController {
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
-		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(), externalProviderDto.getExternalProviderType());
+		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(),
+				 						 externalProviderDto.getExternalProviderType());
 		return new ActionCompletedResult();
 	}
 

@@ -717,7 +717,7 @@ public class UserService {
 	}
 
 	public void merge(User user) {
-		user = userDao.merge(user);
+		userDao.merge(user);
 	}
 
 	public static void clearThreadLocalUserCache() {
@@ -748,4 +748,13 @@ public class UserService {
         userDto.setStreamablesCount(graffitiCount);
         userDto.setFollowingCount(followingCount);
 	}
+
+    @Transactional
+    public User findByUsernameOrEmail(String usernameOrEmail) {
+        if (usernameOrEmail.contains(("@"))) {
+            return findByEmail(usernameOrEmail);
+        } else {
+            return findByUsername(usernameOrEmail);
+        }
+    }
 }

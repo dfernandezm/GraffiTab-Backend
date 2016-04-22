@@ -10,6 +10,7 @@ curl -i -H "Content-Type: application/json" -X POST -d '{"username":"juan","pass
 
 * Protected endpoint: provide cookie returned by login endpoint to authenticate. Without the cookie should give 401 Unauthorized
 
+
 ```
 curl -i -H "Content-Type: application/json" --cookie "JSESSIONID=C7742099BBC578F3841F7E5C5552D5FF" http://localhost:8091/api/users/me
 ```

@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
@@ -132,9 +133,15 @@ public class UserSessionService {
 	}
 
 	public void saveSessionDataInBackground(HttpSession session) {
-	  sessionOperationsExecutor.submit(() -> {
-		  saveOrUpdateSessionData(session);
-	  });
+		User currentUser = userService.getCurrentUser();
+		sessionOperationsExecutor.submit(() -> {
+			RunAsUser.set(currentUser);
+			try {
+				saveOrUpdateSessionData(session);
+			} finally {
+				RunAsUser.clear();
+			}
+		});
 	}
 
 	@Transactional
@@ -275,21 +282,18 @@ public class UserSessionService {
 		sessionOperationsExecutor.submit(() -> {
 
 			transactionUtils.executeInTransaction(() -> {
-
 				UserSession userSession = findBySessionId(sessionId);
-
 				if (userSession != null) {
 					if (log.isDebugEnabled()) {
 						log.debug("Touching session {}", sessionId);
 					}
 					userSession.setCreatedOn(new DateTime());
 				} else {
-					String msg = "Session to touch with ID {} does not exist in DB -- this cannot happen";
-					log.warn(msg);
-					throw new IllegalStateException(msg);
+					if (log.isDebugEnabled()) {
+						log.debug("Session to touch does not exist in DB -- this is likely to be due to logout");
+					}
 				}
 			});
-
 		});
 	}
 

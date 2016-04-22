@@ -37,8 +37,7 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 			if (request.getContentType().equals("application/json")) {
 				String payload = IOUtils.toString(request.getInputStream());
 				if (payload.length() > 0) {
-					JSONObject json = new JSONObject(payload);
-					this.json = json;
+					this.json = new JSONObject(payload);
 				}
 			}
 		} catch (IOException e) {
@@ -53,13 +52,11 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 		String username = obtainUsername(request);
 
 		if (username == null) {
-			username = "";
 			return super.attemptAuthentication(request, response);
 		} else {
 			return attemptAuthenticationIfActiveUser(username, request, response);
 		}
 	}
-
 
 	@Override
 	protected String obtainUsername(HttpServletRequest request) {
@@ -72,20 +69,19 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 		return json.getString("password");
 	}
 
-	protected Authentication attemptAuthenticationIfActiveUser(String username, HttpServletRequest request, HttpServletResponse response) {
+	protected Authentication attemptAuthenticationIfActiveUser(String usernameOrEmail, HttpServletRequest request, HttpServletResponse response) {
 
-		User user = userService.findByUsername(username);
+		User user = userService.findByUsernameOrEmail(usernameOrEmail);
 
 		if (user == null) {
-			throw new UsernameNotFoundException("The username [" + username + "] cannot be found");
-		} else if (user != null && user.getAccountStatus() == AccountStatus.ACTIVE) {
+			throw new UsernameNotFoundException("The username or email [" + usernameOrEmail + "] cannot be found");
+		} else if (user.getAccountStatus() == AccountStatus.ACTIVE) {
 			return super.attemptAuthentication(request, response);
 		} else {
 			String msg = "Current user is not in the expected state [" +
 						AccountStatus.ACTIVE.name() + "], it is " +
 						user.getAccountStatus().name();
-			RestApiException failureCause = new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE,
-											msg);
+			RestApiException failureCause = new RestApiException(ResultCode.USER_NOT_IN_EXPECTED_STATE, msg);
 			throw new LoginUserNotActiveException(msg, failureCause);
 		}
 	}
