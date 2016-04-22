@@ -188,6 +188,9 @@ public class User implements Identifiable<Long>, UserDetails {
 	@Column(name = "updated_on")
 	private DateTime updatedOn;
 
+    @Column(name = "failed_logins")
+    private Integer failedLogins;
+
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status")
 	private AccountStatus accountStatus = AccountStatus.PENDING_ACTIVATION;

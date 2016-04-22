@@ -15,6 +15,7 @@ public enum ResultCode {
 	TOKEN_EXPIRED(406),
 	USER_NOT_IN_EXPECTED_STATE(406),
 	ALREADY_EXISTS(409),
+	MAXIMUM_LOGIN_ATTEMPTS(403),
 	GENERAL_ERROR(500);
 
 	private Integer statusCode;

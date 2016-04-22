@@ -6,8 +6,10 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.graffitab.server.api.errors.MaximumLoginAttemptsException;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -54,7 +56,22 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 		if (username == null) {
 			return super.attemptAuthentication(request, response);
 		} else {
-			return attemptAuthenticationIfActiveUser(username, request, response);
+			try {
+				return attemptAuthenticationIfActiveUser(username, request, response);
+			} catch (AuthenticationException ae) {
+
+				if (ae instanceof BadCredentialsException) {
+
+					try {
+						userService.updateLoginAttempts(username);
+					} catch(RestApiException rae) {
+						String msg = "Maximum login attempts for user [" + username + "]";
+						throw new MaximumLoginAttemptsException(msg, rae);
+					}
+				}
+
+				throw ae;
+			}
 		}
 	}
 

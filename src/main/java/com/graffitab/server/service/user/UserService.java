@@ -588,6 +588,7 @@ public class UserService {
 
 		user.setAccountStatus(AccountStatus.ACTIVE);
 		user.setPassword(passwordEncoder.encode(newPassword));
+		user.setFailedLogins(0);
 
 		// Logout from all devices
 		userSessionService.logoutEverywhere(user, false);
@@ -612,6 +613,7 @@ public class UserService {
 
 		user.setPassword(passwordEncoder.encode(newPassword));
 		user.setUpdatedOn(new DateTime());
+		user.setFailedLogins(0);
 
 		// Logout from all devices but this one
         userSessionService.logoutEverywhere(user, true);
@@ -756,5 +758,34 @@ public class UserService {
         } else {
             return findByUsername(usernameOrEmail);
         }
+    }
+
+    public void updateLoginAttempts(String usernameOrEmail) {
+
+		Boolean userSuspended = transactionUtils.executeInTransactionWithResult(() -> {
+
+			User user = findByUsernameOrEmail(usernameOrEmail);
+			user.setFailedLogins(user.getFailedLogins() + 1);
+
+			if (user.getFailedLogins() >= 5) {
+				log.warn("User " + usernameOrEmail + " has failed 5 times to log in -- setting it in RESET_PASSWORD state");
+				user.setAccountStatus(AccountStatus.RESET_PASSWORD);
+				return true;
+			}
+
+			return false;
+		});
+
+		if (userSuspended) {
+			throw new RestApiException(ResultCode.MAXIMUM_LOGIN_ATTEMPTS,
+					"User [" + usernameOrEmail + "] hit maximum login attempts");
+		}
+
+    }
+
+    @Transactional
+    public void resetLoginAttempts(String usernameOrEmail) {
+        User user = findByUsernameOrEmail(usernameOrEmail);
+        user.setFailedLogins(0);
     }
 }

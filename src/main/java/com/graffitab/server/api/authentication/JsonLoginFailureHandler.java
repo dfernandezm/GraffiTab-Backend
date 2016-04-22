@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.graffitab.server.api.errors.MaximumLoginAttemptsException;
+import com.graffitab.server.service.user.UserService;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
 
 import com.graffitab.server.api.errors.LoginUserNotActiveException;
@@ -35,12 +38,17 @@ public class JsonLoginFailureHandler implements AuthenticationFailureHandler {
 		JSONObject json = new JSONObject();
 		String resultCode = HttpStatus.UNAUTHORIZED.name();
 
-		String message = "";
+		String message;
 		if (exception instanceof BadCredentialsException) {
 			message = "Invalid username/password provided";
 		} else if (exception instanceof LoginUserNotActiveException) {
 			LoginUserNotActiveException loginUserNotActiveException = (LoginUserNotActiveException) exception;
 			RestApiException restApiException = (RestApiException) loginUserNotActiveException.getCause();
+			message = restApiException.getMessage();
+			resultCode = restApiException.getResultCode().name();
+		} else if (exception instanceof MaximumLoginAttemptsException) {
+			MaximumLoginAttemptsException maximumLoginAttemptsException = (MaximumLoginAttemptsException) exception;
+			RestApiException restApiException = (RestApiException) maximumLoginAttemptsException.getCause();
 			message = restApiException.getMessage();
 			resultCode = restApiException.getResultCode().name();
 		} else if (exception instanceof UsernameNotFoundException) {

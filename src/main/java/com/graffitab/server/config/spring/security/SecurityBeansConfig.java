@@ -40,7 +40,7 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
         authFilter.setAuthenticationSuccessHandler(storeSessionJsonLoginSuccessHandler());
 
         // Custom failure handler - send 401 unauthorized
-        authFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
+        authFilter.setAuthenticationFailureHandler(jsonLoginFailureHandler());
         authFilter.setUsernameParameter("username");
         authFilter.setPasswordParameter("password");
         return authFilter;
@@ -63,8 +63,13 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
 												new ExternalProviderAuthenticationFilter();
 		externalProviderFilter.setAuthenticationManager(authenticationManager());
 		externalProviderFilter.setAuthenticationSuccessHandler(storeSessionJsonLoginSuccessHandler());
-		externalProviderFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
+		externalProviderFilter.setAuthenticationFailureHandler(jsonLoginFailureHandler());
 		return externalProviderFilter;
+	}
+
+	@Bean
+	public JsonLoginFailureHandler jsonLoginFailureHandler() {
+		return new JsonLoginFailureHandler();
 	}
 
 	@Bean
@@ -77,7 +82,7 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
         authFilter.setAuthenticationSuccessHandler(statelessJsonLoginSuccessHandler());
 
         // Custom failure handler - send 401 unauthorized
-        authFilter.setAuthenticationFailureHandler(new JsonLoginFailureHandler());
+        authFilter.setAuthenticationFailureHandler(jsonLoginFailureHandler());
         authFilter.setUsernameParameter("username");
         authFilter.setPasswordParameter("password");
         return authFilter;

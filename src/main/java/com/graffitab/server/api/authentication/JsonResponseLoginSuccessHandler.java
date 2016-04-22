@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.graffitab.server.service.user.UserService;
 import lombok.extern.log4j.Log4j2;
 
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,9 @@ public class JsonResponseLoginSuccessHandler implements AuthenticationSuccessHan
 
 	@Resource
 	private UserSessionService userSessionService;
+
+	@Resource
+	private UserService userService;
 
 	@Resource
 	private OrikaMapper mapper;
@@ -60,6 +64,8 @@ public class JsonResponseLoginSuccessHandler implements AuthenticationSuccessHan
 				log.debug("Session won't be stored for this request -- there must be username / password query params");
 			}
 		}
+
+		userService.resetLoginAttempts(dto.getUsername());
 
 		response.setStatus(HttpStatus.OK.value());
 		response.setContentType("application/json");
