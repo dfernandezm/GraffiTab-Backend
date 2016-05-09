@@ -228,83 +228,89 @@ liquibase {
   runList = 'main'
 }
 
-processResources {
- from('src/main/resources') {
-        exclude '**/*.p12'
-        filter(ReplaceTokens, tokens: config)
-   }
-}
+//processResources {
+// from('src/main/resources') {
+//        exclude '**/*.p12'
+//        filter(ReplaceTokens, tokens: config)
+//   }
+//}
 
 /**
  This can be passed from the command line like -Penv=value
 */
 def loadConfiguration() {
 
-	def localConfigFilePath = "$configDir/$localConfigFileName"
-    def localConfigExists = file(localConfigFilePath).exists()
-
-    // Temporarily assume heroku as environment if not local file present -- need to setup more env variables in CircleCI / Heroku to detect this
-    // and not hardcode it
-    def env = hasProperty('env') ? env : ( (localConfigExists) ? 'local' : 'herokuDev')
+    def env = hasProperty('env') ? env : 'local'
 
     project.ext.env = env
 
     println "=== Environment is $env ==="
 
-    def dbHost = System.getenv("DB_HOST")
-    def dbName = System.getenv("DB_NAME")
-    def dbUser = System.getenv("DB_USERNAME")
-    def dbPassword = System.getenv("DB_PASSWORD")
-    def dbUrl = System.getenv("DATABASE_URL")
+    // defaults to local
+    def configFile = 'conf/application.properties'
 
-    def config = null
-
-    if (dbUrl?.trim()) {
-	   // Heroku
-       URI dbUri = new URI(System.getenv("DATABASE_URL"));
-       String username = dbUri.getUserInfo().split(":")[0];
-       String password = dbUri.getUserInfo().split(":")[1];
-       String dbJdbcUrl = "jdbc:mysql://" + dbUri.getHost() + dbUri.getPath();
-       println "DATABASE URL: " + dbJdbcUrl
-
-       println "=== Reading config for remote deployment for $env from environment variable DATABASE_URL ==="
-       config = readConfigFile("$configDir/$remotesConfigFileName", env)
-       config.databaseDomainAndName =  dbUri.getHost() + dbUri.getPath()
-       config.databaseUsername = username
-       config.databasePassword = password
-
-    } else if (dbHost?.trim() || !localConfigExists) {
-
-      // If the variable is not empty (CircleCI) or the local config file does not exist, assume remote deployment
-      // Read from env variables
-      println "=== Reading config for remote deployment for $env from separate values ==="
-      config = readConfigFile("$configDir/$remotesConfigFileName", env)
-      config.databaseDomainAndName = "$dbHost:3306/$dbName".toString()
-      config.databaseUsername = "$dbUser".toString()
-      config.databasePassword = "$dbPassword".toString()
-
-    } else {
-
-      println "=== Reading local deployment config for $env ==="
-      config = readConfigFile(localConfigFilePath, env)
-	  config.tempDir = '/tmp'
+    if (env == 'herokuDev') {
+        configFile = 'conf/application-heroku.properties'
+    } else if (env == 'openshiftDev') {
+        configFile = 'conf/application-openshift.properties'
     }
 
-	// application.properties
-    // def appProperties = new Properties()
-    // file("src/main/resources/application.properties").withInputStream{
-    //    appProperties.load(it)
-    // }
+    // load properties
+    def appProperties = new Properties()
+    file(configFile).withInputStream {
+        appProperties.load(it)
+    }
 
-    // create this property in ext, so it can be used in 'processResources' to replace tokens in resource files
-    // which are the files under 'src/main/resources'
-    ext.config = config
-    ext.jdbcUrl = "jdbc:mysql://$config.databaseDomainAndName?useUnicode=true&amp;characterEncoding=UTF-8"
-    ext.dbUser = "$config.databaseUsername"
-    ext.dbPassword = "$config.databasePassword"
+    // copy corresponding properties file
+    copy {
+        from configFile
+        into 'src/main/resources'
+        rename { String fileName ->
+            fileName = "application.properties"
+        }
+    }
+
+    // Default to local
+   if (env == 'local') {
+       // No environment variables when running locally
+       println("Reading config for local environment")
+       ext.dbHost = appProperties.getProperty("db.host")
+       ext.dbPort = appProperties.getProperty("db.port")
+       ext.dbName = appProperties.getProperty("db.name")
+       ext.jdbcUrl = "jdbc:mysql://${dbHost}:${dbPort}/${dbName}?useUnicode=true&amp;characterEncoding=UTF-8"
+       ext.dbUser = appProperties.getProperty("db.username")
+       ext.dbPassword = appProperties.getProperty("db.password")
+   }
+
+    if (env == 'herokuDev') {
+       // Heroku -- The environment variable DATABASE_URL contains the information
+        println("Reading config for Heroku from environment")
+         URI dbUri = new URI(System.getenv("DATABASE_URL"));
+         def username = dbUri.getUserInfo().split(":")[0];
+         def password = dbUri.getUserInfo().split(":")[1];
+         def dbJdbcUrl = "jdbc:mysql://" + dbUri.getHost() + dbUri.getPath();
+
+         ext.dbHost = System.getenv(appProperties.getProperty("db.host")?.replace("\$",""))
+         ext.dbPort = System.getenv(appProperties.getProperty("db.port")?.replace("\$",""))
+         ext.dbName = System.getenv(appProperties.getProperty("db.name")?.replace("\$",""))
+         ext.jdbcUrl = dbJdbcUrl
+         ext.dbUser = System.getenv(appProperties.getProperty("db.username")?.replace("\$",""))
+         ext.dbPassword = System.getenv(appProperties.getProperty("db.password")?.replace("\$",""))
+         println "Heroku DB Url: " + jdbcUrl
+    }
+
+    if  (env == 'openshiftDev') {
+        println("Reading config for Openshift from environment")
+        // Same as heroku without the DATABASE_URL
+        ext.dbHost = System.getenv(appProperties.getProperty("db.host")?.replace("\$","").replace("{","").replace("}",""))
+        ext.dbPort = System.getenv(appProperties.getProperty("db.port")?.replace("\$","").replace("{","").replace("}",""))
+        ext.dbName = System.getenv(appProperties.getProperty("db.name")?.replace("\$","").replace("{","").replace("}",""))
+        ext.jdbcUrl = "jdbc:mysql://${dbHost}:${dbPort}/${dbName}?useUnicode=true"
+        ext.dbUser = System.getenv(appProperties.getProperty("db.username")?.replace("\$","").replace("{","").replace("}",""))
+        ext.dbPassword = System.getenv(appProperties.getProperty("db.password")?.replace("\$","").replace("{","").replace("}",""))
+    }
 
     println "JDBC Url: " + ext.jdbcUrl
-
 }
 
 def readConfigFile(configFilePath, environment) {
@@ -338,7 +344,6 @@ task buildClient(type:Exec) {
   }
 
   doLast {
-	  // delete('Graffitab-Frontend/build-client.sh')
 	  println "[client-build] Copying built file to public folder"
 	  copy {
         from 'GraffiTab-Frontend/build/public/assets'
@@ -352,8 +357,7 @@ task buildClient(type:Exec) {
 }
 
 task stage(type:Copy) {
-    dependsOn clean, assemble, buildClient
-    assemble.mustRunAfter(buildClient)
+    dependsOn clean, assemble
     from jar.archivePath
     into project.rootDir
     rename {
@@ -377,15 +381,15 @@ task devBuild() {
   }
 }
 
-task wakeUpHeroku() {
+task pollForStartup() {
 
   doLast {
-   def data = "http://dev.graffitab.com/status".toURL().text
+   def data = "http://dev-graffitab.rhcloud.com/status".toURL().text
 
    if (data.contains('OK')) {
-   	println("Heroku App started");
+   	println("--- SUCCESS: App started --");
    } else {
-   	println("Heroku Status endpoint did not return expected value: " + data);
+   	println("--- WARN: Status endpoint did not return expected value: " + data);
    }
   }
 }

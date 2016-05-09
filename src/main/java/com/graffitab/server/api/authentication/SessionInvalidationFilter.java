@@ -79,7 +79,7 @@ public class SessionInvalidationFilter extends OncePerRequestFilter {
 				userSessionService.touchSession(currentSessionId);
 			} else {
 				if (log.isDebugEnabled()) {
-					log.warn("The actual session for the current request was NULL and the requested session ID was [" + requestedSessionId + "]");
+					log.debug("The actual session for the current request was NULL and the requested session ID was [" + requestedSessionId + "]");
 				}
 			}
 		}

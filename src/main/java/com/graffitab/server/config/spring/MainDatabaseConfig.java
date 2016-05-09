@@ -5,41 +5,49 @@ import java.util.Properties;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 @Configuration
-@ImportResource({"classpath:jdbc-dbcp.xml"})
 @Profile("main")
 public class MainDatabaseConfig {
 
 	private static Logger LOG = LogManager.getLogger();
 
-	@Value("${db.jdbcUrl:}")
+	@Resource
+	private Environment env;
+
 	private String jdbcUrl;
 
-	@Value("${db.username:}")
 	private String dbUsername;
 
-	@Value("${db.password:}")
 	private String dbPassword;
 
-	// Example: try to create a environment variable called
-	// PROPERTY_SEVEN and see this populated!
-	@Value("${property.seven:}")
-	private String seven;
+	private String dbHost;
 
-	@Autowired
-	private BasicDataSource targetDataSource;
+	private Integer dbPort;
+
+	private Integer dbMaxIdle;
+
+	private Integer dbMinIdle;
+
+	private Integer dbInitialSize;
+
+	@PostConstruct
+	public void init() {
+		LOG.info("*** Loading environment properties...");
+		readEnvironmentProperties();
+	}
 
 	@Bean
 	public HibernateTransactionManager transactionManager() {
@@ -48,23 +56,31 @@ public class MainDatabaseConfig {
 		return transactionManager;
 	}
 
-	public IsolationLevelDataSourceAdapter dataSource() {
+	private IsolationLevelDataSourceAdapter dataSource() {
 		IsolationLevelDataSourceAdapter dataSource = new IsolationLevelDataSourceAdapter();
 		dataSource.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
-		changeTargetDataSourceIfNecessary();
-		dataSource.setTargetDataSource(targetDataSource);
+		dataSource.setTargetDataSource(targetDataSource());
 		return dataSource;
 	}
 
-	private void changeTargetDataSourceIfNecessary() {
-		if (!StringUtils.isEmpty(jdbcUrl)) {
-			LOG.info("Overriding database configuration with application properties: jbcUrl -> " +
-					  jdbcUrl +", user -> " + dbUsername);
+	@Bean
+	public BasicDataSource targetDataSource() {
 
-			targetDataSource.setUrl(jdbcUrl);
-			targetDataSource.setUsername(dbUsername);
-			targetDataSource.setPassword(dbPassword);
-		}
+		LOG.info("*** Database configuration read from application properties: \n" +
+				"**** jbcUrl -> " + jdbcUrl + "\n" +
+				"**** user   -> " + dbUsername + "\n" +
+				"**** dbHost -> " + dbHost + "\n" +
+				"**** dbPort -> " + dbPort);
+
+		BasicDataSource basicDataSource = new BasicDataSource();
+		basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		basicDataSource.setUrl(jdbcUrl);
+		basicDataSource.setUsername(dbUsername);
+		basicDataSource.setPassword(dbPassword);
+		basicDataSource.setMaxIdle(dbMaxIdle);
+		basicDataSource.setMinIdle(dbMinIdle);
+		basicDataSource.setInitialSize(dbInitialSize);
+		return basicDataSource;
 	}
 
 	@Bean
@@ -78,15 +94,31 @@ public class MainDatabaseConfig {
         return sessionFactory;
     }
 
-	public Properties hibernateProperties() {
+	private Properties hibernateProperties() {
         return new Properties() {
 			private static final long serialVersionUID = 1L;
-
 			{
                 setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLInnoDBDialect");
                 setProperty("hibernate.show_sql", "false");
                 setProperty("hibernate.hbm2ddl.auto", "validate");
             }
         };
+	}
+
+	private void readEnvironmentProperties() {
+		this.jdbcUrl = env.getProperty("db.jdbcUrl","");
+
+		if (this.jdbcUrl.contains("$")) {
+			//TODO: complete validation
+			throw new IllegalArgumentException("JDBC url contains a placeholder " + this.jdbcUrl);
+		}
+
+		this.dbUsername = env.getProperty("db.username","");
+		this.dbPassword = env.getProperty("db.password","");
+		this.dbHost = env.getProperty("db.host","localhost");
+		this.dbPort = Integer.parseInt(env.getProperty("db.port","3306"));
+		this.dbMinIdle = Integer.parseInt(env.getProperty("db.minIdle","2"));;
+		this.dbMaxIdle = Integer.parseInt(env.getProperty("db.maxIdle","5"));;
+		this.dbInitialSize = Integer.parseInt(env.getProperty("db.initialSize","5"));;
 	}
 }

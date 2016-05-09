@@ -72,6 +72,11 @@ public class CommentService {
 
 				Comment comment = Comment.comment();
 				comment.setUser(currentUser);
+
+				if (log.isDebugEnabled()) {
+					log.debug("The text of the comment to be persisted is: " + text);
+				}
+
 				comment.setText(text);
 				comment.setStreamable(streamable);
 				streamable.getComments().add(comment);
