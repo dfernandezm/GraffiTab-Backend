@@ -16,7 +16,6 @@ import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.comment.CommentDto;
 import com.graffitab.server.api.dto.comment.result.CreateCommentResult;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
-import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.result.GetFullStreamableResult;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
@@ -125,7 +124,7 @@ public class StreamableApiController {
 	@RequestMapping(value = {"/newest"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getNewestStreamables(
+	public ListItemsResult<FullStreamableDto> getNewestStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return streamableService.getNewestStreamablesResult(offset, limit);
@@ -134,7 +133,7 @@ public class StreamableApiController {
 	@RequestMapping(value = {"/popular"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getPopularStreamables(
+	public ListItemsResult<FullStreamableDto> getPopularStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return streamableService.getPopularStreamablesResult(offset, limit);
@@ -152,7 +151,7 @@ public class StreamableApiController {
 	@RequestMapping(value = {"/search/location"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> searchStreamablesAtLocation(
+	public ListItemsResult<FullStreamableDto> searchStreamablesAtLocation(
 			@RequestParam(value="neLatitude", required = true) Double neLatitude,
 			@RequestParam(value="neLongitude", required = true) Double neLongitude,
 			@RequestParam(value="swLatitude", required = true) Double swLatitude,
@@ -163,7 +162,7 @@ public class StreamableApiController {
 	@RequestMapping(value = {"/search/hashtag"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> searchStreamablesForHashtag(
+	public ListItemsResult<FullStreamableDto> searchStreamablesForHashtag(
 			@RequestParam(value="query", required = true) String query,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {

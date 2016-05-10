@@ -31,7 +31,6 @@ import com.graffitab.server.api.dto.location.LocationDto;
 import com.graffitab.server.api.dto.location.result.CreateLocationResult;
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
-import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.streamable.result.CreateStreamableResult;
 import com.graffitab.server.api.dto.streamable.result.GetFullStreamableResult;
@@ -330,7 +329,7 @@ public class MeApiController {
 	@RequestMapping(value = {"/streamables"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getStreamables(
+	public ListItemsResult<FullStreamableDto> getStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return streamableService.getUserStreamablesResult(userService.getCurrentUser().getId(), offset, limit);
@@ -359,7 +358,7 @@ public class MeApiController {
 	@RequestMapping(value = {"/streamables/private"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getPrivateStreamables(
+	public ListItemsResult<FullStreamableDto> getPrivateStreamables(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return streamableService.getPrivateStreamablesResult(offset, limit);
@@ -368,7 +367,7 @@ public class MeApiController {
 	@RequestMapping(value = {"/feed"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getFeed(
+	public ListItemsResult<FullStreamableDto> getFeed(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return activityService.getUserFeedResult(offset, limit);
@@ -377,7 +376,7 @@ public class MeApiController {
 	@RequestMapping(value = {"/liked"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
+	public ListItemsResult<FullStreamableDto> getLikedStreamablesForUser(
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return streamableService.getLikedStreamablesForUserResult(userService.getCurrentUser().getId(), offset, limit);

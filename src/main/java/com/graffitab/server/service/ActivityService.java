@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.activity.ActivityContainerDto;
-import com.graffitab.server.api.dto.streamable.StreamableDto;
+import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.Comment;
@@ -58,13 +58,13 @@ public class ActivityService {
 	private ExecutorService executor = Executors.newFixedThreadPool(2);
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getUserFeedResult(Integer offset, Integer limit) {
+	public ListItemsResult<FullStreamableDto> getUserFeedResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 
 		Query query = activityDao.createNamedQuery("Activity.getUserFeed");
 		query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)

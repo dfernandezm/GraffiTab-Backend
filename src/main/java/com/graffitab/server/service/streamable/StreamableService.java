@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
-import com.graffitab.server.api.dto.streamable.StreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.errors.EntityNotFoundException;
@@ -245,31 +244,31 @@ public class StreamableService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getUserStreamablesResult(Long userId, Integer offset, Integer limit) {
+	public ListItemsResult<FullStreamableDto> getUserStreamablesResult(Long userId, Integer offset, Integer limit) {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
 			Query query = userDao.createNamedQuery("Streamable.getUserStreamables");
 			query.setParameter("currentUser", user);
 
-			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+			return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getNewestStreamablesResult(Integer offset, Integer limit) {
+	public ListItemsResult<FullStreamableDto> getNewestStreamablesResult(Integer offset, Integer limit) {
 		Query query = streamableDao.createNamedQuery("Streamable.getNewestStreamables");
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getPopularStreamablesResult(Integer offset, Integer limit) {
+	public ListItemsResult<FullStreamableDto> getPopularStreamablesResult(Integer offset, Integer limit) {
 		Query query = streamableDao.createNamedQuery("Streamable.getPopularStreamables");
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
 	}
 
 	public Streamable flag(Long streamableId) {
@@ -321,49 +320,49 @@ public class StreamableService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getLikedStreamablesForUserResult(Long userId, Integer offset, Integer limit) {
+	public ListItemsResult<FullStreamableDto> getLikedStreamablesForUserResult(Long userId, Integer offset, Integer limit) {
 		User user = userService.findUserById(userId);
 
 		if (user != null) {
 			Query query = streamableDao.createNamedQuery("Streamable.getLikedStreamables");
 			query.setParameter("currentUser", user);
 
-			return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+			return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
 		} else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> getPrivateStreamablesResult(Integer offset, Integer limit) {
+	public ListItemsResult<FullStreamableDto> getPrivateStreamablesResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
 
 		Query query = userDao.createNamedQuery("Streamable.getPrivateStreamables");
 		query.setParameter("currentUser", currentUser);
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> searchStreamablesAtLocationResult(Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
+	public ListItemsResult<FullStreamableDto> searchStreamablesAtLocationResult(Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
 		Query query = streamableDao.createNamedQuery("Streamable.searchStreamablesAtLocation");
 		query.setParameter("neLatitude", neLatitude);
 		query.setParameter("swLatitude", swLatitude);
 		query.setParameter("neLongitude", neLongitude);
 		query.setParameter("swLongitude", swLongitude);
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
+		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<StreamableDto> searchStreamablesForHashtagResult(String hashtag, Integer offset, Integer limit) {
+	public ListItemsResult<FullStreamableDto> searchStreamablesForHashtagResult(String hashtag, Integer offset, Integer limit) {
 		// Filter out special characters to prevent SQL injection.
 		hashtag = hashtag.toLowerCase() + "%";
 
 		Query query = streamableDao.createNamedQuery("Streamable.searchStreamablesForHashtag");
 		query.setParameter("tag", hashtag);
 
-		return pagingService.getPagedItems(Streamable.class, StreamableDto.class, offset, limit, query);
+		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
 	}
 
 	@Transactional(readOnly = true)

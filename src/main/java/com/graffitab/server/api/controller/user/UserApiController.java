@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graffitab.server.api.controller.BaseApiController;
 import com.graffitab.server.api.dto.ActionCompletedResult;
 import com.graffitab.server.api.dto.ListItemsResult;
-import com.graffitab.server.api.dto.streamable.StreamableDto;
+import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.user.ExternalUserDto;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
@@ -158,7 +158,7 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}/streamables"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getStreamables(
+	public ListItemsResult<FullStreamableDto> getStreamables(
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
@@ -177,7 +177,7 @@ public class UserApiController extends BaseApiController {
 	@RequestMapping(value = {"/{id}/liked"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ListItemsResult<StreamableDto> getLikedStreamablesForUser(
+	public ListItemsResult<FullStreamableDto> getLikedStreamablesForUser(
 			@PathVariable("id") Long userId,
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
