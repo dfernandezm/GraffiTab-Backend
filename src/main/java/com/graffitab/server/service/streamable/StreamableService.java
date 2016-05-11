@@ -398,7 +398,7 @@ public class StreamableService {
 		query.setParameter("streamable", streamable);
 		Object[] result = (Object[]) query.uniqueResult();
 
-		streamableDto.setCommentsCount((Integer) result[0]);
+		streamableDto.setCommentsCount((Long) result[0]);
 		streamableDto.setLikersCount((Integer) result[1]);
 
 		Long likedByCurrentUserInt = (Long) result[2];

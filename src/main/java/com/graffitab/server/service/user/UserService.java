@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import com.graffitab.server.api.dto.user.FullUserDto;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
@@ -22,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
+import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
 import com.graffitab.server.api.errors.EntityNotFoundException;
@@ -742,7 +742,7 @@ public class UserService {
 		query.setParameter("user", user);
 		Object[] result = (Object[]) query.uniqueResult();
 
-        Integer graffitiCount = (Integer) result[0];
+        Long graffitiCount = (Long) result[0];
         Integer followersCount = (Integer) result[1];
         Integer followingCount = (Integer) result[2];
 

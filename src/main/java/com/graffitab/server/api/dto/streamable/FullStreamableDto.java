@@ -8,6 +8,6 @@ import lombok.Setter;
 public class FullStreamableDto extends StreamableDto {
 
 	private Integer likersCount;
-	private Integer commentsCount;
+	private Long commentsCount;
 	private Boolean likedByCurrentUser;
 }

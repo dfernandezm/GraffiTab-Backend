@@ -132,8 +132,9 @@ import lombok.Setter;
 		),
 	@NamedQuery(
 			name = "User.stats",
-			query = "select u.streamables.size as streamablesCount, u.followers.size as followersCount, "
-					+ " u.following.size as followingCount "
+			query = "select (select count(*) from u.streamables where isDeleted = 'N') as streamablesCount, "
+					+ "u.followers.size as followersCount, "
+					+ "u.following.size as followingCount "
 					+ "from User u "
 					+ "where u = :user"
 
