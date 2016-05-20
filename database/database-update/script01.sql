@@ -336,5 +336,8 @@ ALTER TABLE feed DROP FOREIGN KEY feed_streamable_fk;
 ALTER TABLE feed DROP FOREIGN KEY feed_user_fk;
 DROP TABLE feed;
 
---changeset david:v100cs58
+--changeset david:v100cs59
 ALTER TABLE gt_user ADD failed_logins INT(10) DEFAULT 0;
+
+--changeset david:v100cs60
+UPDATE gt_user SET failed_logins=0 WHERE failed_logins is null;
