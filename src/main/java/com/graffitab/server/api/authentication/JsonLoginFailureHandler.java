@@ -6,9 +6,8 @@ import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import com.graffitab.server.api.errors.MaximumLoginAttemptsException;
-import com.graffitab.server.service.user.UserService;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
@@ -17,10 +16,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.util.StringUtils;
 
 import com.graffitab.server.api.errors.LoginUserNotActiveException;
+import com.graffitab.server.api.errors.MaximumLoginAttemptsException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 
@@ -78,6 +77,9 @@ public class JsonLoginFailureHandler implements AuthenticationFailureHandler {
 		IOUtils.write(json.toString(), response.getOutputStream());
 
 		// Invalidate the created session as login failed
-		request.getSession(false).invalidate();
+		HttpSession currentSession = request.getSession(false);
+        if (currentSession != null) {
+            currentSession.invalidate();
+        }
 	}
 }
