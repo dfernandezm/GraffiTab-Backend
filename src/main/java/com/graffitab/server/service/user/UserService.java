@@ -765,9 +765,10 @@ public class UserService {
 		Boolean userSuspended = transactionUtils.executeInTransactionWithResult(() -> {
 
 			User user = findByUsernameOrEmail(usernameOrEmail);
-			user.setFailedLogins(user.getFailedLogins() + 1);
+			Integer failedLoginAttempts = user.getFailedLogins() == null ? 0 : user.getFailedLogins();
+			user.setFailedLogins(failedLoginAttempts + 1);
 
-			if (user.getFailedLogins() >= 5) {
+			if (failedLoginAttempts >= 5) {
 				log.warn("User " + usernameOrEmail + " has failed 5 times to log in -- setting it in RESET_PASSWORD state");
 				user.setAccountStatus(AccountStatus.RESET_PASSWORD);
 				return true;

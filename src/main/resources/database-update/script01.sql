@@ -338,3 +338,6 @@ DROP TABLE feed;
 
 --changeset david:v100cs58
 ALTER TABLE gt_user ADD failed_logins INT(10) DEFAULT 0;
+
+--changeset georgi:v100cs59
+UPDATE gt_user SET failed_logins=0 WHERE failed_logins is null;
