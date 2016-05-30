@@ -1,23 +1,18 @@
 package com.graffitab.server.api.authentication;
 
-import java.io.IOException;
+import com.graffitab.server.service.user.UserSessionService;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.annotation.Resource;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-
-import lombok.extern.log4j.Log4j2;
-
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.web.filter.GenericFilterBean;
-
-import com.graffitab.server.service.user.UserSessionService;
+import java.io.IOException;
 
 /**
  *
@@ -31,9 +26,7 @@ import com.graffitab.server.service.user.UserSessionService;
  *
  */
 @Log4j2
-public class SessionInvalidationFilter extends GenericFilterBean {
-
-	static final String FILTER_APPLIED = "__invalidate_sessions_applied";
+public class SessionInvalidationFilter extends OncePerRequestFilter {
 
 	@Resource
 	private UserSessionService userSessionService;
@@ -45,60 +38,50 @@ public class SessionInvalidationFilter extends GenericFilterBean {
 	}
 
 	@Override
-	public void doFilter(ServletRequest req, ServletResponse res,
-			FilterChain chain) throws IOException, ServletException {
-
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+		long startTime = System.currentTimeMillis();
 
 		String requestedSessionId = request.getRequestedSessionId();
-
-		if (request.getAttribute(FILTER_APPLIED) != null) {
-			// ensure that filter is only applied once per request
-			chain.doFilter(request, response);
-			return;
-		}
 
 		if (log.isDebugEnabled()) {
 			log.debug("Checking sessions to invalidate...");
 		}
 
-	    HttpSession session = request.getSession(false);
-	    String currentSessionId = session == null ? null : session.getId();
+		HttpSession session = request.getSession(false);
+		String currentSessionId = session == null ? null : session.getId();
 
-	    if (currentSessionId != null && !userSessionService.exists(currentSessionId)) {
+		if (currentSessionId != null && !userSessionService.exists(currentSessionId)) {
 
-	        // Request is coming from an invalid session.
-	    	if (log.isDebugEnabled()) {
+			// Request is coming from an invalid session.
+			if (log.isDebugEnabled()) {
 				log.debug("Invalidating session: {}",currentSessionId);
 			}
 
-	    	// Invalidate this session
-	        session.invalidate();
+			// Invalidate this session
+			session.invalidate();
 
-	        request.removeAttribute(FILTER_APPLIED);
+			// Redirect to entryPoint -- user is not authenticated
+			commonAuthenticationEntryPoint.commence(request, response,
+					new AuthenticationCredentialsNotFoundException("Not authenticated"));
 
-	        // Redirect to entryPoint -- user is not authenticated
-	        commonAuthenticationEntryPoint.commence(request, response,
-	        		new AuthenticationCredentialsNotFoundException("Not authenticated"));
+			return;
+		}
 
-	        return;
-	    }
+		try {
 
-	    try {
+			filterChain.doFilter(request, response);
+			log.info("Execution of call " + request.getMethod() + " " + request.getRequestURI() + " took " +
+					(System.currentTimeMillis() - startTime) + " ms");
 
-	    	chain.doFilter(request, response);
+		} finally {
 
-	    } finally {
-
-	    	request.removeAttribute(FILTER_APPLIED);
-
-	    	if (currentSessionId != null) {
-	    		userSessionService.touchSession(currentSessionId);
-	    	} else {
-	    		log.warn("The actual session for the current request was NULL and the requested session ID was [{}]", requestedSessionId);
-	    	}
-	    }
+			if (currentSessionId != null) {
+				userSessionService.touchSession(currentSessionId);
+			} else {
+				if (log.isDebugEnabled()) {
+					log.warn("The actual session for the current request was NULL and the requested session ID was [" + requestedSessionId + "]");
+				}
+			}
+		}
 	}
-
 }
