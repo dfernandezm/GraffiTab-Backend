@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.amazonaws.util.IOUtils;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
-
-import com.amazonaws.util.IOUtils;
 
 @Getter @Setter @Log4j2
 public class Email {
@@ -45,8 +45,8 @@ public class Email {
 
 	private static String FROM_NAME = "GraffiTab";
 	private static String FROM_ADDRESS = "no_reply@graffitab.com";
-	private static String TO_FEEDBACK_ADDRESS = "georgi.christov89@gmail.com";
-	private static String TO_SUPPORT_ADDRESS = TO_FEEDBACK_ADDRESS;
+	private static String TO_FEEDBACK_ADDRESS = "info@graffitab.com";
+	private static String TO_SUPPORT_ADDRESS = "support@graffitab.com";
 
 	static {
 		try {
