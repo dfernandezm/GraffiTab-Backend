@@ -32,3 +32,4 @@ conf/application.properties
 .classpath
 graffitab.jar
 eclipse/GraffitabApplication.launch
+environment.sh

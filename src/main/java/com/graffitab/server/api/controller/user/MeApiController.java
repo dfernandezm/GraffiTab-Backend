@@ -3,7 +3,6 @@ package com.graffitab.server.api.controller.user;
 import java.io.IOException;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -131,13 +130,25 @@ public class MeApiController {
 		return updateUserResult;
 	}
 
-	@RequestMapping(value = {"/avatar"}, method = RequestMethod.PUT, consumes={"image/png", "image/jpeg"})
+	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
+	@ResponseBody
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateAssetResult editAvatar(HttpServletRequest request) throws IOException {
-		CreateAssetResult editAvatarResult = new CreateAssetResult();
-		Asset asset = userService.editAvatar(request.getInputStream(), request.getContentLengthLong());
-		editAvatarResult.setAsset(mapper.map(asset, AssetDto.class));
-		return editAvatarResult;
+	public CreateAssetResult editAvatar(@RequestPart("file") @NotNull @NotBlank MultipartFile file) throws IOException {
+		String contentType = file.getContentType();
+		if (!contentType.equalsIgnoreCase(MediaType.IMAGE_JPEG_VALUE) && !contentType.equalsIgnoreCase(MediaType.IMAGE_PNG_VALUE)) {
+			throw new RestApiException(ResultCode.UNSUPPORTED_FILE_TYPE,
+					"The file type '" + contentType + "' is not supported.");
+		}
+
+		try {
+			CreateAssetResult editAvatarResult = new CreateAssetResult();
+			Asset asset = userService.editAvatar(file.getInputStream(), file.getSize());
+			editAvatarResult.setAsset(mapper.map(asset, AssetDto.class));
+			return editAvatarResult;
+		} catch (IOException e) {
+			throw new RestApiException(ResultCode.BAD_REQUEST,
+					"File stream could not be read.");
+		}
 	}
 
 	@RequestMapping(value = {"/avatar"}, method = RequestMethod.DELETE)
@@ -147,13 +158,25 @@ public class MeApiController {
 		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = {"/cover"}, method = RequestMethod.PUT, consumes={"image/png", "image/jpeg"})
+	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
+	@ResponseBody
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateAssetResult editCover(HttpServletRequest request) throws IOException {
-		CreateAssetResult editcoverResult = new CreateAssetResult();
-		Asset asset = userService.editCover(request.getInputStream(), request.getContentLengthLong());
-		editcoverResult.setAsset(mapper.map(asset, AssetDto.class));
-		return editcoverResult;
+	public CreateAssetResult editCover(@RequestPart("file") @NotNull @NotBlank MultipartFile file) throws IOException {
+		String contentType = file.getContentType();
+		if (!contentType.equalsIgnoreCase(MediaType.IMAGE_JPEG_VALUE) && !contentType.equalsIgnoreCase(MediaType.IMAGE_PNG_VALUE)) {
+			throw new RestApiException(ResultCode.UNSUPPORTED_FILE_TYPE,
+					"The file type '" + contentType + "' is not supported.");
+		}
+
+		try {
+			CreateAssetResult editcoverResult = new CreateAssetResult();
+			Asset asset = userService.editCover(file.getInputStream(), file.getSize());
+			editcoverResult.setAsset(mapper.map(asset, AssetDto.class));
+			return editcoverResult;
+		} catch (IOException e) {
+			throw new RestApiException(ResultCode.BAD_REQUEST,
+					"File stream could not be read.");
+		}
 	}
 
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.DELETE)
