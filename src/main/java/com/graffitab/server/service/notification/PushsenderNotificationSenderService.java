@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.devsu.push.sender.service.async.AsyncAndroidPushService;
+import com.graffitab.server.persistence.model.Comment;
 import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.Device.OSType;
 import com.graffitab.server.persistence.model.notification.Notification;
@@ -22,6 +23,7 @@ import com.graffitab.server.persistence.model.notification.NotificationComment;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
 import com.graffitab.server.persistence.model.notification.NotificationLike;
 import com.graffitab.server.persistence.model.notification.NotificationMention;
+import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.ProxyUtilities;
 import com.graffitab.server.service.TransactionUtils;
@@ -106,6 +108,48 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 
 	private Map<String, String> buildMetadataMapForNotification(Notification notification) {
 		Map<String, String> metadata = new HashMap<String, String>();
+		switch (notification.getNotificationType()) {
+			case COMMENT: {
+				NotificationComment typedNotification = ((NotificationComment) notification);
+				User user = typedNotification.getCommenter();
+				Comment comment = typedNotification.getComment();
+				Streamable streamable = typedNotification.getCommentedStreamable();
+
+				metadata.put("commenterId", user.getId() + "");
+				metadata.put("commentId", comment.getId() + "");
+				metadata.put("commentedStreamableId", streamable.getId() + "");
+				break;
+			}
+			case LIKE: {
+				NotificationLike typedNotification = ((NotificationLike) notification);
+				User user = typedNotification.getLiker();
+				Streamable streamable = typedNotification.getLikedStreamable();
+
+				metadata.put("likerId", user.getId() + "");
+				metadata.put("likedStreamableId", streamable.getId() + "");
+				break;
+			}
+			case FOLLOW: {
+				NotificationFollow typedNotification = ((NotificationFollow) notification);
+				User user = typedNotification.getFollower();
+
+				metadata.put("followerId", user.getId() + "");
+				break;
+			}
+			case MENTION: {
+				NotificationMention typedNotification = ((NotificationMention) notification);
+				User user = typedNotification.getMentioner();
+				Comment comment = typedNotification.getMentionedComment();
+				Streamable streamable = typedNotification.getMentionedStreamable();
+
+				metadata.put("mentionerId", user.getId() + "");
+				metadata.put("mentionedCommentId", comment.getId() + "");
+				metadata.put("mentionedStreamableId", streamable.getId() + "");
+				break;
+			}
+			default:
+				break;
+		}
 		return metadata;
 	}
 
@@ -113,20 +157,26 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 		// TODO: For now hardcode the messages, but attempt localization later on.
 		switch (notification.getNotificationType()) {
 			case COMMENT: {
-				User user = ((NotificationComment) notification).getCommenter();
-				return user.getFirstName() + " " + user.getLastName() + " commented on your graffiti";
+				NotificationComment typedNotification = ((NotificationComment) notification);
+				User user = typedNotification.getCommenter();
+				Comment comment = typedNotification.getComment();
+				return user.getFirstName() + " " + user.getLastName() + " commented on your graffiti: " + comment.getText();
 			}
 			case LIKE: {
-				User user = ((NotificationLike) notification).getLiker();
+				NotificationLike typedNotification = ((NotificationLike) notification);
+				User user = typedNotification.getLiker();
 				return user.getFirstName() + " " + user.getLastName() + " liked your graffiti";
 			}
 			case FOLLOW: {
-				User user = ((NotificationFollow) notification).getFollower();
+				NotificationFollow typedNotification = ((NotificationFollow) notification);
+				User user = typedNotification.getFollower();
 				return user.getFirstName() + " " + user.getLastName() + " started following you";
 			}
 			case MENTION: {
-				User user = ((NotificationMention) notification).getMentioner();
-				return user.getFirstName() + " " + user.getLastName() + " mentioned you in a comment";
+				NotificationMention typedNotification = ((NotificationMention) notification);
+				User user = typedNotification.getMentioner();
+				Comment comment = typedNotification.getMentionedComment();
+				return user.getFirstName() + " " + user.getLastName() + " mentioned you in a comment: " + comment.getText();
 			}
 			default:
 				return "Welcome to GraffiTab!";
