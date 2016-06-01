@@ -110,7 +110,7 @@ public class GraffitabSyncApplePushService extends SyncPushServiceBase {
 	 * @param additionalFields The additional fields sent on the push message.
 	 * @return The payload builder.
 	 */
-	private PayloadBuilder generateBuilder(String title, String message, Map<String, String> additionalFields) {
+	public PayloadBuilder generateBuilder(String title, String message, Map<String, String> additionalFields) {
 		PayloadBuilder msgBuilder = APNS.newPayload().alertBody(message).sound(Defaults.SOUND);
 		msgBuilder.badge(1);
 		if (title != null) {

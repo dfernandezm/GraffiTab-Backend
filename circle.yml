@@ -34,5 +34,5 @@ deployment:
     branch: feature/openshift-deployment
     commands:
       - git fetch --unshallow
-      - git push $OPENSHIFT_REMOTE_GIT_REPO $CIRCLE_SHA1:master
+      - git push $OPENSHIFT_REMOTE_GIT_REPO $CIRCLE_SHA1:master -f
       - ./gradlew pollForStartup -Penv=openshiftDev
