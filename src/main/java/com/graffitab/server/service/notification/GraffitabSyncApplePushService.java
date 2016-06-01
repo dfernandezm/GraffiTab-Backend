@@ -112,6 +112,7 @@ public class GraffitabSyncApplePushService extends SyncPushServiceBase {
 	 */
 	private PayloadBuilder generateBuilder(String title, String message, Map<String, String> additionalFields) {
 		PayloadBuilder msgBuilder = APNS.newPayload().alertBody(message).sound(Defaults.SOUND);
+		msgBuilder.badge(1);
 		if (title != null) {
 			msgBuilder.alertTitle(title);
 		}
@@ -164,4 +165,8 @@ public class GraffitabSyncApplePushService extends SyncPushServiceBase {
 		private static final String SOUND = "default";
 	}
 
+	public interface PayloadBuilderInterface {
+
+		public PayloadBuilder payloadDidBuild(PayloadBuilder payloadBuilder);
+	}
 }

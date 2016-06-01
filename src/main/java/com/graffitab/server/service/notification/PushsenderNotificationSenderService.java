@@ -18,6 +18,10 @@ import com.devsu.push.sender.service.async.AsyncAndroidPushService;
 import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.Device.OSType;
 import com.graffitab.server.persistence.model.notification.Notification;
+import com.graffitab.server.persistence.model.notification.NotificationComment;
+import com.graffitab.server.persistence.model.notification.NotificationFollow;
+import com.graffitab.server.persistence.model.notification.NotificationLike;
+import com.graffitab.server.persistence.model.notification.NotificationMention;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.ProxyUtilities;
 import com.graffitab.server.service.TransactionUtils;
@@ -74,7 +78,6 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 
 		try {
 			// Build PN content.
-			// TODO: Configure content and metadata once apps are working and registering properly.
 			String title = "GraffiTab";
 			String content = buildContentForNotification(notification);
 			Map<String, String> metadata = buildMetadataMapForNotification(notification);
@@ -107,6 +110,26 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 	}
 
 	private String buildContentForNotification(Notification notification) {
-		return "Hello! This is a push notification.";
+		// TODO: For now hardcode the messages, but attempt localization later on.
+		switch (notification.getNotificationType()) {
+			case COMMENT: {
+				User user = ((NotificationComment) notification).getCommenter();
+				return user.getFirstName() + " " + user.getLastName() + " commented on your graffiti";
+			}
+			case LIKE: {
+				User user = ((NotificationLike) notification).getLiker();
+				return user.getFirstName() + " " + user.getLastName() + " liked your graffiti";
+			}
+			case FOLLOW: {
+				User user = ((NotificationFollow) notification).getFollower();
+				return user.getFirstName() + " " + user.getLastName() + " started following you";
+			}
+			case MENTION: {
+				User user = ((NotificationMention) notification).getMentioner();
+				return user.getFirstName() + " " + user.getLastName() + " mentioned you in a comment";
+			}
+			default:
+				return "Welcome to GraffiTab!";
+		}
 	}
 }
