@@ -431,6 +431,7 @@ public class UserService {
 		}
 
 		ImageSizes imageSizes = imageUtilsService.generateAndUploadImagesForAsset(assetInputStream, assetToAdd.getGuid());
+
 		assetToAdd.setWidth(imageSizes.getWidth());
 		assetToAdd.setHeight(imageSizes.getHeight());
 		assetToAdd.setThumbnailWidth(imageSizes.getThumbnailWidth());

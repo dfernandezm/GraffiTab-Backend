@@ -13,6 +13,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
@@ -83,6 +85,9 @@ public class ImageUtilsService {
 			if (log.isDebugEnabled()) {
 				log.debug("Thumbnail image generated for asset GUID with size {} bytes", thumbnailImageSize);
 			}
+
+			IOUtils.closeQuietly(imageInputStream);
+
 		} catch (Exception e1) {
 			log.error("Error generating images", e1);
 			throw new RestApiException("Error generating images");
@@ -92,6 +97,7 @@ public class ImageUtilsService {
 
 			// Upload standard image
 			FileInputStream standardImageInputStream = new FileInputStream(standardImage.getScaledImage());
+
 			datastoreService.saveAsset(standardImageInputStream, standardImageSize, assetGuid);
 
 			// Upload thumbnail
@@ -103,6 +109,10 @@ public class ImageUtilsService {
 			imageSizes.setHeight(standardImage.getScaledHeight());
 			imageSizes.setThumbnailWidth(thumbnailImage.getScaledWidth());
 			imageSizes.setThumbnailHeight(thumbnailImage.getScaledHeight());
+
+			IOUtils.closeQuietly(standardImageInputStream);
+			IOUtils.closeQuietly(thumbnailImageInputStream);
+
 			return imageSizes;
 		} catch (FileNotFoundException e) {
 			log.error("Error generating images", e);
