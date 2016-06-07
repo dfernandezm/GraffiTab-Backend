@@ -47,7 +47,7 @@ public class PushsenderNotificationSenderService implements NotificationSenderSe
 	private String PN_APNS_PROD_PASSWORD_ENVVAR_NAME = "PN_APNS_PROD_PASSWORD";
 	private String PN_GCM_SENDER_KEY_ENVVAR_NAME = "PN_GCM_SENDER_KEY";
 
-	private static boolean PN_IS_PRODUCTION_ENVIRONMENT = false;
+	private static boolean PN_IS_PRODUCTION_ENVIRONMENT = true;
 	private static String PN_APNS_CERTIFICATE_PATH;
 	private String PN_APNS_CERTIFICATE_PASSWORD_ENVVAR_NAME = PN_IS_PRODUCTION_ENVIRONMENT ? PN_APNS_PROD_PASSWORD_ENVVAR_NAME : PN_APNS_DEV_PASSWORD_ENVVAR_NAME;
 
