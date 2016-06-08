@@ -2,6 +2,7 @@ package com.graffitab.server.config.spring;
 
 import java.util.Properties;
 
+import com.jolbox.bonecp.BoneCPDataSource;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,13 +11,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.IsolationLevelDataSourceAdapter;
+import org.springframework.jdbc.support.nativejdbc.C3P0NativeJdbcExtractor;
 import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.util.StringUtils;
 
+import javax.activation.CommandObject;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 @Configuration
 @Profile("main")
@@ -63,24 +67,51 @@ public class MainDatabaseConfig {
 		return dataSource;
 	}
 
-	@Bean
-	public BasicDataSource targetDataSource() {
+	//TODO: Remove when testing around BoneCP is done
+	//@Bean
+//	public BasicDataSource targetDataSource() {
+//
+//		LOG.info("*** [BasicDatasource] Database configuration read from application properties: \n" +
+//				"**** jbcUrl -> " + jdbcUrl + "\n" +
+//				"**** user   -> " + dbUsername + "\n" +
+//				"**** dbHost -> " + dbHost + "\n" +
+//				"**** dbPort -> " + dbPort);
+//
+//		BasicDataSource basicDataSource = new BasicDataSource();
+//		basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+//		basicDataSource.setUrl(jdbcUrl);
+//		basicDataSource.setUsername(dbUsername);
+//		basicDataSource.setPassword(dbPassword);
+//		basicDataSource.setMaxIdle(dbMaxIdle);
+//		basicDataSource.setMinIdle(dbMinIdle);
+//		basicDataSource.setInitialSize(dbInitialSize);
+//
+//		return basicDataSource;
+//	}
 
-		LOG.info("*** Database configuration read from application properties: \n" +
+	@Bean(destroyMethod = "close")
+	public DataSource targetDataSource() {
+
+		LOG.info("*** [BoneCP] Database configuration read from application properties: \n" +
 				"**** jbcUrl -> " + jdbcUrl + "\n" +
 				"**** user   -> " + dbUsername + "\n" +
 				"**** dbHost -> " + dbHost + "\n" +
 				"**** dbPort -> " + dbPort);
 
-		BasicDataSource basicDataSource = new BasicDataSource();
-		basicDataSource.setDriverClassName("com.mysql.jdbc.Driver");
-		basicDataSource.setUrl(jdbcUrl);
-		basicDataSource.setUsername(dbUsername);
-		basicDataSource.setPassword(dbPassword);
-		basicDataSource.setMaxIdle(dbMaxIdle);
-		basicDataSource.setMinIdle(dbMinIdle);
-		basicDataSource.setInitialSize(dbInitialSize);
-		return basicDataSource;
+		// http://kielczewski.eu/2014/05/database-connection-pooling-with-bonecp-in-spring-boot-application/
+		BoneCPDataSource dataSource = new BoneCPDataSource();
+		dataSource.setDriverClass("com.mysql.jdbc.Driver");
+		dataSource.setJdbcUrl(jdbcUrl);
+		dataSource.setUsername(dbUsername);
+		dataSource.setPassword(dbPassword);
+		dataSource.setIdleConnectionTestPeriodInMinutes(60);
+		dataSource.setIdleMaxAgeInMinutes(240);
+		dataSource.setMaxConnectionsPerPartition(10);
+		dataSource.setMinConnectionsPerPartition(1);
+		dataSource.setPartitionCount(2);
+		dataSource.setAcquireIncrement(5);
+		dataSource.setStatementsCacheSize(100);
+		return dataSource;
 	}
 
 	@Bean

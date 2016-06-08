@@ -16,24 +16,27 @@ buildscript {
 }
 
 import org.apache.tools.ant.filters.*
+
 apply plugin: 'liquibase'
 apply plugin: 'java'
 apply plugin: 'spring-boot'
+apply plugin: 'war'
 
-jar {
+war {
     baseName = 'graffitab'
     version = '0.1'
 
-    manifest {
-        attributes 'Main-Class': 'com.graffitab.server.GraffitabApplication'
-    }
+    // For a JAR, just remove WAR plugin, use 'war' closure and add
+    // manifest {
+    //        attributes 'Main-Class': 'com.graffitab.server.GraffitabApplication'
+    //    }
 }
 
 test {
-	testLogging {
-		events "passed", "skipped", "failed"
-		exceptionFormat = 'full'
-	}
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat = 'full'
+    }
 }
 
 sourceCompatibility = 1.8
@@ -43,19 +46,18 @@ repositories {
     mavenCentral()
 }
 
-
 // Gradle Tool Window in IntelliJ IDEA:
 // https://www.jetbrains.com/idea/help/manipulating-the-tool-windows.html
 
 // Some global properties
 
-def webappRootDir = "src/main/webapp"
+//def webappRootDir = "src/main/webapp"
 ext.configDir = "conf"
 ext.localConfigFileName = "config.groovy"
 ext.remotesConfigFileName = "environments.groovy"
-ext.libDir = file("$webappRootDir/WEB-INF/lib")
-sourceSets.main.output.classesDir =  file("$webappRootDir/WEB-INF/classes")
-sourceSets.main.output.resourcesDir =  file("$webappRootDir/WEB-INF/classes")
+//ext.libDir = file("$webappRootDir/WEB-INF/lib")
+//sourceSets.main.output.classesDir = file("src/main/resources/WEB-INF/classes")
+//sourceSets.main.output.resourcesDir = file("src/main/resources/WEB-INF/classes")
 
 def springVersion = "4.2.3.RELEASE"
 def jspVersion = "2.1"
@@ -96,9 +98,9 @@ List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
 
 // "org.springframework:spring-webmvc:$springVersion"
 // "org.springframework:spring-core:$springVersion"
-List spring = [ "org.springframework:spring-tx:$springVersion",
-                "org.springframework:spring-orm:$springVersion",
-                "org.springframework:spring-test:$springVersion"]
+List spring = ["org.springframework:spring-tx:$springVersion",
+               "org.springframework:spring-orm:$springVersion",
+               "org.springframework:spring-test:$springVersion"]
 
 List springSecurity = ["org.springframework.security:spring-security-core:${springSecurityVersion}",
                        "org.springframework.security:spring-security-web:${springSecurityVersion}",
@@ -125,25 +127,36 @@ configurations {
     }
 }
 
+loadConfiguration()
+
 dependencies {
 
-   compile "javax.servlet:jstl:$jstlVersion",
-           "taglibs:standard:$jstlVersion",
-           "c3p0:c3p0:$c3p0Version",
-           "mysql:mysql-connector-java:$mysqlVersion",
-           "org.hibernate:hibernate-core:$hibernateVersion"
+    compile "javax.servlet:jstl:$jstlVersion",
+            "taglibs:standard:$jstlVersion",
+            "c3p0:c3p0:$c3p0Version",
+            "mysql:mysql-connector-java:$mysqlVersion",
+            "org.hibernate:hibernate-core:$hibernateVersion"
 
-   compile ("org.apache.tiles:tiles-core:$tilesVersion") {
-          exclude module: "jcl-over-slf4j"
-   }
+    compile("org.apache.tiles:tiles-core:$tilesVersion") {
+        exclude module: "jcl-over-slf4j"
+    }
 
-   compile "org.apache.tiles:tiles-jsp:$tilesVersion"
+    compile "org.apache.tiles:tiles-jsp:$tilesVersion"
 
-   compile ("org.slf4j:jcl-over-slf4j:$slf4jVersion") {
-       exclude module: "slf4j-api"
-   }
+    compile("org.slf4j:jcl-over-slf4j:$slf4jVersion") {
+        exclude module: "slf4j-api"
+    }
 
-   compile("org.apache.tomcat.embed:tomcat-embed-jasper")
+    // To allow deployable WAR in external container
+    if (project.ext.isContainer) {
+        println "Deployable WAR: Tomcat dependencies will be provided"
+        providedRuntime("org.apache.tomcat.embed:tomcat-embed-jasper")
+        providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    } else {
+        println "Executable WAR: Tomcat dependencies will be embedded"
+        runtime("org.apache.tomcat.embed:tomcat-embed-jasper")
+        runtime("org.springframework.boot:spring-boot-starter-tomcat")
+    }
 
     // Logging
     slf4j.each { artifact ->
@@ -152,96 +165,87 @@ dependencies {
         }
     }
 
-   compile "commons-io:commons-io:$commonsIoVersion"
+    compile "commons-io:commons-io:$commonsIoVersion"
 
-   compile spring, jackson, log4j
+    compile spring, jackson, log4j
 
-   //springSecurity, jackson, log4j
+    compile "ma.glasnost.orika:orika-core:$orikaVersion"
 
-   compile "ma.glasnost.orika:orika-core:$orikaVersion"
+    compile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
 
-   compile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
+    compile "com.amazonaws:aws-java-sdk-s3:$awsVersion"
 
-   compile "com.amazonaws:aws-java-sdk-s3:$awsVersion"
+    compile "org.projectlombok:lombok:1.16.6"
 
-   compile "org.projectlombok:lombok:1.16.6"
+    compile "joda-time:joda-time:$jodaTimeVersion"
 
-   compile "joda-time:joda-time:$jodaTimeVersion"
+    compile "org.jadira.usertype:usertype.core:$jadiraVersion"
 
-   compile "org.jadira.usertype:usertype.core:$jadiraVersion"
+    compile "com.devsu:push-sender:$pushSenderVersion"
 
-   compile "com.devsu:push-sender:$pushSenderVersion"
+    compile "org.javatuples:javatuples:$javatuplesVersion"
 
-   compile "org.javatuples:javatuples:$javatuplesVersion"
+    compile "org.facebook4j:facebook4j-core:$facebook4jVersion"
 
-   compile "org.facebook4j:facebook4j-core:$facebook4jVersion"
+    compile "com.mortennobel:java-image-scaling:$imageScalingVersion"
 
-   compile "com.mortennobel:java-image-scaling:$imageScalingVersion"
+    // for OAuth 2.0
+    compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
+    compile 'org.json:json:20151123'
+    compile 'org.apache.commons:commons-dbcp2:2.1.1'
 
-   // for OAuth 2.0
-   compile 'org.springframework.security.oauth:spring-security-oauth2:2.0.8.RELEASE'
-   compile 'org.json:json:20151123'
-   compile 'org.apache.commons:commons-dbcp2:2.1.1'
+    // Spring Boot
+    compile 'org.springframework.boot:spring-boot-starter'
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-security'
+    compile 'org.springframework.boot:spring-boot-starter-aop'
+    compile "com.sendgrid:sendgrid-java:$sendgridVersion"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jacksonVersion"
+    compile group: 'com.jolbox', name: 'bonecp', version: '0.8.0.RELEASE'
 
-   // Spring Boot
-   compile 'org.springframework.boot:spring-boot-starter'
-   compile 'org.springframework.boot:spring-boot-starter-web'
-   compile 'org.springframework.boot:spring-boot-starter-security'
-   compile 'org.springframework.boot:spring-boot-starter-aop'
-   compile "com.sendgrid:sendgrid-java:$sendgridVersion"
-   compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jacksonVersion"
+    testCompile 'org.springframework.boot:spring-boot-starter-test'
+    testCompile 'org.springframework.security:spring-security-test:4.0.3.RELEASE'
+    testCompile 'org.subethamail:subethasmtp-wiser:1.2'
+    testCompile 'net.kemitix:wiser-assertions:0.3.1'
+    testCompile 'javamail:javamail:1.3.3'
+    testCompile "com.mortennobel:java-image-scaling:$imageScalingVersion"
 
-   testCompile 'org.springframework.boot:spring-boot-starter-test'
-   testCompile 'org.springframework.security:spring-security-test:4.0.3.RELEASE'
-   testCompile 'org.subethamail:subethasmtp-wiser:1.2'
-   testCompile 'net.kemitix:wiser-assertions:0.3.1'
-   testCompile 'javamail:javamail:1.3.3'
-   testCompile "com.mortennobel:java-image-scaling:$imageScalingVersion"
+    runtime "mysql:mysql-connector-java:$mysqlVersion"
 
-   runtime "mysql:mysql-connector-java:$mysqlVersion"
-
-   testCompile "junit:junit:$jUnitVersion"
-   testCompile "org.mockito:mockito-core:$mockitoVersion"
-   testCompile "com.jayway.jsonpath:json-path:$jsonPathVersion"
-   testCompile "org.hsqldb:hsqldb:$hsqldbVersion"
-   testCompile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
+    testCompile "junit:junit:$jUnitVersion"
+    testCompile "org.mockito:mockito-core:$mockitoVersion"
+    testCompile "com.jayway.jsonpath:json-path:$jsonPathVersion"
+    testCompile "org.hsqldb:hsqldb:$hsqldbVersion"
+    testCompile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
 
 }
 
 
-loadConfiguration()
+
 
 // == Liquibase ==
 
 liquibase {
-  activities {
-    main {
-      changeLogFile "$rootProject.projectDir/database/database-update/database-changelog.xml"
-      url "$jdbcUrl"
-      username "$dbUser"
-      password "$dbPassword"
+    activities {
+        main {
+            changeLogFile "$rootProject.projectDir/database/database-update/database-changelog.xml"
+            url "$jdbcUrl"
+            username "$dbUser"
+            password "$dbPassword"
+        }
     }
-  }
 
-  // runList = project.ext.runList
-  // runList = 'main'
-  runList = 'main'
+    runList = 'main'
 }
-
-//processResources {
-// from('src/main/resources') {
-//        exclude '**/*.p12'
-//        filter(ReplaceTokens, tokens: config)
-//   }
-//}
 
 /**
  This can be passed from the command line like -Penv=value
-*/
+ */
 def loadConfiguration() {
 
     def env = hasProperty('env') ? env : 'local'
 
+    project.ext.isContainer = hasProperty('container')
     project.ext.env = env
 
     println "=== Environment is $env ==="
@@ -271,64 +275,64 @@ def loadConfiguration() {
     }
 
     // Default to local
-   if (env == 'local') {
-       // No environment variables when running locally
-       println("Reading config for local environment")
-       ext.dbHost = appProperties.getProperty("db.host")
-       ext.dbPort = appProperties.getProperty("db.port")
-       ext.dbName = appProperties.getProperty("db.name")
-       ext.jdbcUrl = "jdbc:mysql://${dbHost}:${dbPort}/${dbName}?useUnicode=true&amp;characterEncoding=UTF-8"
-       ext.dbUser = appProperties.getProperty("db.username")
-       ext.dbPassword = appProperties.getProperty("db.password")
-   }
-
-    if (env == 'herokuDev') {
-       // Heroku -- The environment variable DATABASE_URL contains the information
-        println("Reading config for Heroku from environment")
-         URI dbUri = new URI(System.getenv("DATABASE_URL"));
-         def username = dbUri.getUserInfo().split(":")[0];
-         def password = dbUri.getUserInfo().split(":")[1];
-         def dbJdbcUrl = "jdbc:mysql://" + dbUri.getHost() + dbUri.getPath();
-
-         ext.dbHost = System.getenv(appProperties.getProperty("db.host")?.replace("\$",""))
-         ext.dbPort = System.getenv(appProperties.getProperty("db.port")?.replace("\$",""))
-         ext.dbName = System.getenv(appProperties.getProperty("db.name")?.replace("\$",""))
-         ext.jdbcUrl = dbJdbcUrl
-         ext.dbUser = System.getenv(appProperties.getProperty("db.username")?.replace("\$",""))
-         ext.dbPassword = System.getenv(appProperties.getProperty("db.password")?.replace("\$",""))
-         println "Heroku DB Url: " + jdbcUrl
+    if (env == 'local') {
+        // No environment variables when running locally
+        println("Reading config for local environment")
+        ext.dbHost = appProperties.getProperty("db.host")
+        ext.dbPort = appProperties.getProperty("db.port")
+        ext.dbName = appProperties.getProperty("db.name")
+        ext.jdbcUrl = "jdbc:mysql://${dbHost}:${dbPort}/${dbName}?useUnicode=true&amp;characterEncoding=UTF-8"
+        ext.dbUser = appProperties.getProperty("db.username")
+        ext.dbPassword = appProperties.getProperty("db.password")
     }
 
-    if  (env == 'openshiftDev') {
+    if (env == 'herokuDev') {
+        // Heroku -- The environment variable DATABASE_URL contains the information
+        println("Reading config for Heroku from environment")
+        URI dbUri = new URI(System.getenv("DATABASE_URL"));
+        def username = dbUri.getUserInfo().split(":")[0];
+        def password = dbUri.getUserInfo().split(":")[1];
+        def dbJdbcUrl = "jdbc:mysql://" + dbUri.getHost() + dbUri.getPath();
+
+        ext.dbHost = System.getenv(appProperties.getProperty("db.host")?.replace("\$", ""))
+        ext.dbPort = System.getenv(appProperties.getProperty("db.port")?.replace("\$", ""))
+        ext.dbName = System.getenv(appProperties.getProperty("db.name")?.replace("\$", ""))
+        ext.jdbcUrl = dbJdbcUrl
+        ext.dbUser = System.getenv(appProperties.getProperty("db.username")?.replace("\$", ""))
+        ext.dbPassword = System.getenv(appProperties.getProperty("db.password")?.replace("\$", ""))
+        println "Heroku DB Url: " + jdbcUrl
+    }
+
+    if (env == 'openshiftDev') {
         println("Reading config for Openshift from environment")
         // Same as heroku without the DATABASE_URL
-        ext.dbHost = System.getenv(appProperties.getProperty("db.host")?.replace("\$","").replace("{","").replace("}",""))
-        ext.dbPort = System.getenv(appProperties.getProperty("db.port")?.replace("\$","").replace("{","").replace("}",""))
-        ext.dbName = System.getenv(appProperties.getProperty("db.name")?.replace("\$","").replace("{","").replace("}",""))
+        ext.dbHost = System.getenv(appProperties.getProperty("db.host")?.replace("\$", "").replace("{", "").replace("}", ""))
+        ext.dbPort = System.getenv(appProperties.getProperty("db.port")?.replace("\$", "").replace("{", "").replace("}", ""))
+        ext.dbName = System.getenv(appProperties.getProperty("db.name")?.replace("\$", "").replace("{", "").replace("}", ""))
         ext.jdbcUrl = "jdbc:mysql://${dbHost}:${dbPort}/${dbName}?useUnicode=true"
-        ext.dbUser = System.getenv(appProperties.getProperty("db.username")?.replace("\$","").replace("{","").replace("}",""))
-        ext.dbPassword = System.getenv(appProperties.getProperty("db.password")?.replace("\$","").replace("{","").replace("}",""))
+        ext.dbUser = System.getenv(appProperties.getProperty("db.username")?.replace("\$", "").replace("{", "").replace("}", ""))
+        ext.dbPassword = System.getenv(appProperties.getProperty("db.password")?.replace("\$", "").replace("{", "").replace("}", ""))
     }
 
     println "JDBC Url: " + ext.jdbcUrl
 }
 
 def readConfigFile(configFilePath, environment) {
-  def configFile = file("$configFilePath")
-  def config = new ConfigSlurper("$environment").parse(configFile.toURL())
-  return config
+    def configFile = file("$configFilePath")
+    def config = new ConfigSlurper("$environment").parse(configFile.toURL())
+    return config
 }
 
 ext.baseDir = "$rootProject.projectDir"
 
-task clean (type: Delete, overwrite: true) {
+task clean(type: Delete, overwrite: true) {
 
     doFirst {
-        println "Cleaning files: $buildDir, $webappRootDir/WEB-INF/classes"
+        println "Cleaning files: $buildDir, WEB-INF/classes"
     }
 
     delete file("$buildDir")
-    delete file("$webappRootDir/WEB-INF/classes")
+    delete file("src/main/resources/WEB-INF/classes")
 }
 
 task wrapper(type: Wrapper) {
@@ -336,27 +340,27 @@ task wrapper(type: Wrapper) {
 }
 
 
-task buildClient(type:Exec) {
+task buildClient(type: Exec) {
 
-  doFirst {
-    println "[client-build] Deleting any prebuilt files..."
-    delete('src/main/resources/public/main.js')
-  }
+    doFirst {
+        println "[client-build] Deleting any prebuilt files..."
+        delete('src/main/resources/public/main.js')
+    }
 
-  doLast {
-	  println "[client-build] Copying built file to public folder"
-	  copy {
-        from 'GraffiTab-Frontend/build/public/assets'
-        into 'src/main/resources/public'
-        include 'main.js'
-      }
-  }
+    doLast {
+        println "[client-build] Copying built file to public folder"
+        copy {
+            from 'GraffiTab-Frontend/build/public/assets'
+            into 'src/main/resources/public'
+            include 'main.js'
+        }
+    }
 
-  workingDir 'GraffiTab-Frontend'
-  commandLine './build.sh'
+    workingDir 'GraffiTab-Frontend'
+    commandLine './build.sh'
 }
 
-task stage(type:Copy) {
+task stage(type: Copy) {
     dependsOn clean, assemble
     from jar.archivePath
     into project.rootDir
@@ -368,30 +372,30 @@ stage.mustRunAfter(clean)
 
 
 task updateDb() {
-  dependsOn update
-  doFirst {
-      println "Migrations for environment - $project.env"
-  }
+    dependsOn update
+    doFirst {
+        println "Migrations for environment - $project.env"
+    }
 }
 
 task devBuild() {
-  dependsOn processResources, compileJava
-  doFirst {
-     println "Task devBuild was successful"
-  }
+    dependsOn processResources, compileJava
+    doFirst {
+        println "Task devBuild was successful"
+    }
 }
 
 task pollForStartup() {
 
-  doLast {
-   def data = "http://dev-graffitab.rhcloud.com/status".toURL().text
+    doLast {
+        def data = "http://dev-graffitab.rhcloud.com/status".toURL().text
 
-   if (data.contains('OK')) {
-   	println("--- SUCCESS: App started --");
-   } else {
-   	println("--- WARN: Status endpoint did not return expected value: " + data);
-   }
-  }
+        if (data.contains('OK')) {
+            println("--- SUCCESS: App started --");
+        } else {
+            println("--- WARN: Status endpoint did not return expected value: " + data);
+        }
+    }
 }
 
 // Spring Boot

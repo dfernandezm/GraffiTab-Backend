@@ -22,7 +22,7 @@ import com.graffitab.server.config.web.WebConfig;
 		  }
 
 		)
-@Import(value={WebConfig.class})
+@Import(value={MainDatabaseConfig.class, WebConfig.class})
 @Order(1)
 public class MainConfig {
 
