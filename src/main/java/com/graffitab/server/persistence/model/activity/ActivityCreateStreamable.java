@@ -34,6 +34,7 @@ public class ActivityCreateStreamable extends Activity {
 
 	@Override
 	public boolean isSameActivity(Activity other) {
-		return false;
+		ActivityCreateStreamable activityCreateStreamable = (ActivityCreateStreamable) other;
+		return activityCreateStreamable.getCreatedStreamable().equals(this.createdStreamable);
 	}
 }
