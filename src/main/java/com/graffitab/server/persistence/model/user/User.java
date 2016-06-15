@@ -40,6 +40,7 @@ import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.Location;
 import com.graffitab.server.persistence.model.activity.Activity;
 import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProvider;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.util.DateTimeToLongConverter;
@@ -122,22 +123,38 @@ import lombok.Setter;
 
 	),
 	@NamedQuery(
-			name = "User.isFollowedByCurrentUser",
-			query = "select u.id "
-				  + "from User u "
-				  + "join u.following f "
-				  + "where f = :otherUser and "
-				  + "u = :currentUser"
+		name = "User.isFollowedByCurrentUser",
+		query = "select u.id "
+			  + "from User u "
+			  + "join u.following f "
+			  + "where f = :otherUser and "
+			  + "u = :currentUser"
 
-		),
+	),
 	@NamedQuery(
-			name = "User.stats",
-			query = "select (select count(*) from u.streamables where isDeleted = 'N') as streamablesCount, "
-					+ "u.followers.size as followersCount, "
-					+ "u.following.size as followingCount "
-					+ "from User u "
-					+ "where u = :user"
+		name = "User.stats",
+		query = "select (select count(*) from u.streamables where isDeleted = 'N') as streamablesCount, "
+				+ "u.followers.size as followersCount, "
+				+ "u.following.size as followingCount "
+				+ "from User u "
+				+ "where u = :user"
 
+	),
+	@NamedQuery(
+		name = "User.findExternalProviderForUser",
+		query = "select e "
+			  + "from User u "
+			  + "join u.externalProviders e "
+			  + "where e.externalProviderType = :externalProviderType "
+			  + "and u = :currentUser"
+	),
+	@NamedQuery(
+		name = "User.findUserWithExternalProvider",
+		query = "select u "
+			  + "from User u "
+			  + "join u.externalProviders e "
+			  + "where e.externalProviderType = :externalProviderType "
+			  + "and e.externalUserId = :externalUserId"
 	)
 })
 
@@ -230,6 +247,11 @@ public class User implements Identifiable<Long>, UserDetails {
 	@JoinColumn(name = "user_id", nullable = false)
 	@OrderColumn(name = "order_key")
 	private List<Notification> notifications = new ArrayList<>();
+
+	@OneToMany(targetEntity = ExternalProvider.class, cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "user_id", nullable = false)
+	@OrderColumn(name = "order_key")
+	private List<ExternalProvider> externalProviders = new ArrayList<>();
 
 	@ElementCollection
     @MapKeyColumn(name = "metadata_key")

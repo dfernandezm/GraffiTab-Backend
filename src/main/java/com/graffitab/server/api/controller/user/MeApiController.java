@@ -26,6 +26,7 @@ import com.graffitab.server.api.dto.activity.ActivityContainerDto;
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.asset.result.CreateAssetResult;
 import com.graffitab.server.api.dto.device.DeviceDto;
+import com.graffitab.server.api.dto.externalprovider.ExternalProviderDto;
 import com.graffitab.server.api.dto.location.LocationDto;
 import com.graffitab.server.api.dto.location.result.CreateLocationResult;
 import com.graffitab.server.api.dto.notification.NotificationDto;
@@ -34,8 +35,6 @@ import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
 import com.graffitab.server.api.dto.streamable.result.CreateStreamableResult;
 import com.graffitab.server.api.dto.streamable.result.GetFullStreamableResult;
 import com.graffitab.server.api.dto.user.ChangePasswordDto;
-import com.graffitab.server.api.dto.user.ExternalProviderDto;
-import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
@@ -46,6 +45,7 @@ import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.Location;
 import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderType;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
@@ -54,6 +54,7 @@ import com.graffitab.server.service.ActivityService;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.DeviceService;
+import com.graffitab.server.service.user.ExternalProviderService;
 import com.graffitab.server.service.user.LocationService;
 import com.graffitab.server.service.user.UserService;
 
@@ -75,6 +76,9 @@ public class MeApiController {
 
 	@Resource
 	private DeviceService deviceService;
+
+	@Resource
+	private ExternalProviderService externalProviderService;
 
 	@Resource
 	private LocationService locationService;
@@ -245,16 +249,15 @@ public class MeApiController {
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
-		userService.linkExternalProvider(externalProviderDto.getExternalId(), externalProviderDto.getAccessToken(),
-				 						 externalProviderDto.getExternalProviderType());
+		externalProviderService.linkExternalProvider(externalProviderDto.getExternalProviderType(), externalProviderDto.getExternalUserId(), externalProviderDto.getAccessToken());
 		return new ActionCompletedResult();
 	}
 
 	@RequestMapping(value = "/externalproviders", method = RequestMethod.DELETE)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ActionCompletedResult unlinkExternalProvider(@JsonProperty("externalProviderType") ExternalProviderType externalProviderType) {
-		userService.unlinkExternalProvider(externalProviderType);
+	public ActionCompletedResult unlinkExternalProvider(@JsonProperty("type") ExternalProviderType externalProviderType) {
+		externalProviderService.unlinkExternalProvider(externalProviderType);
 		return new ActionCompletedResult();
 	}
 

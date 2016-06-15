@@ -5,16 +5,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import ma.glasnost.orika.MapperFacade;
-import ma.glasnost.orika.MapperFactory;
-import ma.glasnost.orika.converter.ConverterFactory;
-import ma.glasnost.orika.impl.DefaultMapperFactory;
-
 import org.springframework.stereotype.Component;
 
 import com.graffitab.server.api.dto.activity.ActivityDto;
 import com.graffitab.server.api.dto.asset.AssetDto;
 import com.graffitab.server.api.dto.comment.CommentDto;
+import com.graffitab.server.api.dto.externalprovider.ExternalProviderDto;
 import com.graffitab.server.api.dto.location.LocationDto;
 import com.graffitab.server.api.dto.notification.NotificationDto;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
@@ -30,6 +26,9 @@ import com.graffitab.server.persistence.model.activity.ActivityCreateStreamable;
 import com.graffitab.server.persistence.model.activity.ActivityFollow;
 import com.graffitab.server.persistence.model.activity.ActivityLike;
 import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderFacebook;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderGoogle;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderTwitter;
 import com.graffitab.server.persistence.model.notification.NotificationComment;
 import com.graffitab.server.persistence.model.notification.NotificationFollow;
 import com.graffitab.server.persistence.model.notification.NotificationLike;
@@ -37,6 +36,11 @@ import com.graffitab.server.persistence.model.notification.NotificationMention;
 import com.graffitab.server.persistence.model.notification.NotificationWelcome;
 import com.graffitab.server.persistence.model.streamable.StreamableGraffiti;
 import com.graffitab.server.persistence.model.user.User;
+
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.converter.ConverterFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
 
 @Component
 public class OrikaMapper {
@@ -148,6 +152,19 @@ public class OrikaMapper {
 		.use(StreamableGraffiti.class, StreamableDto.class)
 		.byDefault()
 		.customize(fullStreamableMapper)
+	    .register();
+
+		// Map external provider DTOs.
+		mapperFactory.classMap(ExternalProviderFacebook.class, ExternalProviderDto.class)
+		.byDefault()
+	    .register();
+
+		mapperFactory.classMap(ExternalProviderTwitter.class, ExternalProviderDto.class)
+		.byDefault()
+	    .register();
+
+		mapperFactory.classMap(ExternalProviderGoogle.class, ExternalProviderDto.class)
+		.byDefault()
 	    .register();
 
 		// Map comment DTOs.

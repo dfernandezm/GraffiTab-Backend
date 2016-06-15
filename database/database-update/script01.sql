@@ -341,3 +341,15 @@ ALTER TABLE gt_user ADD failed_logins INT(10) DEFAULT 0;
 
 --changeset david:v100cs60
 UPDATE gt_user SET failed_logins=0 WHERE failed_logins is null;
+
+--changeset georgi:v100cs61
+CREATE TABLE external_provider (
+	id bigint(20) NOT NULL AUTO_INCREMENT,
+	user_id bigint(20) NOT NULL,
+	external_provider_type varchar(50) NOT NULL,
+	external_user_id varchar(100) NOT NULL,
+	access_token varchar(1000) NOT NULL,
+	order_key int(11) not null,
+	PRIMARY KEY (id),
+	CONSTRAINT external_provider_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id)
+);

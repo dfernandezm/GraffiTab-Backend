@@ -1,8 +1,8 @@
 package com.graffitab.server.api.dto.user;
 
-import lombok.Data;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderType;
 
-import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
+import lombok.Data;
 
 @Data
 public class ExternalUserDto {

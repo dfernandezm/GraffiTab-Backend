@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.graffitab.server.api.dto.ListItemsResult;
-import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
@@ -33,6 +32,8 @@ import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.asset.Asset.AssetType;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProvider;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderType;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
@@ -103,12 +104,13 @@ public class UserService {
 	@Resource
 	private ImageUtilsService imageUtilsService;
 
+	@Resource
+	private ExternalProviderService externalProviderService;
+
 	public static final String ACTIVATION_TOKEN_METADATA_KEY = "activationToken";
 	public static final String ACTIVATION_TOKEN_DATE_METADATA_KEY = "activationTokenDate";
 	public static final String RESET_PASSWORD_ACTIVATION_TOKEN = "resetPasswordToken";
 	public static final String RESET_PASSWORD_ACTIVATION_TOKEN_DATE = "resetPasswordTokenDate";
-	public static final String EXTERNAL_PROVIDER_ID_KEY = "%s_externalId";
-	public static final String EXTERNAL_PROVIDER_TOKEN_KEY = "%s_externalToken";
 
 	// 6 hours in milliseconds.
 	public static final Long ACTIVATION_TOKEN_EXPIRATION_MS = 6 * 60 * 60 * 1000L;
@@ -180,40 +182,8 @@ public class UserService {
 	}
 
 	@Transactional
-	public void linkExternalProvider(String externalProviderId, String externalProviderToken,
-			ExternalProviderType externalProviderType) {
-		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
-				externalProviderToken);
-		User currentUser = getCurrentUser();
-		merge(currentUser);
-
-		// Check if a user with that externalId already exists.
-		if (user != null) {
-			throw new RestApiException(ResultCode.ALREADY_EXISTS,
-					"A user with externalId " + externalProviderId + " already exists");
-		}
-
-		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
-				externalProviderId);
-		currentUser.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
-				externalProviderToken);
-	}
-
-	@Transactional
-	public void unlinkExternalProvider(ExternalProviderType externalProviderType) {
-		User currentUser = getCurrentUser();
-		merge(currentUser);
-
-		// User can only have 1 instance of a provider associated with their account, so delete it if it's found.
-		currentUser.getMetadataItems().remove(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()));
-		currentUser.getMetadataItems().remove(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()));
-	}
-
-	@Transactional
-	public User verifyExternalProvider(String externalId, String accessToken,
-			ExternalProviderType externalProviderType) {
-		User user = findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
-				externalId);
+	public User verifyExternalProvider(String externalId, ExternalProviderType externalProviderType) {
+		User user = externalProviderService.findUserWithExternalProvider(externalProviderType, externalId);
 
 		if (user == null) {
 			throw new EntityNotFoundException(ResultCode.NOT_FOUND,
@@ -284,7 +254,7 @@ public class UserService {
 		}
 	}
 
-	public User createExternalUser(User user, final String externalProviderId, String externalProviderToken,
+	public User createExternalUser(User user, final String externalUserId, String accessToken,
 			ExternalProviderType externalProviderType) {
 		// Generate random password for the external user, so that the validation is passed.
 		user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
@@ -292,28 +262,33 @@ public class UserService {
 		if (validationService.validateUser(user)) {
 			if (user.getId() == null) {
 				User validatedExternalProviderUser = transactionUtils.executeInTransactionWithResult(() -> {
-					return findUsersWithMetadataValues(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
-							externalProviderToken);
+					return externalProviderService.findUserWithExternalProvider(externalProviderType, externalUserId);
 				});
 
 				if (validatedExternalProviderUser == null) {
-					transactionUtils.executeInTransaction(() -> {
-						user.setGuid(GuidGenerator.generate());
-						user.setAccountStatus(AccountStatus.ACTIVE);
-						user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_ID_KEY, externalProviderType.name()),
-								externalProviderId);
-						user.getMetadataItems().put(String.format(EXTERNAL_PROVIDER_TOKEN_KEY, externalProviderType.name()),
-								externalProviderToken);
-						user.setCreatedOn(new DateTime());
-						userDao.persist(user);
-					});
+					// Check if access token is valid.
+					if (socialNetworksService.isValidToken(accessToken, externalProviderType)) {
+						// Register user.
+						transactionUtils.executeInTransaction(() -> {
+							user.setGuid(GuidGenerator.generate());
+							user.setAccountStatus(AccountStatus.ACTIVE);
+							user.setCreatedOn(new DateTime());
+							user.getExternalProviders().add(ExternalProvider.provider(externalProviderType, externalUserId, accessToken));
 
-					emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
+							userDao.persist(user);
+						});
 
-					// Add notification to the new user.
-					notificationService.addWelcomeNotificationAsync(user);
+						emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail());
 
-					return user;
+						// Add notification to the new user.
+						notificationService.addWelcomeNotificationAsync(user);
+
+						return user;
+					}
+					else {
+						throw new RestApiException(ResultCode.INVALID_TOKEN,
+								"The provided token is not valid.");
+					}
 				}
 				else {
 					throw new RestApiException(ResultCode.ALREADY_EXISTS,
@@ -750,6 +725,15 @@ public class UserService {
         userDto.setFollowersCount(followersCount);
         userDto.setStreamablesCount(graffitiCount);
         userDto.setFollowingCount(followingCount);
+	}
+
+	@Transactional
+	public void processLinkedAccounts(User user, FullUserDto userDto) {
+		User currentUser = getCurrentUser();
+
+		if (!user.equals(currentUser)) { // We only want to show the linked accounts if we're requesting the full profile of the logged in user.
+			userDto.setExternalProviders(null);
+		}
 	}
 
     @Transactional

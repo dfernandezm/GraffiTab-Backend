@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderType;
 
 import lombok.Data;
 

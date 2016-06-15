@@ -12,6 +12,7 @@ import com.graffitab.server.persistence.model.Device;
 import com.graffitab.server.persistence.model.Location;
 import com.graffitab.server.persistence.model.activity.Activity;
 import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProvider;
 import com.graffitab.server.persistence.model.notification.Notification;
 import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User;
@@ -33,6 +34,11 @@ public class DaoConfig {
 	@Bean
 	public HibernateDaoImpl<Device, Long> deviceDao() {
 		return generateDao(Device.class);
+	}
+
+	@Bean
+	public HibernateDaoImpl<ExternalProvider, Long> externalProviderDao() {
+		return generateDao(ExternalProvider.class);
 	}
 
 	@Bean

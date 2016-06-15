@@ -11,15 +11,17 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import com.graffitab.server.api.dto.ListItemsResult;
-import com.graffitab.server.api.dto.user.ExternalProviderDto.ExternalProviderType;
 import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.model.PagedList;
 import com.graffitab.server.persistence.model.asset.Asset;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProvider;
+import com.graffitab.server.persistence.model.externalprovider.ExternalProviderType;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.paging.PagingService;
+import com.graffitab.server.service.user.ExternalProviderService;
 import com.graffitab.server.service.user.UserService;
 
 import lombok.extern.log4j.Log4j;
@@ -36,6 +38,9 @@ public class SocialNetworksService {
 
 	@Resource
 	private FacebookSocialNetworkService facebookService;
+
+	@Resource
+	private ExternalProviderService externalProviderService;
 
 	public ListItemsResult<UserSocialFriendsContainerDto> getSocialFriendsResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
@@ -60,12 +65,20 @@ public class SocialNetworksService {
 		return container;
 	}
 
-	public Asset setAvatarFromExternalProvider(ExternalProviderType type) {
-		User currentUser = userService.getCurrentUser();
-		String userSocialId = currentUser.getMetadataItems().get(String.format(UserService.EXTERNAL_PROVIDER_ID_KEY, type.name()));
+	public boolean isValidToken(String token, ExternalProviderType externalProviderType) {
+		if (externalProviderType == ExternalProviderType.FACEBOOK) { // Remove this restriction to allow support for other external providers.
+			return facebookService.isValidToken(token);
+		}
 
-		if (userSocialId != null) { // Check if the user has linked the current provider.
-			if (type == ExternalProviderType.FACEBOOK) { // Remove this restriction to allow support for other external providers.
+		return false;
+	}
+
+	public Asset setAvatarFromExternalProvider(ExternalProviderType externalProviderType) {
+		User currentUser = userService.getCurrentUser();
+		ExternalProvider externalProvider = externalProviderService.findExternalProvider(currentUser, externalProviderType);
+
+		if (externalProvider != null) { // Check if the user has linked the current provider.
+			if (externalProviderType == ExternalProviderType.FACEBOOK) { // Remove this restriction to allow support for other external providers.
 				URL avatarUrl = facebookService.getProfilePictureUrl(currentUser, 250, 250);
 
 				try {
@@ -79,7 +92,7 @@ public class SocialNetworksService {
 			return null;
 		}
 		else {
-			throw new RestApiException(ResultCode.BAD_REQUEST, "External provider " + type.name() + " not linked to user with id " + currentUser.getId());
+			throw new RestApiException(ResultCode.BAD_REQUEST, "External provider " + externalProviderType.name() + " not linked to user with id " + currentUser.getId());
 		}
 	}
 
@@ -98,11 +111,12 @@ public class SocialNetworksService {
 	    } catch (IOException e) {
 	        return -1;
 	    } finally {
-	        conn.disconnect();
+	    	if (conn != null)
+	    		conn.disconnect();
 	    }
 	}
 
-	private UserSocialFriendsContainer getFriendsForSocialNetwork(User currentUser, ExternalProviderType type, Integer offset, Integer limit) {
+	private UserSocialFriendsContainer getFriendsForSocialNetwork(User currentUser, ExternalProviderType externalProviderType, Integer offset, Integer limit) {
 		offset = offset != null ? Math.abs(offset) : 0;
 		limit = limit != null ? Math.abs(limit) : PagingService.PAGE_SIZE_DEFAULT_VALUE;
 
@@ -110,13 +124,13 @@ public class SocialNetworksService {
 		if (limit > PagingService.PAGE_SIZE_MAX_VALUE)
 			limit = PagingService.PAGE_SIZE_MAX_VALUE;
 
-		String userSocialId = currentUser.getMetadataItems().get(String.format(UserService.EXTERNAL_PROVIDER_ID_KEY, type.name()));
+		ExternalProvider externalProvider = externalProviderService.findExternalProvider(currentUser, externalProviderType);
 
-		if (userSocialId != null) { // Check if the user has linked the current provider.
+		if (externalProvider != null) { // Check if the user has linked the current provider.
 			try {
-				if (type == ExternalProviderType.FACEBOOK) { // Remove this restriction to allow support for other external providers.
+				if (externalProviderType == ExternalProviderType.FACEBOOK) { // Remove this restriction to allow support for other external providers.
 					UserSocialFriendsContainer container = new UserSocialFriendsContainer();
-					container.setExternalProviderType(type);
+					container.setExternalProviderType(externalProviderType);
 					container.setUsers(facebookService.getFriendsList(currentUser, offset, limit));
 					container.setLimit(limit);
 					container.setOffset(offset);
