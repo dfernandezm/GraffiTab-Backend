@@ -25,6 +25,7 @@ import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
+import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.UserService;
 
@@ -40,6 +41,9 @@ public class UserApiController extends BaseApiController {
 
 	@Resource
 	private OrikaMapper mapper;
+
+	@Resource
+	private TransactionUtils transactionUtils;
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
@@ -122,7 +126,10 @@ public class UserApiController extends BaseApiController {
 	public GetFullUserResult follow(@PathVariable("id") Long userId) {
 		GetFullUserResult userProfileResult = new GetFullUserResult();
 		User toFollow = userService.follow(userId);
-		userProfileResult.setUser(mapper.map(toFollow, FullUserDto.class));
+		transactionUtils.executeInTransaction(() -> {
+			User resultUser = userService.findUserById(toFollow.getId());
+			userProfileResult.setUser(mapper.map(resultUser, FullUserDto.class));
+		});
 		return userProfileResult;
 	}
 
@@ -131,7 +138,10 @@ public class UserApiController extends BaseApiController {
 	public GetFullUserResult unFollow(@PathVariable("id") Long userId) {
 		GetFullUserResult userProfileResult = new GetFullUserResult();
 		User toUnfollow = userService.unfollow(userId);
-		userProfileResult.setUser(mapper.map(toUnfollow, FullUserDto.class));
+		transactionUtils.executeInTransaction(() -> {
+			User resultUser = userService.findUserById(toUnfollow.getId());
+			userProfileResult.setUser(mapper.map(resultUser, FullUserDto.class));
+		});
 		return userProfileResult;
 	}
 
