@@ -68,7 +68,10 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 			log.debug("[FACEBOOK] About to fetch user friends");
 		}
 
-		ExternalProvider externalProvider = externalProviderService.findExternalProvider(user, providerType);
+		ExternalProvider externalProvider = transactionUtils.executeInTransactionWithResult(() -> {
+			return externalProviderService.findExternalProvider(user, providerType);
+		});
+
 		String userId = externalProvider.getExternalUserId();
 		String userAccessToken = externalProvider.getAccessToken();
 
@@ -116,7 +119,10 @@ public class FacebookSocialNetworkService implements SocialNetworkService {
 			log.debug("[FACEBOOK] About to fetch user profile picture");
 		}
 
-		ExternalProvider externalProvider = externalProviderService.findExternalProvider(user, providerType);
+		ExternalProvider externalProvider = transactionUtils.executeInTransactionWithResult(() -> {
+			return externalProviderService.findExternalProvider(user, providerType);
+		});
+
 		String userId = externalProvider.getExternalUserId();
 		String userAccessToken = externalProvider.getAccessToken();
 

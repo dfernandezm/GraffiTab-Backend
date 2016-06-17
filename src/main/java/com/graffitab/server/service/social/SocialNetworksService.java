@@ -20,6 +20,7 @@ import com.graffitab.server.persistence.model.externalprovider.ExternalProvider;
 import com.graffitab.server.persistence.model.externalprovider.ExternalProviderType;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
+import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.user.ExternalProviderService;
 import com.graffitab.server.service.user.UserService;
@@ -41,6 +42,9 @@ public class SocialNetworksService {
 
 	@Resource
 	private ExternalProviderService externalProviderService;
+
+	@Resource
+	private TransactionUtils transactionUtils;
 
 	public ListItemsResult<UserSocialFriendsContainerDto> getSocialFriendsResult(Integer offset, Integer limit) {
 		User currentUser = userService.getCurrentUser();
@@ -75,7 +79,9 @@ public class SocialNetworksService {
 
 	public Asset setAvatarFromExternalProvider(ExternalProviderType externalProviderType) {
 		User currentUser = userService.getCurrentUser();
-		ExternalProvider externalProvider = externalProviderService.findExternalProvider(currentUser, externalProviderType);
+		ExternalProvider externalProvider = transactionUtils.executeInTransactionWithResult(() -> {
+			return externalProviderService.findExternalProvider(currentUser, externalProviderType);
+		});
 
 		if (externalProvider != null) { // Check if the user has linked the current provider.
 			if (externalProviderType == ExternalProviderType.FACEBOOK) { // Remove this restriction to allow support for other external providers.
@@ -124,7 +130,9 @@ public class SocialNetworksService {
 		if (limit > PagingService.PAGE_SIZE_MAX_VALUE)
 			limit = PagingService.PAGE_SIZE_MAX_VALUE;
 
-		ExternalProvider externalProvider = externalProviderService.findExternalProvider(currentUser, externalProviderType);
+		ExternalProvider externalProvider = transactionUtils.executeInTransactionWithResult(() -> {
+			return externalProviderService.findExternalProvider(currentUser, externalProviderType);
+		});
 
 		if (externalProvider != null) { // Check if the user has linked the current provider.
 			try {
