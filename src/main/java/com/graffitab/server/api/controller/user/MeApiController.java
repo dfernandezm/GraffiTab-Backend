@@ -248,17 +248,21 @@ public class MeApiController {
 	@RequestMapping(value = "/externalproviders", method = RequestMethod.POST)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ActionCompletedResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
-		externalProviderService.linkExternalProvider(externalProviderDto.getExternalProviderType(), externalProviderDto.getExternalUserId(), externalProviderDto.getAccessToken());
-		return new ActionCompletedResult();
+	public GetFullUserResult linkExternalProvider(@JsonProperty("externalProvider") ExternalProviderDto externalProviderDto) {
+		GetFullUserResult userProfileResult = new GetFullUserResult();
+		User user = externalProviderService.linkExternalProvider(externalProviderDto.getExternalProviderType(), externalProviderDto.getExternalUserId(), externalProviderDto.getAccessToken());
+		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
+		return userProfileResult;
 	}
 
 	@RequestMapping(value = "/externalproviders", method = RequestMethod.DELETE)
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public ActionCompletedResult unlinkExternalProvider(@JsonProperty("type") ExternalProviderType externalProviderType) {
-		externalProviderService.unlinkExternalProvider(externalProviderType);
-		return new ActionCompletedResult();
+	public GetFullUserResult unlinkExternalProvider(@JsonProperty("type") ExternalProviderType externalProviderType) {
+		GetFullUserResult userProfileResult = new GetFullUserResult();
+		User user = externalProviderService.unlinkExternalProvider(externalProviderType);
+		userProfileResult.setUser(mapper.map(user, FullUserDto.class));
+		return userProfileResult;
 	}
 
 	@RequestMapping(value = {"/changepassword"}, method = RequestMethod.PUT)

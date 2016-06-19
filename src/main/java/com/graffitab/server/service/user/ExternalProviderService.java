@@ -30,7 +30,7 @@ public class ExternalProviderService {
     private SocialNetworksService socialNetworksService;
 
     @Transactional
-    public void linkExternalProvider(ExternalProviderType externalProviderType, String externalUserId, String accessToken) {
+    public User linkExternalProvider(ExternalProviderType externalProviderType, String externalUserId, String accessToken) {
         User currentUser = userService.getCurrentUser();
         userService.merge(currentUser);
         ExternalProvider externalProvider = findExternalProvider(currentUser, externalProviderType);
@@ -48,10 +48,12 @@ public class ExternalProviderService {
 			throw new RestApiException(ResultCode.INVALID_TOKEN,
 					"The provided token is not valid.");
 		}
+
+		return currentUser;
     }
 
     @Transactional
-    public void unlinkExternalProvider(ExternalProviderType externalProviderType) {
+    public User unlinkExternalProvider(ExternalProviderType externalProviderType) {
         User currentUser = userService.getCurrentUser();
         userService.merge(currentUser);
         ExternalProvider externalProvider = findExternalProvider(currentUser, externalProviderType);
@@ -62,6 +64,8 @@ public class ExternalProviderService {
         }
 
         currentUser.getExternalProviders().remove(externalProvider);
+
+        return currentUser;
     }
 
     public ExternalProvider findExternalProvider(ExternalProviderType externalProviderType, String externalUserId, String accessToken) {
