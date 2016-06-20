@@ -18,7 +18,6 @@ public class ExternalProviderDto {
 	@JsonProperty(value = "type")
 	private ExternalProviderType externalProviderType;
 
-	@JsonProperty(value = "token")
 	private String accessToken;
 
 	@JsonIgnore
