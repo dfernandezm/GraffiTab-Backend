@@ -127,10 +127,10 @@ public class MeApiController {
 	@RequestMapping(value = {""}, method = RequestMethod.PUT, consumes={"application/json"})
 	@Transactional
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public GetUserResult edit(@JsonProperty("user") UserDto userDto) {
-		GetUserResult updateUserResult = new GetUserResult();
+	public GetFullUserResult edit(@JsonProperty("user") UserDto userDto) {
+		GetFullUserResult updateUserResult = new GetFullUserResult();
 		User user = userService.editUser(userDto.getFirstName(), userDto.getLastName(), userDto.getEmail(), userDto.getAbout(), userDto.getWebsite());
-		updateUserResult.setUser(mapper.map(user, UserDto.class));
+		updateUserResult.setUser(mapper.map(user, FullUserDto.class));
 		return updateUserResult;
 	}
 

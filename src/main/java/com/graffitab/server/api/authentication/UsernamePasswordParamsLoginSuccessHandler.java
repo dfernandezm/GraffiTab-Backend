@@ -8,8 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import lombok.extern.log4j.Log4j2;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.core.Authentication;
@@ -20,6 +18,8 @@ import com.graffitab.server.api.dto.user.result.GetUserResult;
 import com.graffitab.server.api.mapper.OrikaMapper;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.service.user.UserSessionService;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class UsernamePasswordParamsLoginSuccessHandler implements AuthenticationSuccessHandler {
