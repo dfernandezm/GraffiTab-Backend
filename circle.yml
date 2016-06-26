@@ -30,7 +30,7 @@ database:
 
 test:
   override:
-    - echo "Skipping test"
+    - ./gradlew test -Penv=digitalOceanDev
 
 # Need to add one valid private SSH Key to CircleCI UI so it can authenticate against Openshift
 deployment:
@@ -58,5 +58,3 @@ deployment:
       - ssh $DO_USER@$DO_DEV02_DOMAIN 'source ~/environment.sh && chmod +x $DO_DEPLOYMENT_DIR/start.sh' 2>&1
       - echo "==== Starting application in dev02 after deployment ===="
       - ssh $DO_USER@$DO_DEV02_DOMAIN 'source ~/environment.sh && cd $DO_DEPLOYMENT_DIR && nohup ./start.sh > start.log &' 2>&1
-
-

@@ -353,3 +353,13 @@ CREATE TABLE external_provider (
 	PRIMARY KEY (id),
 	CONSTRAINT external_provider_user_fk FOREIGN KEY (user_id) REFERENCES gt_user (id)
 );
+
+--changeset david:v100cs62
+ALTER TABLE asset ADD state varchar(50) DEFAULT NULL;
+UPDATE asset SET state = 'COMPLETED';
+ALTER TABLE asset MODIFY COLUMN state varchar(40) NOT NULL;
+
+--changeset david:v100cs63
+ALTER TABLE asset ADD version int(11) DEFAULT NULL;
+UPDATE asset SET version = 0;
+ALTER TABLE asset MODIFY COLUMN version int(11) NOT NULL;

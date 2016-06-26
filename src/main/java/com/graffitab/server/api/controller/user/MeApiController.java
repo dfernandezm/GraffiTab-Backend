@@ -5,6 +5,9 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
+import com.graffitab.server.service.asset.MultipartFileTransferableStream;
+import com.graffitab.server.service.asset.TransferableStream;
+import lombok.extern.log4j.Log4j2;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +27,7 @@ import com.graffitab.server.api.dto.CountResult;
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.activity.ActivityContainerDto;
 import com.graffitab.server.api.dto.asset.AssetDto;
-import com.graffitab.server.api.dto.asset.result.CreateAssetResult;
+import com.graffitab.server.api.dto.asset.result.AssetResult;
 import com.graffitab.server.api.dto.device.DeviceDto;
 import com.graffitab.server.api.dto.externalprovider.ExternalProviderDto;
 import com.graffitab.server.api.dto.location.LocationDto;
@@ -58,6 +61,7 @@ import com.graffitab.server.service.user.ExternalProviderService;
 import com.graffitab.server.service.user.LocationService;
 import com.graffitab.server.service.user.UserService;
 
+@Log4j2
 @RestController
 @RequestMapping("/api/users/me")
 public class MeApiController {
@@ -137,19 +141,20 @@ public class MeApiController {
 	@RequestMapping(value = {"/avatar"}, method = RequestMethod.POST)
 	@ResponseBody
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateAssetResult editAvatar(@RequestPart("file") @NotNull @NotBlank MultipartFile file) throws IOException {
+	public AssetResult editAvatar(@RequestPart("file") @NotNull @NotBlank MultipartFile file) throws IOException {
 		String contentType = file.getContentType();
 		if (!contentType.equalsIgnoreCase(MediaType.IMAGE_JPEG_VALUE) && !contentType.equalsIgnoreCase(MediaType.IMAGE_PNG_VALUE)) {
 			throw new RestApiException(ResultCode.UNSUPPORTED_FILE_TYPE,
 					"The file type '" + contentType + "' is not supported.");
 		}
-
 		try {
-			CreateAssetResult editAvatarResult = new CreateAssetResult();
-			Asset asset = userService.editAvatar(file.getInputStream(), file.getSize());
+			AssetResult editAvatarResult = new AssetResult();
+			TransferableStream transferableStream = new MultipartFileTransferableStream(file);
+			Asset asset = userService.addOrEditAvatar(transferableStream, file.getSize());
 			editAvatarResult.setAsset(mapper.map(asset, AssetDto.class));
 			return editAvatarResult;
-		} catch (IOException e) {
+		} catch (Exception e) {
+			log.error("File stream could not be read.", e);
 			throw new RestApiException(ResultCode.BAD_REQUEST,
 					"File stream could not be read.");
 		}
@@ -165,19 +170,20 @@ public class MeApiController {
 	@RequestMapping(value = {"/cover"}, method = RequestMethod.POST)
 	@ResponseBody
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateAssetResult editCover(@RequestPart("file") @NotNull @NotBlank MultipartFile file) throws IOException {
+	public AssetResult editCover(@RequestPart("file") @NotNull @NotBlank MultipartFile file) throws IOException {
 		String contentType = file.getContentType();
 		if (!contentType.equalsIgnoreCase(MediaType.IMAGE_JPEG_VALUE) && !contentType.equalsIgnoreCase(MediaType.IMAGE_PNG_VALUE)) {
 			throw new RestApiException(ResultCode.UNSUPPORTED_FILE_TYPE,
 					"The file type '" + contentType + "' is not supported.");
 		}
-
 		try {
-			CreateAssetResult editcoverResult = new CreateAssetResult();
-			Asset asset = userService.editCover(file.getInputStream(), file.getSize());
+			AssetResult editcoverResult = new AssetResult();
+			TransferableStream transferableStream = new MultipartFileTransferableStream(file);
+			Asset asset = userService.addOrEditCover(transferableStream, file.getSize());
 			editcoverResult.setAsset(mapper.map(asset, AssetDto.class));
 			return editcoverResult;
-		} catch (IOException e) {
+		} catch (Exception e) {
+			log.error("File stream could not be read.", e);
 			throw new RestApiException(ResultCode.BAD_REQUEST,
 					"File stream could not be read.");
 		}
@@ -315,10 +321,11 @@ public class MeApiController {
 
 		try {
 			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
-			Streamable streamable = streamableService.createStreamableGraffiti(streamableDto, file.getInputStream(), file.getSize());
+			TransferableStream transferableStream = new MultipartFileTransferableStream(file);
+			Streamable streamable = streamableService.createStreamableGraffiti(streamableDto, transferableStream, file.getSize());
 			addStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 			return addStreamableResult;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RestApiException(ResultCode.BAD_REQUEST,
 					"File stream could not be read.");
 		}
@@ -339,10 +346,12 @@ public class MeApiController {
 
 		try {
 			CreateStreamableResult addStreamableResult = new CreateStreamableResult();
-			Streamable streamable = streamableService.editStreamableGraffiti(streamableId, streamableDto, file.getInputStream(), file.getSize());
+			TransferableStream transferableStream = new MultipartFileTransferableStream(file);
+			Streamable streamable = streamableService.editStreamableGraffiti(streamableId, streamableDto, transferableStream,
+									file.getSize());
 			addStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 			return addStreamableResult;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RestApiException(ResultCode.BAD_REQUEST,
 					"File stream could not be read.");
 		}
@@ -432,8 +441,8 @@ public class MeApiController {
 
 	@RequestMapping(value = {"/social/{type}/avatar"}, method = RequestMethod.PUT)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
-	public CreateAssetResult importSocialAvatar(@PathVariable("type") ExternalProviderType type) {
-		CreateAssetResult createAssetResult = new CreateAssetResult();
+	public AssetResult importSocialAvatar(@PathVariable("type") ExternalProviderType type) {
+		AssetResult createAssetResult = new AssetResult();
 		Asset asset = userService.importSocialAvatar(type);
 		createAssetResult.setAsset(mapper.map(asset, AssetDto.class));
 		return createAssetResult;

@@ -1,13 +1,6 @@
 package com.graffitab.server.persistence.model.asset;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.graffitab.server.persistence.dao.Identifiable;
 import com.graffitab.server.util.GuidGenerator;
@@ -15,7 +8,23 @@ import com.graffitab.server.util.GuidGenerator;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.NamedQueries;
+import org.hibernate.annotations.NamedQuery;
 
+@NamedQueries({
+		@NamedQuery(
+				name = "Asset.findInState",
+				query = "select a "
+						+ "from Asset a "
+						+ "where a.state = :state"
+		),
+		@NamedQuery(
+				name = "Asset.findByGuid",
+				query = "select a "
+						+ "from Asset a "
+						+ "where a.guid = :guid"
+		)
+})
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -26,12 +35,19 @@ public class Asset implements Identifiable<Long> {
 	private static final long serialVersionUID = 1L;
 
 	public enum AssetType {
-		IMAGE;
+		IMAGE
+	}
+
+	public enum AssetState {
+		RESIZING, PROCESSING, COMPLETED;
 	}
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
+
+	@Version
+	private Integer version;
 
 	@Column(name = "guid", nullable = false)
 	private String guid;
@@ -52,6 +68,13 @@ public class Asset implements Identifiable<Long> {
 	@Column(name = "thumbnail_height")
 	private Integer thumbnailHeight;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "state", nullable = false)
+	private AssetState state;
+
+
+
+
 	@Override
 	public Long getId() {
 		return id;
@@ -66,6 +89,7 @@ public class Asset implements Identifiable<Long> {
 		Asset asset = new Asset();
 		asset.setGuid(GuidGenerator.generate());
 		asset.setAssetType(type);
+		asset.setState(AssetState.PROCESSING);
 		return asset;
 	}
 }
