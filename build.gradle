@@ -83,7 +83,7 @@ def jadiraVersion = "5.0.0.GA"
 def sendgridVersion = "2.2.2"
 def pushSenderVersion = "1.0.2"
 def javatuplesVersion = "1.2"
-def facebook4jVersion = "2.4.3"
+def facebook4jVersion = "2.4.5"
 def imageScalingVersion = "0.8.6"
 def commonsFileuploadVersion = "1.3.1"
 //http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
