@@ -4,7 +4,11 @@ import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
 import com.graffitab.server.api.dto.user.UserSocialFriendsContainerDto;
-import com.graffitab.server.api.errors.*;
+import com.graffitab.server.api.errors.EntityNotFoundException;
+import com.graffitab.server.api.errors.RestApiException;
+import com.graffitab.server.api.errors.ResultCode;
+import com.graffitab.server.api.errors.UserNotLoggedInException;
+import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.asset.Asset.AssetType;
@@ -13,10 +17,11 @@ import com.graffitab.server.persistence.model.externalprovider.ExternalProviderT
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
+import com.graffitab.server.persistence.redis.RedisUserSessionService;
 import com.graffitab.server.service.ActivityService;
-import com.graffitab.server.service.asset.AssetService;
 import com.graffitab.server.service.ProxyUtilities;
 import com.graffitab.server.service.TransactionUtils;
+import com.graffitab.server.service.asset.AssetService;
 import com.graffitab.server.service.asset.TransferableStream;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.image.ImageUtilsService;
@@ -55,7 +60,7 @@ public class UserService {
 	private HibernateDaoImpl<User, Long> userDao;
 
 	@Resource
-	private UserSessionService userSessionService;
+	private RedisUserSessionService redisUserSessionService;
 
 	@Resource
 	private DatastoreService datastoreService;
@@ -527,7 +532,7 @@ public class UserService {
 		user.setFailedLogins(0);
 
 		// Logout from all devices
-		userSessionService.logoutEverywhere(user, false);
+		redisUserSessionService.logoutEverywhere(user, false);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully reset password for user " + user.getUsername());
@@ -552,7 +557,7 @@ public class UserService {
 		user.setFailedLogins(0);
 
 		// Logout from all devices but this one
-        userSessionService.logoutEverywhere(user, true);
+        redisUserSessionService.logoutEverywhere(user, true);
 
 		if (log.isDebugEnabled()) {
 			log.debug("Successfully changed password for user " + user.getUsername());

@@ -1,25 +1,14 @@
 package com.graffitab.server.service.user;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.annotation.Resource;
-import javax.annotation.security.RunAs;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
-
+import com.graffitab.server.persistence.dao.HibernateDaoImpl;
+import com.graffitab.server.persistence.model.user.User;
+import com.graffitab.server.persistence.model.user.UserSession;
+import com.graffitab.server.service.ProxyUtilities;
+import com.graffitab.server.service.TransactionUtils;
 import lombok.extern.log4j.Log4j2;
-
 import org.hibernate.Query;
 import org.hibernate.criterion.Restrictions;
 import org.joda.time.DateTime;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -28,13 +17,19 @@ import org.springframework.security.oauth2.common.util.SerializationUtils;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import com.graffitab.server.api.errors.UserNotLoggedInException;
-import com.graffitab.server.persistence.dao.HibernateDaoImpl;
-import com.graffitab.server.persistence.model.user.User;
-import com.graffitab.server.persistence.model.user.UserSession;
-import com.graffitab.server.service.ProxyUtilities;
-import com.graffitab.server.service.TransactionUtils;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+//TODO: Make it an interface or remove it
 @Service
 @Log4j2
 public class UserSessionService {
@@ -174,6 +169,7 @@ public class UserSessionService {
 		return sessionAttributeMap;
 	}
 
+	//TODO: make an interface method?
 	public void logoutEverywhere(User user, boolean keepCurrentSession) {
 		HttpSession session = httpServletRequest.getSession(false);
 
@@ -187,6 +183,7 @@ public class UserSessionService {
 							 " where us.user = :user" +
 							 (keepCurrentSession ? " and us.sessionId != :keepSessionId": "");
 
+		// Delete all the stored sessions for the user but the current one
 		Query deleteSessionsQuery = userSessionDao.createQuery(queryString)
 				.setParameter("user", user);
 		if (keepCurrentSession) {
@@ -197,25 +194,6 @@ public class UserSessionService {
 
 		if (log.isDebugEnabled()) {
 			log.debug("Deleted {} sessions for user ID {}", deletedSessionsCount, user.getId());
-		}
-	}
-
-	public void saveOrUpdateCurrentSessionData() {
-		if (httpServletRequest != null) {
-			HttpSession session = httpServletRequest.getSession(false);
-			if (session != null) {
-				if (log.isDebugEnabled()) {
-					log.debug("Persisting session: {}", session.getId());
-				}
-				saveOrUpdateSessionData(session);
-			} else {
-				log.warn("No session for this request -- this should be investigated");
-				throw new UserNotLoggedInException("User is not authenticated or session has not being created");
-			}
-		} else {
-			String msg = "This is not an HTTP request thread";
-			log.warn(msg);
-			throw new IllegalStateException(msg);
 		}
 	}
 
@@ -297,8 +275,9 @@ public class UserSessionService {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
-	@Scheduled(fixedRate = DAILY)
+	//TODO: to be removed when DB sessions are
+	//@SuppressWarnings("unchecked")
+	//@Scheduled(fixedRate = DAILY)
 	public void cleanExpiredSessions() {
 
 		if (log.isDebugEnabled()) {

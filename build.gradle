@@ -15,7 +15,6 @@ buildscript {
     }
 }
 
-import org.apache.tools.ant.filters.*
 apply plugin: 'liquibase'
 apply plugin: 'java'
 apply plugin: 'spring-boot'
@@ -84,6 +83,7 @@ def commonsFileuploadVersion = "1.3.1"
 def boneCpVersion = "0.8.0.RELEASE"
 //http://docs.spring.io/spring-security/site/migrate/current/3-to-4/html5/migrate-3-to-4-jc.html
 def springSecurityVersion = "4.0.3.RELEASE"
+def springSessionVersion = "1.2.0.RELEASE"
 
 
 List jackson = ["com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
@@ -152,8 +152,6 @@ dependencies {
 
     compile spring, jackson, log4j
 
-    //springSecurity, jackson, log4j
-
     compile "ma.glasnost.orika:orika-core:$orikaVersion"
 
     compile "commons-fileupload:commons-fileupload:$commonsFileuploadVersion"
@@ -187,6 +185,8 @@ dependencies {
     compile "com.sendgrid:sendgrid-java:$sendgridVersion"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jacksonVersion"
     compile "com.jolbox:bonecp:$boneCpVersion"
+    compile "org.springframework.session:spring-session-data-redis:$springSessionVersion"
+    compile "org.springframework.session:spring-session:$springSessionVersion"
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'org.springframework.security:spring-security-test:4.0.3.RELEASE'

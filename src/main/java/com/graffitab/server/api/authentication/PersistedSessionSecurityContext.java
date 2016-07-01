@@ -1,16 +1,9 @@
 package com.graffitab.server.api.authentication;
 
-import javax.annotation.Resource;
-import javax.servlet.AsyncContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import com.graffitab.server.service.user.UserSessionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,9 +15,21 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-import com.graffitab.server.service.user.UserSessionService;
+import javax.annotation.Resource;
+import javax.servlet.AsyncContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+//TODO: we can remove this whole class when Redis datastore is ready
 
 public class PersistedSessionSecurityContext implements SecurityContextRepository {
+
+	@Value("${session.backups.enabled:true}")
+	private Boolean sessionBackupsEnabled;
 
 	@Resource
 	private UserSessionService userSessionService;
@@ -73,7 +78,7 @@ public class PersistedSessionSecurityContext implements SecurityContextRepositor
 					logger.debug("No SecurityContext was available from the HttpSession -- it is NULL");
 				}
 
-				if (requestedSessionId != null) {
+				if (requestedSessionId != null && sessionBackupsEnabled) {
 					context = userSessionService.restoreSecurityContextAndHttpSessionFromDb();
 				}
 			}
@@ -133,7 +138,7 @@ public class PersistedSessionSecurityContext implements SecurityContextRepositor
         }
 
         if (!containsContext && session != null) {
-            if (request.getRequestedSessionId() != null) {
+            if (request.getRequestedSessionId() != null && sessionBackupsEnabled) {
                 // Check DB sessions (if requestedSessionId exists).
             	if (userSessionService.existsSession(request.getRequestedSessionId())) {
             		containsContext = true;

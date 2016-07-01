@@ -2,6 +2,7 @@ package com.graffitab.server.api.authentication;
 
 import com.graffitab.server.service.user.UserSessionService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,8 +26,12 @@ import java.io.IOException;
  * @author david
  *
  */
+//TODO: delete/adapt the whole filter once Redis sessions are done
 @Log4j2
 public class SessionInvalidationFilter extends OncePerRequestFilter {
+
+	@Value("${session.backups.enabled:true}")
+	private Boolean sessionBackupsEnabled;
 
 	@Resource
 	private UserSessionService userSessionService;
@@ -40,31 +45,32 @@ public class SessionInvalidationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		long startTime = System.currentTimeMillis();
-
 		String requestedSessionId = request.getRequestedSessionId();
-
-		if (log.isDebugEnabled()) {
-			log.debug("Checking sessions to invalidate...");
-		}
-
 		HttpSession session = request.getSession(false);
 		String currentSessionId = session == null ? null : session.getId();
 
-		if (currentSessionId != null && !userSessionService.exists(currentSessionId)) {
+		if (sessionBackupsEnabled) {
 
-			// Request is coming from an invalid session.
 			if (log.isDebugEnabled()) {
-				log.debug("Invalidating session: {}",currentSessionId);
+				log.debug("Checking sessions to invalidate...");
 			}
 
-			// Invalidate this session
-			session.invalidate();
+			if (currentSessionId != null && !userSessionService.exists(currentSessionId)) {
 
-			// Redirect to entryPoint -- user is not authenticated
-			commonAuthenticationEntryPoint.commence(request, response,
-					new AuthenticationCredentialsNotFoundException("Not authenticated"));
+				// Request is coming from an invalid session.
+				if (log.isDebugEnabled()) {
+					log.debug("Invalidating session: {}",currentSessionId);
+				}
 
-			return;
+				// Invalidate this session
+				session.invalidate();
+
+				// Redirect to entryPoint -- user is not authenticated
+				commonAuthenticationEntryPoint.commence(request, response,
+						new AuthenticationCredentialsNotFoundException("Not authenticated"));
+
+				return;
+			}
 		}
 
 		try {
@@ -75,7 +81,7 @@ public class SessionInvalidationFilter extends OncePerRequestFilter {
 
 		} finally {
 
-			if (currentSessionId != null) {
+			if (currentSessionId != null && sessionBackupsEnabled) {
 				userSessionService.touchSession(currentSessionId);
 			} else {
 				if (log.isDebugEnabled()) {
