@@ -213,10 +213,11 @@ loadConfiguration()
 liquibase {
   activities {
     main {
-      changeLogFile "$rootProject.projectDir/database/database-update/database-changelog.xml"
+      changeLogFile "database/database-update/database-changelog.xml"
       url "$jdbcUrl"
       username "$dbUser"
       password "$dbPassword"
+      classpath "$rootDir"
     }
   }
 
