@@ -34,3 +34,4 @@ graffitab.jar
 eclipse/GraffitabApplication.launch
 application.properties
 environment.sh
+conf/redis-local.conf

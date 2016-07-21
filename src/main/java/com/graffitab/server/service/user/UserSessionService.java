@@ -276,7 +276,7 @@ public class UserSessionService {
 	}
 
 	//TODO: to be removed when DB sessions are
-	//@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	//@Scheduled(fixedRate = DAILY)
 	public void cleanExpiredSessions() {
 

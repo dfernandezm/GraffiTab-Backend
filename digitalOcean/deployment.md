@@ -1,36 +1,18 @@
-# Digital Ocean
+# General deployment documentation for Digital Ocean
 
-The deployment consists of:
+The service deployment consists of:
 
-- 1 droplet for the load balancer: `devlb.graffitab.com`
-- 2 droplets for the app: `dev01.graffitab.com`, `dev02.graffitab.com`
-- 1 droplet for the database: `devdb.graffitab.com`
+- 1 droplet for the load balancer (HAProxy): `devlb.graffitab.com`
+- 2 droplets for the app (Java fatJars): `dev01.graffitab.com`, `dev02.graffitab.com`
+- 1 droplet for the database (MySQL + Redis): `devdb.graffitab.com`
 
 ## Add SSH keys
 
-TODO: Explain how to add keys to digital ocean
+See tutorial on how to add keys [here](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04)
 
 ## Droplet provisioning
 
-### App servers
-
-- Install Java 8
-- Install NodeJS 6+
-- Upload script `environment.sh` to '~'. Add execution permission
-- Create deployment dir. Copy `environment.sh` into it with execution permission
-
-### Load balancer
-
-### Database
-
-- Install MySQL 5.5
-- Reconfigure encoding to `utf8mb4`
-
-
-
-## Create a deployment user in app droplets
-
-How to create a user for deployments
+See documentation under `provision` folder.
 
 ## Deployment through CircleCI
 

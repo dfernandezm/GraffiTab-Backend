@@ -50,9 +50,6 @@ repositories {
 
 def webappRootDir = "src/main/webapp"
 ext.configDir = "conf"
-ext.localConfigFileName = "config.groovy"
-ext.remotesConfigFileName = "environments.groovy"
-ext.libDir = file("$webappRootDir/WEB-INF/lib")
 sourceSets.main.output.classesDir =  file("$webappRootDir/WEB-INF/classes")
 sourceSets.main.output.resourcesDir =  file("$webappRootDir/WEB-INF/classes")
 
@@ -252,7 +249,7 @@ def loadConfiguration() {
         appProperties.load(it)
     }
 
-    // copy corresponding properties file
+    // copy environment specific properties file and rename to application.properties
     copy {
         from configFile
         into 'src/main/resources'
@@ -304,6 +301,7 @@ def loadConfiguration() {
     if  (env == 'digitalOceanDev') {
         println("Reading config for DigitalOcean from environment")
 
+        // Tidy up the strings in properties file so they can be read directly as env variables
         ext.dbHost = System.getenv(appProperties.getProperty("db.host")?.replace("\$","").replace("{","").replace("}",""))
         ext.dbPort = System.getenv(appProperties.getProperty("db.port")?.replace("\$","").replace("{","").replace("}",""))
         ext.dbName = System.getenv(appProperties.getProperty("db.name")?.replace("\$","").replace("{","").replace("}",""))
@@ -314,14 +312,6 @@ def loadConfiguration() {
 
     println "JDBC Url: " + ext.jdbcUrl
 }
-
-def readConfigFile(configFilePath, environment) {
-  def configFile = file("$configFilePath")
-  def config = new ConfigSlurper("$environment").parse(configFile.toURL())
-  return config
-}
-
-ext.baseDir = "$rootProject.projectDir"
 
 task clean (type: Delete, overwrite: true) {
 
@@ -336,7 +326,6 @@ task clean (type: Delete, overwrite: true) {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
 }
-
 
 task buildClient(type:Exec) {
 
@@ -358,6 +347,11 @@ task buildClient(type:Exec) {
   commandLine './build.sh'
 }
 
+/**
+ *
+ * Builds the JAR and renames it to graffitab.jar into the root project dir
+ *
+ */
 task stage(type:Copy) {
     dependsOn clean, assemble
     from jar.archivePath
@@ -367,7 +361,6 @@ task stage(type:Copy) {
     }
 }
 stage.mustRunAfter(clean)
-
 
 task updateDb() {
   dependsOn update
@@ -383,10 +376,11 @@ task devBuild() {
   }
 }
 
+//TODO: adapt for DigitalOcean startup
 task pollForStartup() {
 
   doLast {
-   def data = "http://dev-graffitab.rhcloud.com/status".toURL().text
+   def data = "http://dev.graffitab.com/status".toURL().text
 
    if (data.contains('OK')) {
    	println("--- SUCCESS: App started --");
@@ -396,5 +390,5 @@ task pollForStartup() {
   }
 }
 
-// Spring Boot
+// Spring Boot startup with Gradle
 bootRun.dependsOn processResources
