@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.util.StringUtils;
 
+import com.graffitab.server.api.errors.ExternalProviderTokenInvalidException;
 import com.graffitab.server.api.errors.LoginUserNotActiveException;
 import com.graffitab.server.api.errors.MaximumLoginAttemptsException;
 import com.graffitab.server.api.errors.RestApiException;
@@ -43,6 +44,11 @@ public class JsonLoginFailureHandler implements AuthenticationFailureHandler {
 		} else if (exception instanceof LoginUserNotActiveException) {
 			LoginUserNotActiveException loginUserNotActiveException = (LoginUserNotActiveException) exception;
 			RestApiException restApiException = (RestApiException) loginUserNotActiveException.getCause();
+			message = restApiException.getMessage();
+			resultCode = restApiException.getResultCode().name();
+		} else if (exception instanceof ExternalProviderTokenInvalidException) {
+			ExternalProviderTokenInvalidException externalProviderTokenInvalidException = (ExternalProviderTokenInvalidException) exception;
+			RestApiException restApiException = (RestApiException) externalProviderTokenInvalidException.getCause();
 			message = restApiException.getMessage();
 			resultCode = restApiException.getResultCode().name();
 		} else if (exception instanceof MaximumLoginAttemptsException) {

@@ -1,17 +1,20 @@
 package com.graffitab.server.persistence.redis;
 
-import com.graffitab.server.persistence.model.user.User;
-import com.graffitab.server.service.user.UserService;
-import lombok.extern.log4j.Log4j2;
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.Collection;
+import com.graffitab.server.persistence.model.user.User;
+import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by davidfernandez on 05/07/2016.
@@ -46,8 +49,9 @@ public class RedisUserSessionService {
             throw new IllegalStateException(msg);
         }
 
-        String currentSessionId = session.getId();
-        Collection<? extends ExpiringSession> currentUserSessions = getSessionsForCurrentUser();
+        // In the password reset call we do not have a session.
+        String currentSessionId = session != null ? session.getId() : null;
+        Collection<? extends ExpiringSession> currentUserSessions = getSessionsForUser(user);
 
         currentUserSessions.forEach((userSession) -> {
             if (!keepCurrentSession || !userSession.getId().equals(currentSessionId)) {
@@ -62,8 +66,7 @@ public class RedisUserSessionService {
         });
     }
 
-    public Collection<? extends ExpiringSession> getSessionsForCurrentUser() {
-        User user = userService.getCurrentUser();
+    public Collection<? extends ExpiringSession> getSessionsForUser(User user) {
         Collection<? extends ExpiringSession> usersSessions = sessions
                 .findByIndexNameAndIndexValue(
                         FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,

@@ -1,13 +1,9 @@
 package com.graffitab.server.api.authentication;
 
-import java.io.IOException;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.graffitab.server.api.errors.MaximumLoginAttemptsException;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -16,10 +12,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.graffitab.server.api.errors.LoginUserNotActiveException;
+import com.graffitab.server.api.errors.MaximumLoginAttemptsException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
+import com.graffitab.server.service.AuthenticationService;
 import com.graffitab.server.service.user.UserService;
 
 public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -31,20 +29,6 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 
 	public JsonLoginAuthenticationFilter() {
 		super();
-	}
-
-	private void getPayload(HttpServletRequest request) {
-		try {
-
-			if (request.getContentType().equals("application/json")) {
-				String payload = IOUtils.toString(request.getInputStream());
-				if (payload.length() > 0) {
-					this.json = new JSONObject(payload);
-				}
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
@@ -59,9 +43,7 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 			try {
 				return attemptAuthenticationIfActiveUser(username, request, response);
 			} catch (AuthenticationException ae) {
-
 				if (ae instanceof BadCredentialsException) {
-
 					try {
 						userService.updateLoginAttempts(username);
 					} catch(RestApiException rae) {
@@ -77,7 +59,9 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 
 	@Override
 	protected String obtainUsername(HttpServletRequest request) {
-		getPayload(request);
+		JSONObject jsonResponse = AuthenticationService.getJsonPayload(request);
+		if (jsonResponse != null)
+			json = jsonResponse;
 		return json.getString("username");
 	}
 

@@ -68,6 +68,12 @@ public class ExternalProviderService {
         return currentUser;
     }
 
+    @Transactional
+    public void updateToken(User user, ExternalProviderType externalProviderType, String accessToken) {
+    	ExternalProvider externalProvider = findExternalProvider(user, externalProviderType);
+		externalProvider.setAccessToken(accessToken);
+	}
+
     public ExternalProvider findExternalProvider(ExternalProviderType externalProviderType, String externalUserId, String accessToken) {
         Query query = externalProviderDao.createNamedQuery("ExternalProvider.findExternalProvider");
         query.setParameter("externalProviderType", externalProviderType);

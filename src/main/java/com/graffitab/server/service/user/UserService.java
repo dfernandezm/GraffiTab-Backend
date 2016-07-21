@@ -1,5 +1,23 @@
 package com.graffitab.server.service.user;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.criterion.Restrictions;
+import org.javatuples.Pair;
+import org.joda.time.DateTime;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.user.FullUserDto;
 import com.graffitab.server.api.dto.user.UserDto;
@@ -31,23 +49,8 @@ import com.graffitab.server.service.social.SocialNetworksService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.util.GuidGenerator;
 import com.graffitab.server.util.PasswordGenerator;
-import lombok.extern.log4j.Log4j2;
-import org.hibernate.Criteria;
-import org.hibernate.Query;
-import org.hibernate.criterion.Restrictions;
-import org.javatuples.Pair;
-import org.joda.time.DateTime;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * Created by david
@@ -716,14 +719,13 @@ public class UserService {
 
 			User user = findByUsernameOrEmail(usernameOrEmail);
 			Integer failedLoginAttempts = user.getFailedLogins() == null ? 0 : user.getFailedLogins();
-			user.setFailedLogins(failedLoginAttempts + 1);
 
 			if (failedLoginAttempts >= 5) {
 				log.warn("User " + usernameOrEmail + " has failed 5 times to log in -- setting it in RESET_PASSWORD state");
 				user.setAccountStatus(AccountStatus.RESET_PASSWORD);
 				return true;
 			}
-
+			user.setFailedLogins(failedLoginAttempts + 1);
 			return false;
 		});
 
