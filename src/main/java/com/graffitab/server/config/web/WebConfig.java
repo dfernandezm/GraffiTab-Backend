@@ -105,13 +105,4 @@ public class WebConfig extends WebMvcConfigurationSupport {
 	protected void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 		argumentResolvers.add(jsonDtoArgumentResolver());
 	}
-
-	//@Bean -- to be deleted, test if needed
-	public InternalResourceViewResolver getInternalResourceViewResolver() {
-	    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-	    resolver.setPrefix("/WEB-INF/jsp/");
-	    resolver.setSuffix(".jspx");
-	    return resolver;
-	}
-
 }
