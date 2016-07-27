@@ -651,11 +651,11 @@ public class UserService {
 	}
 
 	private String generateResetPasswordLink(String resetPasswordToken) {
-		return generateBaseLink() + "/api/users/resetpassword/" + resetPasswordToken;
+		return generateBaseLink() + "/resetpassword/" + resetPasswordToken;
 	}
 
 	private String generateUserAccountActivationLink(String userToken) {
-		return generateBaseLink() + "/api/users/activate/" + userToken;
+		return generateBaseLink() + "/activate/" + userToken;
 	}
 
 	public void merge(User user) {
