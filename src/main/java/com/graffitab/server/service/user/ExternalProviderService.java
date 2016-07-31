@@ -33,11 +33,17 @@ public class ExternalProviderService {
     public User linkExternalProvider(ExternalProviderType externalProviderType, String externalUserId, String accessToken) {
         User currentUser = userService.getCurrentUser();
         userService.merge(currentUser);
-        ExternalProvider externalProvider = findExternalProvider(currentUser, externalProviderType);
 
-        // Check if an external provider already exists.
-        if (externalProvider != null) {
+        // Check if this user already has this provider linked.
+        ExternalProvider externalProviderForCurrentUser = findExternalProvider(currentUser, externalProviderType);
+        if (externalProviderForCurrentUser != null) {
             throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_ALREADY_LINKED, "An external provider for user " + currentUser.getUsername() + " with externalUserId " + externalUserId + " already exists for type " + externalProviderType.name());
+        }
+
+        // Check if there exists other user with this external provider.
+        User otherUserWithExternalProvider = findUserWithExternalProvider(externalProviderType, externalUserId);
+        if (otherUserWithExternalProvider != null && !currentUser.equals(otherUserWithExternalProvider)) {
+        	throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_ALREADY_LINKED_FOR_OTHER_USER, "This external provider is already linked to a different user account");
         }
 
         // Check if access token is valid.

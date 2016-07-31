@@ -280,7 +280,7 @@ public class UserService {
 					}
 				}
 				else {
-					throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_ALREADY_LINKED,
+					throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_ALREADY_LINKED_FOR_OTHER_USER,
 							"This external provider is already used for another user.");
 				}
 			} else {
