@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
+import com.graffitab.server.api.errors.ResultCode;
+
 public class JsonAccessDeniedHandler implements AccessDeniedHandler {
 
 	@Override
@@ -22,7 +24,7 @@ public class JsonAccessDeniedHandler implements AccessDeniedHandler {
 
 
 		JSONObject json = new JSONObject();
-		json.put("resultCode", HttpStatus.FORBIDDEN.value());
+		json.put("resultCode", ResultCode.FORBIDDEN.name());
 
 		String message = accessDeniedException.getMessage();
 

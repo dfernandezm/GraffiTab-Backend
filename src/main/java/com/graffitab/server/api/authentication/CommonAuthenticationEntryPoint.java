@@ -8,11 +8,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+
+import com.graffitab.server.api.errors.ResultCode;
 
 public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
@@ -22,7 +23,7 @@ public class CommonAuthenticationEntryPoint implements AuthenticationEntryPoint 
 			throws IOException, ServletException {
 
 		JSONObject json = new JSONObject();
-		json.put("resultCode", HttpStatus.UNAUTHORIZED.value());
+		json.put("resultCode", ResultCode.USER_NOT_LOGGED_IN.name());
 
 		String message = "";
 		if (authException instanceof BadCredentialsException) {

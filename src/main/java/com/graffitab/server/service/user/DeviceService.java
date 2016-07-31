@@ -45,7 +45,7 @@ public class DeviceService {
 
 		// Check if a device with that token exists.
 		if (device == null) {
-			throw new RestApiException(ResultCode.NOT_FOUND, "A device with token " + token + " was not found");
+			throw new RestApiException(ResultCode.DEVICE_NOT_FOUND, "A device with token " + token + " was not found");
 		}
 
 		currentUser.getDevices().remove(device);

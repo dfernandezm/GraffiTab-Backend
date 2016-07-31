@@ -60,7 +60,7 @@ public class ExternalProviderService {
 
         // Check if an external provider of that type exists for the user.
         if (externalProvider == null) {
-            throw new RestApiException(ResultCode.NOT_FOUND, "An external provider with type " + externalProviderType.name() + " does not exist for user " + currentUser.getUsername());
+            throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_NOT_FOUND, "An external provider with type " + externalProviderType.name() + " does not exist for user " + currentUser.getUsername());
         }
 
         currentUser.getExternalProviders().remove(externalProvider);

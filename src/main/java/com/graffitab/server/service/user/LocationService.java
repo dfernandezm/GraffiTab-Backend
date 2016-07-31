@@ -48,7 +48,7 @@ public class LocationService {
 			currentUser.getLocations().remove(toDelete);
 		}
 		else {
-			throw new RestApiException(ResultCode.NOT_FOUND, "A location with id " + locationId+ " was not found");
+			throw new RestApiException(ResultCode.LOCATION_NOT_FOUND, "A location with id " + locationId+ " was not found");
 		}
 	}
 
@@ -71,7 +71,7 @@ public class LocationService {
 			}
 		}
 		else {
-			throw new RestApiException(ResultCode.COMMENT_NOT_FOUND, "Location with id " + locationId + " not found");
+			throw new RestApiException(ResultCode.LOCATION_NOT_FOUND, "Location with id " + locationId + " not found");
 		}
 	}
 

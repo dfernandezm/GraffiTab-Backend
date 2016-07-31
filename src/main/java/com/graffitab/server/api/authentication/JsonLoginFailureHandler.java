@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -36,7 +35,7 @@ public class JsonLoginFailureHandler implements AuthenticationFailureHandler {
 			throws IOException, ServletException {
 
 		JSONObject json = new JSONObject();
-		String resultCode = HttpStatus.UNAUTHORIZED.name();
+		String resultCode = ResultCode.USER_NOT_LOGGED_IN.name();
 
 		String message;
 		if (exception instanceof BadCredentialsException) {

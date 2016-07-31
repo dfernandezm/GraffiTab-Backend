@@ -178,7 +178,7 @@ public class UserService {
 		User user = externalProviderService.findUserWithExternalProvider(externalProviderType, externalId);
 
 		if (user == null) {
-			throw new EntityNotFoundException(ResultCode.NOT_FOUND,
+			throw new EntityNotFoundException(ResultCode.USER_NOT_FOUND,
 					"Could not find user with externalId " + externalId);
 		}
 
@@ -191,7 +191,7 @@ public class UserService {
 			User innerUser = findUsersWithMetadataValues(ACTIVATION_TOKEN_METADATA_KEY, token);
 
 			if (innerUser == null) {
-				throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find token " + token);
+				throw new EntityNotFoundException(ResultCode.TOKEN_NOT_FOUND, "Could not find token " + token);
 			}
 
 			Long tokenDate = Long.parseLong(innerUser.getMetadataItems().get(ACTIVATION_TOKEN_DATE_METADATA_KEY));
@@ -515,7 +515,7 @@ public class UserService {
 		User user = findUsersWithMetadataValues(RESET_PASSWORD_ACTIVATION_TOKEN, token);
 
 		if (user == null) {
-			throw new EntityNotFoundException(ResultCode.NOT_FOUND, "Could not find token " + token);
+			throw new EntityNotFoundException(ResultCode.TOKEN_NOT_FOUND, "Could not find token " + token);
 		}
 
 		Long tokenDate = Long.parseLong(user.getMetadataItems().get(RESET_PASSWORD_ACTIVATION_TOKEN_DATE));
