@@ -37,7 +37,7 @@ public class ExternalProviderService {
 
         // Check if an external provider already exists.
         if (externalProvider != null) {
-            throw new RestApiException(ResultCode.ALREADY_EXISTS, "An external provider for user " + currentUser.getUsername() + " with externalUserId " + externalUserId + " already exists for type " + externalProviderType.name());
+            throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_ALREADY_LINKED, "An external provider for user " + currentUser.getUsername() + " with externalUserId " + externalUserId + " already exists for type " + externalProviderType.name());
         }
 
         // Check if access token is valid.

@@ -1,6 +1,6 @@
 package com.graffitab.server.service.social;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import com.graffitab.server.service.asset.InputStreamTransferableStream;
-import com.graffitab.server.service.asset.TransferableStream;
 import org.springframework.stereotype.Service;
 
 import com.graffitab.server.api.dto.ListItemsResult;
@@ -23,6 +21,8 @@ import com.graffitab.server.persistence.model.externalprovider.ExternalProviderT
 import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.TransactionUtils;
+import com.graffitab.server.service.asset.InputStreamTransferableStream;
+import com.graffitab.server.service.asset.TransferableStream;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.user.ExternalProviderService;
 import com.graffitab.server.service.user.UserService;
@@ -100,7 +100,7 @@ public class SocialNetworksService {
 			return null;
 		}
 		else {
-			throw new RestApiException(ResultCode.BAD_REQUEST, "External provider " + externalProviderType.name() + " not linked to user with id " + currentUser.getId());
+			throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_NOT_LINKED, "External provider " + externalProviderType.name() + " not linked to user with id " + currentUser.getId());
 		}
 	}
 

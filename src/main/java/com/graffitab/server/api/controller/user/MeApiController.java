@@ -5,9 +5,6 @@ import java.io.IOException;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
-import com.graffitab.server.service.asset.MultipartFileTransferableStream;
-import com.graffitab.server.service.asset.TransferableStream;
-import lombok.extern.log4j.Log4j2;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,12 +51,16 @@ import com.graffitab.server.persistence.model.user.User;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.persistence.model.user.UserSocialFriendsContainer;
 import com.graffitab.server.service.ActivityService;
+import com.graffitab.server.service.asset.MultipartFileTransferableStream;
+import com.graffitab.server.service.asset.TransferableStream;
 import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.DeviceService;
 import com.graffitab.server.service.user.ExternalProviderService;
 import com.graffitab.server.service.user.LocationService;
 import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RestController
@@ -155,7 +156,7 @@ public class MeApiController {
 			return editAvatarResult;
 		} catch (Exception e) {
 			log.error("File stream could not be read.", e);
-			throw new RestApiException(ResultCode.BAD_REQUEST,
+			throw new RestApiException(ResultCode.STREAM_COULD_NOT_BE_READ,
 					"File stream could not be read.");
 		}
 	}
@@ -184,7 +185,7 @@ public class MeApiController {
 			return editcoverResult;
 		} catch (Exception e) {
 			log.error("File stream could not be read.", e);
-			throw new RestApiException(ResultCode.BAD_REQUEST,
+			throw new RestApiException(ResultCode.STREAM_COULD_NOT_BE_READ,
 					"File stream could not be read.");
 		}
 	}
@@ -326,7 +327,7 @@ public class MeApiController {
 			addStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 			return addStreamableResult;
 		} catch (Exception e) {
-			throw new RestApiException(ResultCode.BAD_REQUEST,
+			throw new RestApiException(ResultCode.STREAM_COULD_NOT_BE_READ,
 					"File stream could not be read.");
 		}
 	}
@@ -352,7 +353,7 @@ public class MeApiController {
 			addStreamableResult.setStreamable(mapper.map(streamable, FullStreamableDto.class));
 			return addStreamableResult;
 		} catch (Exception e) {
-			throw new RestApiException(ResultCode.BAD_REQUEST,
+			throw new RestApiException(ResultCode.STREAM_COULD_NOT_BE_READ,
 					"File stream could not be read.");
 		}
 	}

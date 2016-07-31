@@ -74,7 +74,7 @@ public class JsonDtoArgumentResolver implements HandlerMethodArgumentResolver {
         } catch(Throwable t) {
         	String msg = "Cannot process JSON payload";
         	log.error(msg, t);
-        	throw new RestApiException(ResultCode.BAD_REQUEST, msg);
+        	throw new RestApiException(ResultCode.INVALID_JSON, msg);
         } finally {
         	RunWithJsonProperty.reset();
         }

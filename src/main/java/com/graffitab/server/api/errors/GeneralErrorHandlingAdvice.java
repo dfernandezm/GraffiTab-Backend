@@ -39,12 +39,12 @@ public class GeneralErrorHandlingAdvice {
 
     	if (throwable instanceof MethodArgumentTypeMismatchException) {
     		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-    		errorResult.setResultCode(ResultCode.BAD_REQUEST);
+    		errorResult.setResultCode(ResultCode.INVALID_ARGUMENT);
     		errorResult.setResultMessage("The argument passed to the endpoint is not of the expected type");
     	} else if (throwable instanceof MissingJsonPropertyException) {
     		MissingJsonPropertyException missingJsonPropertyException = (MissingJsonPropertyException) throwable;
     		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-    		errorResult.setResultCode(ResultCode.BAD_REQUEST);
+    		errorResult.setResultCode(ResultCode.MISSING_ARGUMENT);
     		errorResult.setResultMessage("The required property " +
     				missingJsonPropertyException.getRequestedJsonProperty() + " is not present in the request");
     	} else if (throwable.getCause() instanceof RestApiException) { // This is needed for the TransactionUtils runWithResult, which throws a RuntimeException.

@@ -30,7 +30,7 @@ public class DeviceService {
 
 		// Check if a device with that token already exists.
 		if (device != null) {
-			throw new RestApiException(ResultCode.ALREADY_EXISTS, "A device with token " + token + " already exists");
+			throw new RestApiException(ResultCode.DEVICE_ALREADY_EXISTS, "A device with token " + token + " already exists");
 		}
 
 		Device toAdd = Device.device(osType, token);

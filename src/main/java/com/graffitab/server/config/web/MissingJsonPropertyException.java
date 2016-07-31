@@ -1,9 +1,9 @@
 package com.graffitab.server.config.web;
 
-import lombok.Getter;
-
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
+
+import lombok.Getter;
 
 public class MissingJsonPropertyException extends RestApiException {
 
@@ -15,6 +15,6 @@ public class MissingJsonPropertyException extends RestApiException {
 	public MissingJsonPropertyException(String msg, String requestedJsonProperty) {
 		super(msg);
 		this.requestedJsonProperty = requestedJsonProperty;
-		super.setResultCode(ResultCode.BAD_REQUEST);
+		super.setResultCode(ResultCode.MISSING_ARGUMENT);
 	}
 }

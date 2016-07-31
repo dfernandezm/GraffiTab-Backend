@@ -26,7 +26,6 @@ import com.graffitab.server.api.errors.EntityNotFoundException;
 import com.graffitab.server.api.errors.RestApiException;
 import com.graffitab.server.api.errors.ResultCode;
 import com.graffitab.server.api.errors.UserNotLoggedInException;
-import com.graffitab.server.api.errors.ValidationErrorException;
 import com.graffitab.server.persistence.dao.HibernateDaoImpl;
 import com.graffitab.server.persistence.model.asset.Asset;
 import com.graffitab.server.persistence.model.asset.Asset.AssetType;
@@ -218,7 +217,7 @@ public class UserService {
 	}
 
 	public User createUser(User user) {
-		if (validationService.validateUser(user)) {
+		if (validationService.validateCreateUser(user)) {
 			if (user.getId() == null) {
 				String userToken = GuidGenerator.generate();
 
@@ -237,12 +236,11 @@ public class UserService {
 
 				return user;
 			} else {
-				throw new RestApiException(ResultCode.BAD_REQUEST,
+				throw new RestApiException(ResultCode.INVALID_ID,
 						"ID has been provided to create endpoint -- This is not allowed");
 			}
-		} else {
-			throw new ValidationErrorException("Validation error creating user");
 		}
+		return null;
 	}
 
 	public User createExternalUser(User user, final String externalUserId, String accessToken,
@@ -250,7 +248,7 @@ public class UserService {
 		// Generate random password for the external user, so that the validation is passed.
 		user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
 
-		if (validationService.validateUser(user)) {
+		if (validationService.validateCreateUser(user)) {
 			if (user.getId() == null) {
 				User validatedExternalProviderUser = transactionUtils.executeInTransactionWithResult(() -> {
 					return externalProviderService.findUserWithExternalProvider(externalProviderType, externalUserId);
@@ -282,16 +280,15 @@ public class UserService {
 					}
 				}
 				else {
-					throw new RestApiException(ResultCode.ALREADY_EXISTS,
+					throw new RestApiException(ResultCode.EXTERNAL_PROVIDER_ALREADY_LINKED,
 							"This external provider is already used for another user.");
 				}
 			} else {
-				throw new RestApiException(ResultCode.BAD_REQUEST,
+				throw new RestApiException(ResultCode.INVALID_ID,
 						"ID has been provided to create endpoint -- This is not allowed");
 			}
-		} else {
-			throw new ValidationErrorException("Validation error creating user");
 		}
+		return null;
 	}
 
 	@Transactional
@@ -308,9 +305,8 @@ public class UserService {
 			currentUser.setWebsite(website);
 			merge(currentUser);
 			return currentUser;
-		} else {
-			throw new ValidationErrorException("Validation error updating user");
 		}
+		return null;
 	}
 
 	@Transactional(readOnly = true)
@@ -442,7 +438,7 @@ public class UserService {
 
 				// Users can't follow themselves.
 				if (currentUser.equals(toFollow)) {
-					throw new RestApiException(ResultCode.BAD_REQUEST, "You cannot follow yourself");
+					throw new RestApiException(ResultCode.INVALID_FOLLOWEE, "You cannot follow yourself");
 				}
 
 				if (!currentUser.isFollowing(toFollow)) {

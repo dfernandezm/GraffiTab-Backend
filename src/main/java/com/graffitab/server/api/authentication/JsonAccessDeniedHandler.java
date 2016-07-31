@@ -24,7 +24,7 @@ public class JsonAccessDeniedHandler implements AccessDeniedHandler {
 
 
 		JSONObject json = new JSONObject();
-		json.put("resultCode", ResultCode.FORBIDDEN.name());
+		json.put("resultCode", ResultCode.FORBIDDEN_RESOURCE.name());
 
 		String message = accessDeniedException.getMessage();
 
