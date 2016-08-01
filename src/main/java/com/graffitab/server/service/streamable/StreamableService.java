@@ -352,7 +352,8 @@ public class StreamableService {
 			query.setParameter("swLongitude", swLongitude);
 
 			return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
-		} else {
+		}
+		else {
 			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
 		}
 	}
