@@ -36,7 +36,7 @@ test:
 # Need to add one valid private SSH Key to CircleCI UI so it can authenticate against Openshift
 deployment:
   staging:
-    branch: feature/digitalocean
+    branch: master
     commands:
       - echo "Generating JAR archive to deploy"
       - ./gradlew stage -Penv=digitalOceanDev
