@@ -175,6 +175,18 @@ public class UserApiController extends BaseApiController {
 		return streamableService.getUserStreamablesResult(userId, offset, limit);
 	}
 
+	@RequestMapping(value = {"/{id}/streamables/location"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<FullStreamableDto> searchStreamablesAtLocation(
+			@PathVariable("id") Long userId,
+			@RequestParam(value="neLatitude", required = true) Double neLatitude,
+			@RequestParam(value="neLongitude", required = true) Double neLongitude,
+			@RequestParam(value="swLatitude", required = true) Double swLatitude,
+			@RequestParam(value="swLongitude", required = true) Double swLongitude) {
+		return streamableService.searchUserStreamablesAtLocationResult(userId, neLatitude, neLongitude, swLatitude, swLongitude);
+	}
+
 	@RequestMapping(value = {"/mostactive"}, method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)

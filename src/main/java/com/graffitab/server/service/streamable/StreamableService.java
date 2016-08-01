@@ -1,5 +1,13 @@
 package com.graffitab.server.service.streamable;
 
+import javax.annotation.Resource;
+
+import org.hibernate.Query;
+import org.javatuples.Pair;
+import org.joda.time.DateTime;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.graffitab.server.api.dto.ListItemsResult;
 import com.graffitab.server.api.dto.streamable.FullStreamableDto;
 import com.graffitab.server.api.dto.streamable.StreamableGraffitiDto;
@@ -22,13 +30,6 @@ import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
-import org.hibernate.Query;
-import org.javatuples.Pair;
-import org.joda.time.DateTime;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
 
 @Service
 public class StreamableService {
@@ -336,6 +337,24 @@ public class StreamableService {
 		query.setParameter("swLongitude", swLongitude);
 
 		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
+	}
+
+	@Transactional(readOnly = true)
+	public ListItemsResult<FullStreamableDto> searchUserStreamablesAtLocationResult(Long userId, Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
+		User user = userService.findUserById(userId);
+
+		if (user != null) {
+			Query query = streamableDao.createNamedQuery("Streamable.searchUserStreamablesAtLocation");
+			query.setParameter("currentUser", user);
+			query.setParameter("neLatitude", neLatitude);
+			query.setParameter("swLatitude", swLatitude);
+			query.setParameter("neLongitude", neLongitude);
+			query.setParameter("swLongitude", swLongitude);
+
+			return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
+		}
 	}
 
 	@Transactional(readOnly = true)
