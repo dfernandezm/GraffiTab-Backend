@@ -59,10 +59,11 @@ public class UsernamePasswordQueryParamsAuthenticationFilter extends JsonLoginAu
 			String username = obtainUsername(request);
 			String password = obtainPassword(request);
 
-			if (log.isDebugEnabled()) {
-				log.debug("Request is to process Authentication using URL provided parameters, username [{}], " +
-						  ", password [******]");
-
+			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+				if (log.isDebugEnabled()) {
+					log.debug("Request is to process Authentication using URL provided parameters, username [{}], " +
+							", password [******]");
+				}
 			}
 
 			return 	super.requiresAuthentication(request, response) &&

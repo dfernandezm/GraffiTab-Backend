@@ -33,15 +33,18 @@ apt-get install redis-tools
 
 * How to use Redis brief tutorial [here](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis)
 
-The current configuration file with placeholders is provided `redis.conf`. Redis should be started as:
+The current configuration file with placeholders is provided in `redis.conf`. This file should be placed
+in `/etc/redis/redis.conf`, which is read by the main service script, under `/etc/init.d/redis-server`.
+Redis should be started as a regular service:
+
 ```
-$ redis-server /path/to/redis.conf &
+$ service redis-server start
 ```
 
 To test that the installation was correct:
 ```
 # Start up redis
-$ redis-server /path/to/config &
+$ service redis-server start | status | stop
 
 # This should give error as we are securing it
 $ redis-cli keys '*'
@@ -50,7 +53,9 @@ $ redis-cli keys '*'
 $ redis-cli -a yourpassword keys '*'
 ```
 
-TODO: investigate service to at boot and use of nohup
+Redis periodically writes a journal file `dump.rdb` which is saved in the Redis working directory
+(default is `/var/lib/redis`). This file is restored into memory every time Redis is restarted.
+This can be configured in `redis.conf`.
 
 ## Add firewall rules
 

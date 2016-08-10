@@ -33,6 +33,9 @@ public class SessionInvalidationFilter extends OncePerRequestFilter {
 	@Value("${session.backups.enabled:true}")
 	private Boolean sessionBackupsEnabled;
 
+	@Value("${health.status.show:true}")
+	private Boolean showHealthStatus;
+
 	@Resource
 	private UserSessionService userSessionService;
 
@@ -76,16 +79,21 @@ public class SessionInvalidationFilter extends OncePerRequestFilter {
 		try {
 
 			filterChain.doFilter(request, response);
-			log.info("Execution of call " + request.getMethod() + " " + request.getRequestURI() + " took " +
-					(System.currentTimeMillis() - startTime) + " ms");
+			String requestUri = request.getRequestURI();
+
+			if (!requestUri.endsWith("status") || (showHealthStatus && requestUri.endsWith("status"))) {
+				log.info("Execution of call " + request.getMethod() + " " + request.getRequestURI() + " took " +
+						(System.currentTimeMillis() - startTime) + " ms");
+			}
 
 		} finally {
-
 			if (currentSessionId != null && sessionBackupsEnabled) {
 				userSessionService.touchSession(currentSessionId);
 			} else {
-				if (log.isDebugEnabled()) {
-					log.debug("The actual session for the current request was NULL and the requested session ID was [" + requestedSessionId + "]");
+				if (sessionBackupsEnabled) {
+					if (log.isDebugEnabled()) {
+						log.debug("The actual session for the current request was NULL and the requested session ID was [" + requestedSessionId + "]");
+					}
 				}
 			}
 		}
