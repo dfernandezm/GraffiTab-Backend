@@ -44,7 +44,7 @@ public class PagesController {
 											Errors errors,
 											Model model) {
 
-		if (!passwordsAreProvided(resetPasswordForm) ) {
+		if (!passwordsAreProvided(resetPasswordForm)) {
 			errors.rejectValue("newPassword", "password.blank");
 			model.addAttribute("token", token);
 			return "resetPassword";

@@ -34,9 +34,11 @@
 
 <div align="center">
     <div style="display: inline-block; background-color: white; padding-top: 20px; padding-right: 20px; padding-bottom: 30px; padding-left: 20px; margin-top: 40px; border-radius: 5px; max-width: 500px">
-        <h4>Account activated!</h4>
-        <p style="padding-top: 10px; padding-bottom: 20px"><font size="4" color="#a0a0a0">Your account is now active and you can login and start drawing using GraffiTab.</font></p>
-        <a class="waves-effect waves-light btn-large light-green lighten-1"><i class="material-icons left">done</i>Launch GraffiTab</a>
+        <h4 th:text="#{account.activated}">Account activated!</h4>
+        <p style="padding-top: 10px; padding-bottom: 20px"><font th:text="#{account.activated.message}" size="4" color="#a0a0a0">Your account is now active and you can login and start drawing using GraffiTab.</font></p>
+        <a class="waves-effect waves-light btn-large light-green lighten-1">
+            <i class="material-icons left">done</i><b th:text="#{account.activated.buttonText}">Launch GraffiTab</b>
+        </a>
     </div>
 </div>
 
