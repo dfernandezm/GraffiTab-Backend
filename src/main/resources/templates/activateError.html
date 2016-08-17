@@ -34,9 +34,9 @@
 
   <div align="center">
       <div style="display: inline-block; background-color: white; padding-top: 20px; padding-right: 20px; padding-bottom: 30px; padding-left: 20px; margin-top: 40px; border-radius: 5px; max-width: 500px">
-          <h4>Account failed to activate</h4>
-          <p style="padding-top: 10px; padding-bottom: 20px"><font size="4" color="#a0a0a0">We could not activate your account. Please contact support to report this issue.</font></p>
-          <a class="waves-effect waves-light btn-large">Contact support</a>
+          <h4 th:text="#{account.activateFailure}">Account failed to activate</h4>
+          <p style="padding-top: 10px; padding-bottom: 20px"><font size="4" color="#a0a0a0" th:text="#{account.activateFailure.text}">We could not activate your account. Please contact support to report this issue.</font></p>
+          <a class="waves-effect waves-light btn-large" th:text="#{account.activateFailure.buttonText}" href="mailto:support@graffitab.com">Contact support</a>
       </div>
   </div>
 
