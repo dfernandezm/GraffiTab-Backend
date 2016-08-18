@@ -4,6 +4,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -20,6 +21,7 @@ import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.service.AuthenticationService;
 import com.graffitab.server.service.user.UserService;
 
+@Log4j2
 public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	@Resource
@@ -35,38 +37,61 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 	public Authentication attemptAuthentication(HttpServletRequest request,
 			HttpServletResponse response) throws AuthenticationException {
 
-		String username = obtainUsername(request);
+		Authentication authenticationResult = null;
 
-		if (username == null) {
-			return super.attemptAuthentication(request, response);
-		} else {
-			try {
-				return attemptAuthenticationIfActiveUser(username, request, response);
-			} catch (AuthenticationException ae) {
-				if (ae instanceof BadCredentialsException) {
-					try {
-						userService.updateLoginAttempts(username);
-					} catch(RestApiException rae) {
-						String msg = "Maximum login attempts for user [" + username + "]";
-						throw new MaximumLoginAttemptsException(msg, rae);
+		try {
+
+			String username = obtainUsername(request);
+
+			if (username == null) {
+				authenticationResult = super.attemptAuthentication(request, response);
+			} else {
+				try {
+					authenticationResult = attemptAuthenticationIfActiveUser(username, request, response);
+				} catch (AuthenticationException ae) {
+					if (ae instanceof BadCredentialsException) {
+						try {
+							userService.updateLoginAttempts(username);
+						} catch (RestApiException rae) {
+							String msg = "Maximum login attempts for user [" + username + "]";
+							throw new MaximumLoginAttemptsException(msg, rae);
+						}
 					}
-				}
 
-				throw ae;
+					throw ae;
+				} finally {
+					json = null;
+				}
 			}
+
+		} finally {
+			json = null;
 		}
+
+		return authenticationResult;
 	}
 
 	@Override
 	protected String obtainUsername(HttpServletRequest request) {
 		JSONObject jsonResponse = AuthenticationService.getJsonPayload(request);
-		if (jsonResponse != null)
+		if (jsonResponse != null) {
 			json = jsonResponse;
+		} else {
+			log.warn("JSON payload from request is null -- this shouldn't happen");
+			return null;
+		}
+
 		return json.getString("username");
 	}
 
 	@Override
 	protected String obtainPassword(HttpServletRequest request) {
+
+		if (json == null) {
+			log.warn("Stored json is null, cannot get password");
+			return null;
+		}
+
 		return json.getString("password");
 	}
 

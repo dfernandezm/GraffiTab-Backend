@@ -2,6 +2,22 @@
 
 ## Install and configure HAProxy
 
+Check tutorial for newer version 1.6
+[here](https://www.digitalocean.com/community/tutorials/how-to-implement-ssl-termination-with-haproxy-on-ubuntu-14-04)
+
+The main steps are:
+
+* Add the repository URL
+```
+sudo add-apt-repository ppa:vbernat/haproxy-1.6
+```
+
+* Update sources
+```
+sudo apt-get update
+```
+
+* Install HAProxy
 ```
 apt-get install haproxy
 ```
@@ -10,13 +26,17 @@ apt-get install haproxy
 
 ```
 global
-        log /dev/log    local0
-        log /dev/log    local1 notice
-        #chroot /var/lib/haproxy
+        # log /dev/log    local0
+        # log /dev/log    local1 notice
+        log 127.0.0.1 local2
+        daemon
+        maxconn 2048
+        # chroot /var/lib/haproxy
         # stats socket /run/haproxy/admin.sock mode 660 level admin
         # stats timeout 30s
         user haproxy
         group haproxy
+        tune.ssl.default-dh-param 2048
         #daemon
 
         # Default SSL material locations
@@ -30,7 +50,8 @@ global
 defaults
         log     global
         mode    http
-        option  httpclose
+        option  forwardfor
+        option  http-server-close
         option  httplog
         option  dontlognull
         retries 3
@@ -45,39 +66,78 @@ defaults
         errorfile 503 /etc/haproxy/errors/503.http
         errorfile 504 /etc/haproxy/errors/504.http
 
-frontend graffitabdev
+frontend graffitabdev-http
     bind *:80
-    mode http
+    reqadd X-Forwarded-Proto:\ http
+    default_backend devnodes
+
+frontend graffitabdev-https
+    bind *:443 ssl crt /etc/ssl/private/dev.graffitab.com.pem
+    reqadd X-Forwarded-Proto:\ https
     default_backend devnodes
 
 backend devnodes
-    mode http
+    redirect scheme https if !{ ssl_fc }
     balance roundrobin
     option forwardfor
-    option  httpclose
+    option  http-server-close
     #http-request set-header X-Forwarded-Port %[dst_port]
     #http-request add-header X-Forwarded-Proto https if { ssl_fc }
     #option httpchk get /status
     #http-check expect status 200
     option httpchk GET /status
     http-check expect rstring .*
-    server dev01 $DEV01_PUBLIC_IP:80 check inter 30000
-    server dev02 $DEV02_PUBLIC_IP:80 check inter 30000
+    server $SERV01 $SERV01_IP:80 check inter 30000
+    server $SERV02 $SERV02_IP:80 check inter 30000
 
-listen stats *:1936
+listen stats
+    bind *:1936
+    mode http
     stats enable
     stats uri /
-    stats auth $HA_PROXY_USER:$HA_PROXY_PASSWORD
+    stats realm Haproxy\ Statistics
+    stats auth $HAPROXY_USER:$HAPROXY_PASSWORD
 ```
 
-### Start the service
+### Start up
+
+To start the service:
 ```
 service haproxy start
 ```
 
+To view the logs:
+```
+tail -F /var/log/haproxy.log
+```
+
 ## Configure HTTPS
 
-TODO.
+Tutorial [here](https://www.digitalocean.com/community/tutorials/how-to-implement-ssl-termination-with-haproxy-on-ubuntu-14-04)
+
+* Upgrade HAProxy to 1.6
+* Generate CSR on the LB server
+
+```
+$ mkdir /etc/ssl/dev.graffitab.com
+$ openssl req -nodes -newkey rsa:2048 -keyout dev.graffitab.com.key -out dev.graffitab.com.csr
+```
+
+* Check the CSR is correct [here](https://decoder.link/result/?stored=c99c8254651dfe03754e1372ff154db7)
+
+* Use the CSR key to get a CRT file from the certification provider
+
+* Get the `.crt` file and upload it to the server
+
+* Put together `.key` and `.crt` as a `.pem` file
+```
+$ cat dev.graffitab.com.crt dev.graffitab.com.key > dev.graffitab.com.pem
+$ cp dev.graffitab.com.pem /etc/ssl/private/
+```
+
+* Store all the `.pem`,`.crt`,`.key` in a safe place
+
+* Configure HAProxy using the configuration file outlined above, substituting the placeholders with the right values
 
 ## Add swap
 
