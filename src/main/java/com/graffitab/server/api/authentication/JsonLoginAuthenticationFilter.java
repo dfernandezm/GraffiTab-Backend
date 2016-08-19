@@ -44,7 +44,7 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 			String username = obtainUsername(request);
 
 			if (username == null) {
-				authenticationResult = super.attemptAuthentication(request, response);
+				throw new BadCredentialsException("Username could not be found on the request -- null");
 			} else {
 				try {
 					authenticationResult = attemptAuthenticationIfActiveUser(username, request, response);
@@ -76,12 +76,11 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 		JSONObject jsonResponse = AuthenticationService.getJsonPayload(request);
 		if (jsonResponse != null) {
 			json = jsonResponse;
+			return json.getString("username");
 		} else {
 			log.warn("JSON payload from request is null -- this shouldn't happen");
 			return null;
 		}
-
-		return json.getString("username");
 	}
 
 	@Override
