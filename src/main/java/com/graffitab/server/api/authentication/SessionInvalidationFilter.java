@@ -23,10 +23,12 @@ import java.io.IOException;
  * All valid sessions must be stored in the database (or other storage for active sessions),
  * otherwise they are detected as invalid.
  *
+ * This is also used to measure the request time in milliseconds
+ *
  * @author david
  *
  */
-//TODO: delete/adapt the whole filter once Redis sessions are done
+
 @Log4j2
 public class SessionInvalidationFilter extends OncePerRequestFilter {
 
@@ -83,7 +85,8 @@ public class SessionInvalidationFilter extends OncePerRequestFilter {
 
 			if (!requestUri.endsWith("status") || (showHealthStatus && requestUri.endsWith("status"))) {
 				log.info("Execution of call " + request.getMethod() + " " + request.getRequestURI() + " took " +
-						(System.currentTimeMillis() - startTime) + " ms");
+						(System.currentTimeMillis() - startTime) + " ms - status " + response.getStatus() +
+						" - User Agent: " + request.getHeader("User-Agent"));
 			}
 
 		} finally {

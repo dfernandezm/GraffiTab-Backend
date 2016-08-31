@@ -95,4 +95,8 @@ public class SecurityBeansConfig extends WebSecurityConfigurerAdapter {
 		return persistedSessionSecurityContext;
 	}
 
+	@Bean
+	public ProtocolCheckingFilter protocolCheckingFilter() {
+		return new ProtocolCheckingFilter();
+	}
 }

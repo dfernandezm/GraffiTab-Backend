@@ -1,5 +1,6 @@
 package com.graffitab.server.config.spring.security;
 
+import com.graffitab.server.api.authentication.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -23,16 +24,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
-import com.graffitab.server.api.authentication.ExternalProviderAuthenticationFilter;
-import com.graffitab.server.api.authentication.JsonAccessDeniedHandler;
-import com.graffitab.server.api.authentication.JsonLoginAuthenticationFilter;
-import com.graffitab.server.api.authentication.OkResponseLogoutHandler;
-import com.graffitab.server.api.authentication.PersistedSessionSecurityContext;
-import com.graffitab.server.api.authentication.SessionInvalidationFilter;
-import com.graffitab.server.api.authentication.SessionPrecedenceBasicAuthFilter;
-import com.graffitab.server.api.authentication.UsernamePasswordQueryParamsAuthenticationFilter;
 import com.graffitab.server.service.GraffiTabUserDetailsService;
 
 import lombok.extern.log4j.Log4j2;
@@ -93,6 +87,8 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
 
+		@Autowired
+		private ProtocolCheckingFilter protocolCheckingFilter;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -112,6 +108,7 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             http.addFilterBefore(externalProviderAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+			http.addFilterBefore(protocolCheckingFilter, JsonLoginAuthenticationFilter.class);
             http.exceptionHandling().authenticationEntryPoint(commonAuthenticationEntryPoint);
         }
 	}
@@ -126,6 +123,8 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
 
+		@Autowired
+		private ProtocolCheckingFilter protocolCheckingFilter;
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
@@ -146,7 +145,8 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             	    .sessionManagement()
             	    .sessionCreationPolicy(SessionCreationPolicy.NEVER);
 
-            http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+			http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            http.addFilterBefore(protocolCheckingFilter, JsonLoginAuthenticationFilter.class);
             http.exceptionHandling().authenticationEntryPoint(commonAuthenticationEntryPoint);
 
         }
@@ -167,6 +167,9 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		@Autowired
 		private SessionInvalidationFilter invalidateSessionFilter;
+
+		@Autowired
+		private ProtocolCheckingFilter protocolCheckingFilter;
 
 		@Autowired
 		private AuthenticationEntryPoint commonAuthenticationEntryPoint;
@@ -195,9 +198,10 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
             // Add the invalidation session filter after this check, as it could be creating a new session
             http.addFilterAfter(invalidateSessionFilter, SecurityContextPersistenceFilter.class);
 
-
             // Add the custom authentication filter before the regular one
             http.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+			http.addFilterBefore(protocolCheckingFilter, JsonLoginAuthenticationFilter.class);
 
             Boolean basicAuthenticationEnabled = Boolean.parseBoolean(basicAuthEnabled);
             if (basicAuthenticationEnabled) {
@@ -221,11 +225,16 @@ public class GraffitabSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Configuration
     @Order(4)
     public static class DefaultWebSecurityConfig extends WebSecurityConfigurerAdapter {
-        @Override
+
+		@Autowired
+		private ProtocolCheckingFilter protocolCheckingFilter;
+
+		@Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf().disable()
                     .antMatcher("/**")
                     .authorizeRequests().anyRequest().permitAll();
+			http.addFilterBefore(protocolCheckingFilter, X509AuthenticationFilter.class);
         }
 	}
 }
