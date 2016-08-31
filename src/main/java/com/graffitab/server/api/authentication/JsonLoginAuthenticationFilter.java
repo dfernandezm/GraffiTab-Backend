@@ -30,6 +30,8 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 
 	private JSONObject json;
 
+	private final ThreadLocal<JSONObject> jsonLoginPayloadForCurrentRequest = new ThreadLocal<>();
+
 	public JsonLoginAuthenticationFilter() {
 		super();
 	}
@@ -39,11 +41,8 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 			HttpServletResponse response) throws AuthenticationException {
 
 		Authentication authenticationResult = null;
-
 		try {
-
 			String username = obtainUsername(request);
-
 			if (username == null) {
 				throw new BadCredentialsException("Username could not be found on the request -- null");
 			} else {
@@ -58,27 +57,26 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 							throw new MaximumLoginAttemptsException(msg, rae);
 						}
 					}
-
 					throw ae;
-				} finally {
-					json = null;
 				}
 			}
-
 		} finally {
-			json = null;
+			jsonLoginPayloadForCurrentRequest.remove();
 		}
-
+		
 		return authenticationResult;
 	}
 
 	@Override
 	protected String obtainUsername(HttpServletRequest request) {
-		if (json == null) {
+		JSONObject json;
+		if (jsonLoginPayloadForCurrentRequest.get() != null) {
+			json = jsonLoginPayloadForCurrentRequest.get();
+		} else {
 			JSONObject jsonResponse = AuthenticationService.getJsonPayload(request);
 			if (jsonResponse != null) {
 				json = jsonResponse;
-				return json.getString("username");
+				jsonLoginPayloadForCurrentRequest.set(json);
 			} else {
 				log.warn("JSON payload from request is null -- this shouldn't happen");
 				return null;
@@ -90,8 +88,10 @@ public class JsonLoginAuthenticationFilter extends UsernamePasswordAuthenticatio
 
 	@Override
 	protected String obtainPassword(HttpServletRequest request) {
-
-		if (json == null) {
+		JSONObject json;
+		if (jsonLoginPayloadForCurrentRequest.get() != null) {
+			json = jsonLoginPayloadForCurrentRequest.get();
+		} else {
 			log.warn("Stored json is null, cannot get password");
 			return null;
 		}
