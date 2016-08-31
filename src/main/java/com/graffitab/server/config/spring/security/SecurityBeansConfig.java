@@ -1,5 +1,6 @@
 package com.graffitab.server.config.spring.security;
 
+import com.graffitab.server.api.authentication.ProtocolCheckingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
