@@ -31,7 +31,7 @@ public class ImageUtilsService {
 	private static Integer THUMBNAIL_IMG_WIDTH = 200;
 	private static Integer THUMBNAIL_IMG_HEIGHT = 200;
 
-	private static String OUTPUT_IMG_FORMAT = "png";
+	private static String OUTPUT_IMG_FORMAT = "jpeg";
 
 	public static final String ASSET_THUMBNAIL_SUFFIX = "_thumb";
 
