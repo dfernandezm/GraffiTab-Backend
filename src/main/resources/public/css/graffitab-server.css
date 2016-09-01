@@ -1,0 +1,46 @@
+div.activateContainer {
+  background-color: white;
+  padding-top: 20px;
+  padding-right: 20px;
+  padding-bottom: 30px;
+  padding-left: 20px;
+  margin-top: 40px;
+  border-radius: 5px;
+  text-align: center
+}
+
+div.activateContainerWrapper {
+  margin-left: 0px;
+  margin-right: 0px
+}
+
+p.activateMessage {
+  padding-top: 10px;
+  padding-bottom: 20px
+}
+
+form.activateForm {
+  margin-top: 50px;
+  padding-left: 20px;
+  padding-right: 20px
+}
+
+a.actionButton, button.actionButton {
+  background-color: #2584b2
+}
+
+.actionButton:hover {
+  background-color: #2584b2
+}
+
+button.submit {
+  margin-top: 30px
+}
+
+nav {
+  background-color: #ffffff
+}
+
+body {
+  background-color: #F2F3F4
+}
