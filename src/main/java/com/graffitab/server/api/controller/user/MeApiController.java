@@ -134,7 +134,7 @@ public class MeApiController {
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public GetFullUserResult edit(@JsonProperty("user") UserDto userDto) {
 		GetFullUserResult updateUserResult = new GetFullUserResult();
-		User user = userService.editUser(userDto.getFirstName(), userDto.getLastName(), userDto.getEmail(), userDto.getAbout(), userDto.getWebsite());
+		User user = userService.editUser(mapper.map(userDto, User.class));
 		updateUserResult.setUser(mapper.map(user, FullUserDto.class));
 		return updateUserResult;
 	}

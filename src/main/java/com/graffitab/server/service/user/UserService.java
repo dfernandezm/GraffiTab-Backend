@@ -218,7 +218,7 @@ public class UserService {
 	}
 
 	public User createUser(User user, Locale locale) {
-		if (validationService.validateCreateUser(user)) {
+		if (validationService.validateCreateUser(user, false)) {
 			if (user.getId() == null) {
 				String userToken = GuidGenerator.generate();
 
@@ -249,7 +249,7 @@ public class UserService {
 		// Generate random password for the external user, so that the validation is passed.
 		user.setPassword(passwordEncoder.encode(PasswordGenerator.generatePassword()));
 
-		if (validationService.validateCreateUser(user)) {
+		if (validationService.validateCreateUser(user, false)) {
 			if (user.getId() == null) {
 				User validatedExternalProviderUser = transactionUtils.executeInTransactionWithResult(() -> {
 					return externalProviderService.findUserWithExternalProvider(externalProviderType, externalUserId);
@@ -293,17 +293,19 @@ public class UserService {
 	}
 
 	@Transactional
-	public User editUser(String firstname, String lastname, String email, String about, String website) {
-		User user = getCurrentUser();
+	public User editUser(User toEdit) {
+		User currentUser = getCurrentUser();
 
-		if (validationService.validateEditInfo(user.getId(), firstname, lastname, email, website, about)) {
-			User currentUser = getCurrentUser();
+		// Manually set the userId to the one of the current user for validation.
+		toEdit.setId(currentUser.getId());
+
+		if (validationService.validateEditInfo(toEdit)) {
 			currentUser.setUpdatedOn(new DateTime());
-			currentUser.setFirstName(firstname);
-			currentUser.setLastName(lastname);
-			currentUser.setEmail(email);
-			currentUser.setAbout(about);
-			currentUser.setWebsite(website);
+			currentUser.setFirstName(toEdit.getFirstName());
+			currentUser.setLastName(toEdit.getLastName());
+			currentUser.setEmail(toEdit.getEmail());
+			currentUser.setAbout(toEdit.getAbout());
+			currentUser.setWebsite(toEdit.getWebsite());
 			merge(currentUser);
 			return currentUser;
 		}
