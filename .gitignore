@@ -36,3 +36,4 @@ application.properties
 environment.sh
 conf/redis-local.conf
 dump.rdb
+.settings

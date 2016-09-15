@@ -27,7 +27,7 @@ public class UserValidationService {
 			validationResult = false;
 			errorText = "Empty mandatory field." ;
 			resultCode = ResultCode.EMPTY_MANDATORY_FIELD;
-		} else if (!isEdit && (!user.getUsername().matches("[A-Za-z0-9-_]+") ||
+		} else if (!isEdit && (!user.getUsername().matches("[A-Za-z0-9-_\\.]+") ||
 				    user.getUsername().length() < 3 ||
 				    user.getUsername().length() > 25)){
 			validationResult = false;
