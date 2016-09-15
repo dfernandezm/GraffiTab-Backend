@@ -15,11 +15,6 @@ SHARED_DIRECTORY=/data/uploads
 DO_DEPLOYMENT_DIR=/opt/graffitab
 ```
 
-* Update repositories:
-```
- apt-get update
-```
-
 Add the graffitab user
 [here](https://www.digitalocean.com/community/tutorials/how-to-create-a-sudo-user-on-ubuntu-quickstart) and
 [here](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-14-04).
@@ -37,6 +32,38 @@ To test the created user:
  su - $DEPLOY_USERNAME
 ```
 
+* Allow passwordless ssh access as `graffitab`:
+```
+$ ssh-keygen
+```
+
+Accept all. Then create `authorized_keys` file inside `.ssh` directory in `/home/graffitab`
+and append the ssh private key existing in the other servers. Then test from your machine:
+```
+$ ssh graffitab@serverurl
+```
+
+* Add `graffitab` as a passwordless sudoer, so it can run sudo commands without password:
+```
+visudo -f /etc/sudoers.d/90-cloud-init-users
+```
+
+Append here the following line:
+```
+graffitab ALL=(ALL) NOPASSWD:ALL
+```
+
+Now test a `sudo` command as graffitab, it shouldn't ask for a password:
+```
+$ su - graffitab
+$ sudo apt-get update
+```
+
+* Update repositories:
+```
+ apt-get update
+```
+
 **Update/add SSH keys for this user in CircleCI and locally. Also change commands in `circle.yml` accordingly.**
 
 
@@ -51,9 +78,9 @@ apt-get install sshfs
 mkdir -p $SHARED_DIRECTORY
 ```
 
-From one of the droplets run:
+Ensure droplets can ssh each other by exchanging SSH keys. From one of the droplets run:
 ```
-sshfs -o allow_other,defer_permissions,IdentityFile=~/.ssh/id_rsa root@:/$SHARED_DIRECTORY $SHARED_DIRECTORY
+sudo sshfs -o allow_other,IdentityFile=/home/graffitab/.ssh/id_rsa graffitab@prd02.graffitab.com:/data/uploads /data/uploads
 ```
 
 TODO: investigate how to make this permanent between restart fo the droplets
@@ -122,11 +149,3 @@ TODO:
 - Install iptables
 - Create rules that lock any direct connection from public IPs but SSH
 - Allow only the load balancer connections on the private IP
-
-
-
-
-
-
-
-

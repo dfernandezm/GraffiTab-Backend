@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Starting Application..."
-source environment.sh
+source ~/environment.sh
 
 # -Djava.security.egd=file:/dev/./urandom to avoid Tomcat hanging on startup Ubuntu 14.04
 # http://stackoverflow.com/questions/25660899/spring-boot-actuator-application-wont-start-on-ubuntu-vps

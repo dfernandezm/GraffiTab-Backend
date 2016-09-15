@@ -120,7 +120,7 @@ Tutorial [here](https://www.digitalocean.com/community/tutorials/how-to-implemen
 
 ```
 $ mkdir /etc/ssl/dev.graffitab.com
-$ openssl req -nodes -newkey rsa:2048 -keyout dev.graffitab.com.key -out dev.graffitab.com.csr
+$ openssl req -nodes -newkey rsa:2048 -keyout graffitab.com.key -out graffitab.com.csr
 ```
 
 * Check the CSR is correct [here](https://decoder.link/result/?stored=c99c8254651dfe03754e1372ff154db7)

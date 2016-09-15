@@ -240,7 +240,7 @@ def loadConfiguration() {
         configFile = 'conf/application-heroku.properties'
     } else if (env == 'openshiftDev') {
         configFile = 'conf/application-openshift.properties'
-    } else if (env == 'digitalOceanDev') {
+    } else if (env == 'digitalOcean') {
         configFile = 'conf/application-digitalocean.properties'
     }
 
@@ -299,7 +299,7 @@ def loadConfiguration() {
         ext.dbPassword = System.getenv(appProperties.getProperty("db.password")?.replace("\$","").replace("{","").replace("}",""))
     }
 
-    if  (env == 'digitalOceanDev') {
+    if  (env == 'digitalOcean') {
         println("Reading config for DigitalOcean from environment")
 
         // Tidy up the strings in properties file so they can be read directly as env variables

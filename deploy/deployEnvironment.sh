@@ -1,0 +1,15 @@
+ENVIRON=$DEV_ENV_NAME
+DO_MYSQL_DB_HOST=$DO_DEV_MYSQL_HOST
+
+if [ $CIRCLE_BRANCH == $PRD_BRANCH_NAME ]
+then
+  ENVIRON=$PRD_ENV_NAME
+  DO_MYSQL_DB_HOST=$DO_PRD_MYSQL_HOST
+else
+  ENVIRON=$DEV_ENV_NAME
+  DO_MYSQL_DB_HOST=$DO_DEV_MYSQL_HOST
+fi
+
+ENVNAME=digitalOcean
+echo "Building dependencies for $ENVIRON environment: $ENVNAME"
+echo "Database host is $DO_MYSQL_DB_HOST"

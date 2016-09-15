@@ -7,5 +7,5 @@ then
      exit 0
 else
     echo "Stopping application with pid $PID"
-    kill $PID
+    sudo kill $PID
 fi
