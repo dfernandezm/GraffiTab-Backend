@@ -129,6 +129,18 @@ import lombok.Setter;
 			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
+		name = "Streamable.getUserMentions",
+		query = "select distinct s "
+			  + "from User u "
+			  + "join u.notifications n "
+			  + "left join n.mentionedStreamable s "
+			  + "where u = :currentUser "
+			  + "and n.notificationType = 'MENTION' " // Only look through mention-type notifications for now.
+			  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
+			  + "and s.isPrivate = 'N' "
+			  + "order by s.createdOn desc"
+	),
+	@NamedQuery(
 		name = "Streamable.getPrivateStreamables",
 		query = "select s "
 			  + "from User u "

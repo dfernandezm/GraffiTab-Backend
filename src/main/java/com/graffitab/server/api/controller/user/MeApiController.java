@@ -448,4 +448,13 @@ public class MeApiController {
 		createAssetResult.setAsset(mapper.map(asset, AssetDto.class));
 		return createAssetResult;
 	}
+
+	@RequestMapping(value = {"/mentions"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<FullStreamableDto> getMentions(
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getUserMentionsResult(userService.getCurrentUser().getId(), offset, limit);
+	}
 }

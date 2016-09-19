@@ -1,5 +1,7 @@
 package com.graffitab.server.service.streamable;
 
+import java.util.Locale;
+
 import javax.annotation.Resource;
 
 import org.hibernate.Query;
@@ -30,8 +32,6 @@ import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
-
-import java.util.Locale;
 
 @Service
 public class StreamableService {
@@ -236,6 +236,20 @@ public class StreamableService {
 
 		if (user != null) {
 			Query query = userDao.createNamedQuery("Streamable.getUserStreamables");
+			query.setParameter("currentUser", user);
+
+			return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);
+		} else {
+			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
+		}
+	}
+
+	@Transactional(readOnly = true)
+	public ListItemsResult<FullStreamableDto> getUserMentionsResult(Long userId, Integer offset, Integer limit) {
+		User user = userService.findUserById(userId);
+
+		if (user != null) {
+			Query query = userDao.createNamedQuery("Streamable.getUserMentions");
 			query.setParameter("currentUser", user);
 
 			return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, offset, limit, query);

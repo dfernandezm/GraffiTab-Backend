@@ -1,5 +1,7 @@
 package com.graffitab.server.api.controller.user;
 
+import java.util.Locale;
+
 import javax.annotation.Resource;
 
 import org.springframework.http.HttpStatus;
@@ -28,8 +30,6 @@ import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.service.TransactionUtils;
 import com.graffitab.server.service.streamable.StreamableService;
 import com.graffitab.server.service.user.UserService;
-
-import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/users")
@@ -218,5 +218,15 @@ public class UserApiController extends BaseApiController {
 			@RequestParam(value="offset", required = false) Integer offset,
 			@RequestParam(value="limit", required = false) Integer limit) {
 		return userService.searchUsersResult(query, offset, limit);
+	}
+
+	@RequestMapping(value = {"/{id}/mentions"}, method = RequestMethod.GET)
+	@Transactional(readOnly = true)
+	@UserStatusRequired(value = AccountStatus.ACTIVE)
+	public ListItemsResult<FullStreamableDto> getMentions(
+			@PathVariable("id") Long userId,
+			@RequestParam(value="offset", required = false) Integer offset,
+			@RequestParam(value="limit", required = false) Integer limit) {
+		return streamableService.getUserMentionsResult(userId, offset, limit);
 	}
 }
