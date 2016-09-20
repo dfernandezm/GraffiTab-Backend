@@ -1,5 +1,7 @@
 package com.graffitab.server.api.controller.streamable;
 
+import java.util.Locale;
+
 import javax.annotation.Resource;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +26,6 @@ import com.graffitab.server.persistence.model.streamable.Streamable;
 import com.graffitab.server.persistence.model.user.User.AccountStatus;
 import com.graffitab.server.service.streamable.CommentService;
 import com.graffitab.server.service.streamable.StreamableService;
-
-import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/streamables")
@@ -154,11 +154,10 @@ public class StreamableApiController {
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
 	public ListItemsResult<FullStreamableDto> searchStreamablesAtLocation(
-			@RequestParam(value="neLatitude", required = true) Double neLatitude,
-			@RequestParam(value="neLongitude", required = true) Double neLongitude,
-			@RequestParam(value="swLatitude", required = true) Double swLatitude,
-			@RequestParam(value="swLongitude", required = true) Double swLongitude) {
-		return streamableService.searchStreamablesAtLocationResult(neLatitude, neLongitude, swLatitude, swLongitude);
+			@RequestParam(value="latitude", required = true) Double latitude,
+			@RequestParam(value="longitude", required = true) Double longitude,
+			@RequestParam(value="radius", required = true) int radius) {
+		return streamableService.searchStreamablesAtLocationResult(latitude, longitude, radius);
 	}
 
 	@RequestMapping(value = {"/search/hashtag"}, method = RequestMethod.GET)

@@ -83,18 +83,6 @@ import lombok.Setter;
 			  + "order by s.createdOn desc"
 	),
 	@NamedQuery(
-			name = "Streamable.searchUserStreamablesAtLocation",
-			query = "select s "
-				  + "from Streamable s "
-				  + "where s.user = :currentUser "
-				  + "and s.latitude is not null and s.longitude is not null " // Check that the streamable has a location.
-				  + "and s.latitude <= :neLatitude and s.latitude >= :swLatitude " // Check that the streamable is inside the required GPS rectangle.
-				  + "and s.longitude <= :neLongitude and s.longitude >= :swLongitude "
-				  + "and s.isDeleted = 'N' " // Enforce rules for hidden items.
-				  + "and s.isPrivate = 'N' "
-				  + "order by s.createdOn desc"
-		),
-	@NamedQuery(
 		name = "Streamable.hashtagExistsForStreamable",
 		query = "select count(*) "
 			  + "from Streamable s "

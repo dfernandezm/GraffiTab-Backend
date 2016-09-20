@@ -32,9 +32,12 @@ import com.graffitab.server.service.notification.NotificationService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
+import com.graffitab.server.util.GPSUtils;
 
 @Service
 public class StreamableService {
+
+	public static final int MAX_LOCATION_RADIUS = 1000; // Max radius is 1km.
 
 	@Resource
 	private UserService userService;
@@ -345,33 +348,19 @@ public class StreamableService {
 	}
 
 	@Transactional(readOnly = true)
-	public ListItemsResult<FullStreamableDto> searchStreamablesAtLocationResult(Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
+	public ListItemsResult<FullStreamableDto> searchStreamablesAtLocationResult(Double latitude, Double longitude, int radius) {
+		radius = Math.min(radius, MAX_LOCATION_RADIUS);
+
+		Pair<Double, Double> neOffset = GPSUtils.offsetCoordinates(latitude, longitude, radius);
+		Pair<Double, Double> swOffset = GPSUtils.offsetCoordinates(latitude, longitude, -radius);
+
 		Query query = streamableDao.createNamedQuery("Streamable.searchStreamablesAtLocation");
-		query.setParameter("neLatitude", neLatitude);
-		query.setParameter("swLatitude", swLatitude);
-		query.setParameter("neLongitude", neLongitude);
-		query.setParameter("swLongitude", swLongitude);
+		query.setParameter("neLatitude", neOffset.getValue(0));
+		query.setParameter("swLatitude", swOffset.getValue(0));
+		query.setParameter("neLongitude", neOffset.getValue(1));
+		query.setParameter("swLongitude", swOffset.getValue(1));
 
-		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
-	}
-
-	@Transactional(readOnly = true)
-	public ListItemsResult<FullStreamableDto> searchUserStreamablesAtLocationResult(Long userId, Double neLatitude, Double neLongitude, Double swLatitude, Double swLongitude) {
-		User user = userService.findUserById(userId);
-
-		if (user != null) {
-			Query query = streamableDao.createNamedQuery("Streamable.searchUserStreamablesAtLocation");
-			query.setParameter("currentUser", user);
-			query.setParameter("neLatitude", neLatitude);
-			query.setParameter("swLatitude", swLatitude);
-			query.setParameter("neLongitude", neLongitude);
-			query.setParameter("swLongitude", swLongitude);
-
-			return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE, query);
-		}
-		else {
-			throw new RestApiException(ResultCode.USER_NOT_FOUND, "User with id " + userId + " not found");
-		}
+		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE_LOCATION, query);
 	}
 
 	@Transactional(readOnly = true)
