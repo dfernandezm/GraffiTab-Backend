@@ -35,8 +35,9 @@ public class ProtocolCheckingFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
 		String protocol = getProtocolForRequest(request);
+		String requestUri = request.getRequestURI();
 
-		if (httpsOnlyAllowed && !"https".equals(protocol)) {
+		if (httpsOnlyAllowed && !"https".equals(protocol) && !requestUri.endsWith("status")) {
 			log.warn("Only HTTPS requests are allowed -- failing request");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 			return;
