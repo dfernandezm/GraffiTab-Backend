@@ -36,6 +36,6 @@ test:
 # Need to add one valid private SSH Key to CircleCI UI so it can authenticate against Openshift
 deployment:
   staging:
-    branch: test-circleprod
+    branch: master
     commands:
       - cp deploy/deploy.sh . && chmod +x deploy.sh && ./deploy.sh && rm deploy.sh
