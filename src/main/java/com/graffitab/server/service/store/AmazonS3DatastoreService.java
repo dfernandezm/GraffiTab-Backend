@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,7 +25,8 @@ import com.graffitab.server.service.TransactionUtils;
 @Service
 public class AmazonS3DatastoreService implements DatastoreService {
 
-	public static String BUCKET_NAME = "graffitab-eu1"; // Single bucket for now
+	@Value("${s3.bucketName:graffitab-eu1}")
+	public String bucketName;
 	public static String SUFFIX = "/";
 	public static String ASSETS_ROOT_KEY = "assets";
 
@@ -44,7 +46,7 @@ public class AmazonS3DatastoreService implements DatastoreService {
 		String awsKey = System.getenv(AWS_KEY_ENVVAR_NAME);
 
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Logging into Amazon S3 - AWS Key is {}", awsKey);
+			LOG.debug("Logging into Amazon S3 - AWS Key is {} - bucket is {}", awsKey, bucketName);
 		}
 
 		if (StringUtils.hasText(awsKey) && StringUtils.hasText(awsSecret)) {
@@ -69,7 +71,7 @@ public class AmazonS3DatastoreService implements DatastoreService {
 		ObjectMetadata requestMetadata = new ObjectMetadata();
 		requestMetadata.setContentLength(contentLength);
 
-		PutObjectRequest putRequest = new PutObjectRequest(BUCKET_NAME, key, inputStream, requestMetadata).withCannedAcl(CannedAccessControlList.PublicRead);
+		PutObjectRequest putRequest = new PutObjectRequest(bucketName, key, inputStream, requestMetadata).withCannedAcl(CannedAccessControlList.PublicRead);
 		PutObjectResult result = amazonS3Client.putObject(putRequest);
 
 		if (LOG.isDebugEnabled()) {
@@ -89,7 +91,7 @@ public class AmazonS3DatastoreService implements DatastoreService {
 
 		String key = generateKey(assetGuid);
 
-		amazonS3Client.deleteObject(new DeleteObjectRequest(BUCKET_NAME, key));
+		amazonS3Client.deleteObject(new DeleteObjectRequest(bucketName, key));
 
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Deleted asset {}", key);
@@ -98,34 +100,11 @@ public class AmazonS3DatastoreService implements DatastoreService {
 
 	@Override
 	public String generateDownloadLink(String assetGuid) {
-		return "http://" + BUCKET_NAME + ".s3.amazonaws.com/" + generateKey(assetGuid);
+		return "http://" + bucketName + ".s3.amazonaws.com/" + generateKey(assetGuid);
 	}
 
 	private static String generateKey(String assetGuid) {
 		return ASSETS_ROOT_KEY + "/" + assetGuid;
-	}
-
-	@SuppressWarnings("unused")
-	private static void createFolderInBucket(String folderName, AmazonS3Client amazonS3Client) {
-
-		// create meta-data for your folder and set content-length to 0
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentLength(0);
-
-		// create empty content
-		InputStream emptyContent = new ByteArrayInputStream(new byte[0]);
-
-		// create a PutObjectRequest passing the folder name suffixed by /
-		PutObjectRequest putObjectRequest = new PutObjectRequest(BUCKET_NAME,
-					folderName + SUFFIX, emptyContent, metadata);
-
-		// send request to S3 to create folder
-		PutObjectResult putObjectResult = amazonS3Client.putObject(putObjectRequest);
-
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("Result of creation of folder in Amazon S3: hash " +
-						putObjectResult.getMetadata().getContentMD5());
-		}
 	}
 
 	@SuppressWarnings("unused")
@@ -139,7 +118,7 @@ public class AmazonS3DatastoreService implements DatastoreService {
 		InputStream emptyContent = new ByteArrayInputStream(new byte[0]);
 
 		// create a PutObjectRequest passing the folder name suffixed by /
-		PutObjectRequest putObjectRequest = new PutObjectRequest(BUCKET_NAME,
+		PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName,
 					folderName + SUFFIX, emptyContent, metadata);
 
 		// send request to S3 to create folder
@@ -153,6 +132,10 @@ public class AmazonS3DatastoreService implements DatastoreService {
 
 	@Override
 	public String generateThumbnailLink(String assetGuid) {
-		return "http://" + BUCKET_NAME + ".s3.amazonaws.com/" + generateKey(assetGuid) + "_thumb";
+		return "http://" + bucketName + ".s3.amazonaws.com/" + generateKey(assetGuid) + "_thumb";
+	}
+
+	public String getBucketName() {
+		return bucketName;
 	}
 }

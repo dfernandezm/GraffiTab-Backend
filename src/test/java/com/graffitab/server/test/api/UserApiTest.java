@@ -97,6 +97,9 @@ public class UserApiTest {
 	    @Autowired
 	    private ImageUtilsService imageUtilsService;
 
+		@Autowired
+		private AmazonS3DatastoreService datastoreService;
+
 	    private Wiser wiser;
 
 	    private MockMvc mockMvc;
@@ -470,7 +473,7 @@ public class UserApiTest {
 
 		@Override
 		public String generateDownloadLink(String assetGuid) {
-			return "http://" + AmazonS3DatastoreService.BUCKET_NAME + ".s3.amazonaws.com/" + generateKey(assetGuid);
+			return "http://" +  "graffitab-eu1" + ".s3.amazonaws.com/" + generateKey(assetGuid);
 		}
 
 		private static String generateKey(String assetGuid) {
