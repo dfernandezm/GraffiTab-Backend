@@ -233,7 +233,7 @@ public class UserService {
 				});
 
 				emailService.sendWelcomeEmail(user.getUsername(), user.getEmail(),
-						generateUserAccountActivationLink(userToken), locale);
+						generateUserAccountActivationLink(userToken, locale.getLanguage()), locale);
 
 				return user;
 			} else {
@@ -503,7 +503,7 @@ public class UserService {
 			return innerUser;
 		});
 
-		emailService.sendResetPasswordEmail(email, generateResetPasswordLink(resetPasswordToken), locale);
+		emailService.sendResetPasswordEmail(email, generateResetPasswordLink(resetPasswordToken, locale.getLanguage()), locale);
 
 		return user;
 	}
@@ -653,12 +653,12 @@ public class UserService {
 				+ ((request.getServerPort() != 80) ? ":" + request.getServerPort() : "");
 	}
 
-	private String generateResetPasswordLink(String resetPasswordToken) {
-		return generateBaseLink() + "/resetpassword/" + resetPasswordToken;
+	private String generateResetPasswordLink(String resetPasswordToken, String language) {
+		return generateBaseLink() + "/resetpassword/" + resetPasswordToken + "?lang=" + language;
 	}
 
-	private String generateUserAccountActivationLink(String userToken) {
-		return generateBaseLink() + "/activate/" + userToken;
+	private String generateUserAccountActivationLink(String userToken, String language) {
+		return generateBaseLink() + "/activate/" + userToken + "?lang=" + language;
 	}
 
 	public void merge(User user) {

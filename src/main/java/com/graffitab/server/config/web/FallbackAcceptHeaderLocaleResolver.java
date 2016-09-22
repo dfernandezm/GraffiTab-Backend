@@ -26,13 +26,28 @@ public class FallbackAcceptHeaderLocaleResolver extends AcceptHeaderLocaleResolv
 
             String[] languages = supportedLanguages.split(",");
             List<String> supportedLanguagesList = Arrays.asList(languages);
-            Locale requestLocale = request.getLocale();
 
-            String currentLanguage = requestLocale.getLanguage();
-            if (supportedLanguagesList.contains(currentLanguage)) {
-                return requestLocale;
+            Locale currentLocale;
+
+            if (request.getParameter("lang") != null) {
+                String currentLanguage = request.getParameter("lang");
+                currentLocale = Locale.forLanguageTag(currentLanguage);
             } else {
-                log.warn("The requested language " + currentLanguage + " is not supported -- falling back to English");
+                // This is the value of the Accept-Language header
+                Locale requestLocaleFromAcceptHeader = request.getLocale();
+
+                if (requestLocaleFromAcceptHeader == null) {
+                    log.warn("No locale found for this request in Accept-Language Header -- falling back to English");
+                    return Locale.ENGLISH;
+                }
+
+                currentLocale = requestLocaleFromAcceptHeader;
+            }
+
+            if (supportedLanguagesList.contains(currentLocale.getLanguage())) {
+                return currentLocale;
+            } else {
+                log.warn("The requested language " + currentLocale.getLanguage() + " is not supported -- falling back to English");
                 return Locale.ENGLISH;
             }
         } else {

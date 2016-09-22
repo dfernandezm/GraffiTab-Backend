@@ -47,6 +47,14 @@ public class UserApiController extends BaseApiController {
 	@Resource
 	private TransactionUtils transactionUtils;
 
+	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
+	@ResponseStatus(HttpStatus.CREATED)
+	@Transactional
+	public ActionCompletedResult createUser(@JsonProperty("user") UserDto userDto, Locale locale) {
+		userService.createUser(mapper.map(userDto, User.class), locale);
+		return new ActionCompletedResult();
+	}
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@Transactional(readOnly = true)
 	@UserStatusRequired(value = AccountStatus.ACTIVE)
@@ -96,13 +104,7 @@ public class UserApiController extends BaseApiController {
 		return new ActionCompletedResult();
 	}
 
-	@RequestMapping(value = {""}, method = RequestMethod.POST, consumes={"application/json"})
-	@ResponseStatus(HttpStatus.CREATED)
-	@Transactional
-	public ActionCompletedResult createUser(@JsonProperty("user") UserDto userDto, Locale locale) {
-		userService.createUser(mapper.map(userDto, User.class), locale);
-		return new ActionCompletedResult();
-	}
+
 
 	@RequestMapping(value = "/activate/{token}", method = RequestMethod.GET)
 	public ActionCompletedResult activateAccount(@PathVariable("token") String token) {

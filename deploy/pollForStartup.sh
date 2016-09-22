@@ -12,7 +12,7 @@ done
 if [ $COUNT = 45 ]
 then
 echo "Timeout starting application (90s) -- failing build"
-exit -1
+exit 1
 else
 echo "Startup finished: $VAL"
 fi
