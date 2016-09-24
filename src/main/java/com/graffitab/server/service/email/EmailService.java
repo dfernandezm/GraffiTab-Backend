@@ -8,10 +8,10 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Resource;
 
-import lombok.extern.log4j.Log4j;
-
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+
+import lombok.extern.log4j.Log4j;
 
 @Service
 @Log4j
@@ -34,9 +34,10 @@ public class EmailService {
 		sendEmailAsync(welcomeEmail);
 	}
 
-	public void sendWelcomeExternalEmail(String username, String email, Locale locale) {
+	public void sendWelcomeExternalEmail(String username, String email, String getStartedLink, Locale locale) {
 		Map<String,String> data = new HashMap<>();
 		data.put("@username", username);
+		data.put("@get_started_link", getStartedLink);
 
 		String welcomeSubject = messageSource.getMessage("email.subject.welcome", null, locale);
 		Email welcomeEmail = Email.welcomeExternal(new String[] {email}, data, welcomeSubject, locale.getLanguage());

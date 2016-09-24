@@ -1,7 +1,9 @@
 package com.graffitab.server.api.controller.pages;
 
-import com.graffitab.server.service.user.UserService;
-import lombok.extern.log4j.Log4j2;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,8 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Locale;
+import com.graffitab.server.service.user.UserService;
+
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Controller
@@ -22,6 +25,11 @@ public class PagesController {
 
 	@Autowired
 	private UserService userService;
+
+	@RequestMapping(value = "/getstarted", method = RequestMethod.GET)
+	public String getGetStartedPage() {
+		return "redirect:/";
+	}
 
 	@RequestMapping(value = {"/activate/{token}"})
 	public String getActivatePage(@PathVariable(value = "token") String token, Model model,

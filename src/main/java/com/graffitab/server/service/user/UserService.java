@@ -268,7 +268,7 @@ public class UserService {
 							userDao.persist(user);
 						});
 
-						emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail(), locale);
+						emailService.sendWelcomeExternalEmail(user.getUsername(), user.getEmail(), generateGetStartedLink(locale.getLanguage()), locale);
 
 						// Add notification to the new user.
 						notificationService.addWelcomeNotificationAsync(user);
@@ -659,6 +659,10 @@ public class UserService {
 
 	private String generateUserAccountActivationLink(String userToken, String language) {
 		return generateBaseLink() + "/activate/" + userToken + "?lang=" + language;
+	}
+
+	private String generateGetStartedLink(String language) {
+		return generateBaseLink() + "/getstarted?lang=" + language;
 	}
 
 	public void merge(User user) {
