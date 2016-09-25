@@ -73,6 +73,9 @@ frontend graffitabdev-http
 
 frontend graffitabdev-https
     bind *:443 ssl crt /etc/ssl/private/dev.graffitab.com.pem
+    acl p_ext_robots path_end -i robots.txt
+    acl p_deep_link path_end -i apple-app-site-association
+    http-request set-path /public/%[path] if p_deep_link or p_ext_robots
     reqadd X-Forwarded-Proto:\ https
     default_backend devnodes
 
@@ -138,6 +141,16 @@ $ cp dev.graffitab.com.pem /etc/ssl/private/
 * Store all the `.pem`,`.crt`,`.key` in a safe place
 
 * Configure HAProxy using the configuration file outlined above, substituting the placeholders with the right values
+
+## Troubleshooting
+
+### Logging
+
+Logging to `/var/log/haproxy.log` might not work first time. Check the version of `rsyslog` is at least `7.4.4` and
+the configuration files under `/etc/rsyslog.conf` and `/etc/rsyslog.d/49-haproxy.conf` look like the provided ones.
+Restart both `haproxy` and `rsyslog` services for the changes to take effect.
+
+Logs for HAProxy should be in `/var/log/haproxy.log`
 
 ## Add swap
 
