@@ -18,6 +18,7 @@ general:
     only:
       - master # list of branches to build
       - /feature.*/ # or regexes
+      - /hotfix.*/
 
 dependencies:
   override:
@@ -35,7 +36,11 @@ test:
 
 # Need to add one valid private SSH Key to CircleCI UI so it can authenticate against Openshift
 deployment:
-  staging:
+  production:
     branch: master
+    commands:
+      - cp deploy/deploy.sh . && chmod +x deploy.sh && ./deploy.sh && rm deploy.sh
+  development:
+    branch: [/feature.*/, /hotfix.*/]
     commands:
       - cp deploy/deploy.sh . && chmod +x deploy.sh && ./deploy.sh && rm deploy.sh
