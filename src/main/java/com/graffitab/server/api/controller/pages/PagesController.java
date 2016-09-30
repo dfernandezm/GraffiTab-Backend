@@ -88,11 +88,13 @@ public class PagesController {
 			model.addAttribute("lang", lang);
 			return "resetPassword";
 		}
+		model.addAttribute("lang", lang);
 		return "redirect:/resetpasswordsuccess";
 	}
 
 	@RequestMapping(value = {"/resetpasswordsuccess"}, method= RequestMethod.GET)
-	public String getResetPasswordSuccessPage() {
+	public String getResetPasswordSuccessPage(@RequestParam(value = "lang", required = false) String lang, Model model, Locale locale) {
+		model.addAttribute("lang", lang);
 		return "resetPasswordResult";
 	}
 
