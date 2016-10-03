@@ -14,6 +14,10 @@ div.activateContainerWrapper {
   margin-right: 0px
 }
 
+div.countdownSlot {
+  text-align: center;
+}
+
 p.activateMessage {
   padding-top: 10px;
   padding-bottom: 20px
@@ -43,4 +47,24 @@ nav {
 
 body {
   background-color: #F2F3F4
+}
+
+html.fullScreenBackground {
+  background: url(../img/background.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+img.social {
+  width: 35px;
+  height: 35px;
+  border: 0;
+  opacity: 0.75;
+}
+
+img.social.middle {
+  margin-left: 5px;
+  margin-right: 5px;
 }

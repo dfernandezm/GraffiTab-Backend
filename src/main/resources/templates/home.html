@@ -1,19 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html class="fullScreenBackground" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=8" />
 
-    <link rel="stylesheet" type="text/css" media="screen" href="/public/main.css" />
+  <!--Import Google Icon Font-->
+  <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+  <link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"/>
 
+  <!-- Compiled and minified CSS -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css"
+        media="screen,projection" />
+  <link rel="stylesheet" th:href="@{/public/css/graffitab-server.css}" href="../public/css/graffitab-server.css" />
+  <link rel="stylesheet" th:href="@{/public/css/timer.css}" href="../public/css/timer.css" />
 
-    <title>Welcome to GraffiTab</title>
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <link rel="shortcut icon" th:href="@{/public/img/favicon.ico}" href="../public/img/favicon.ico" type="image/x-icon"/>
+  <link rel="icon" th:href="@{/public/img/favicon.ico}" href="../public/img/favicon.ico" type="image/x-icon"/>
+
+  <title>Welcome to GraffiTab</title>
 </head>
+<body onload="initializeClock('clock', deadline)">
 
-<body>
-<h1>Welcome to GraffiTab</h1>
-<div class="content"></div>
-<script src="/public/main.js" type="text/javascript"><!-- c --></script>
+<div class="countdownContainer">
+  <div>
+    <span class="title">DISCOVER YOUR INNER ARTIST..</span>
+  </div>
+  <div class="subtitleContainer">
+    <span class="subtitle">OUR WEBSITE IS UNDER CONSTRUCTION</span>
+  </div>
+  <div id="clock" class="row">
+    <div class="col l3 m3 s3 countdownSlot">
+      <span class="days countdownNumber"></span><br />
+      <span class="countdownText">DAYS</span>
+    </div>
+    <div class="col l3 m3 s3 countdownSlot">
+      <span class="hours countdownNumber"></span><br />
+      <span class="countdownText">HOURS</span>
+    </div>
+    <div class="col l3 m3 s3 countdownSlot">
+      <span class="minutes countdownNumber"></span><br />
+      <span class="countdownText">MINUTES</span>
+    </div>
+    <div class="col l3 m3 s3 countdownSlot">
+      <span class="seconds countdownNumber"></span><br />
+      <span class="countdownText">SECONDS</span>
+    </div>
+  </div>
+  <div class="followTitleContainer">
+    <span class="socialTitle">FOLLOW US</span>
+  </div>
+  <div>
+    <a href="https://www.facebook.com/GraffiTab" target="_blank"><img class="social" alt="Facebook" th:src="@{/public/img/fb_icon.png}" src="../public/img/fb_icon.png" /></a>
+    <a href="https://twitter.com/graffitab" target="_blank"><img class="social middle" alt="Twitter" th:src="@{/public/img/t_icon.png}" src="../public/img/t_icon.png" /></a>
+    <a href="https://plus.google.com/118127141013160676752" target="_blank"><img class="social" alt="Google" th:src="@{/public/img/g_icon.png}" src="../public/img/g_icon.png" /></a>
+  </div>
+</div>
+
+<!-- Compiled and minified JavaScript -->
+<script type="text/javascript" th:src="@{/public/deep-link.js}" src="../public/deep-link.js"><!-- aa --></script>
+<script type="text/javascript" th:src="@{/public/countdown.js}" src="../public/countdown.js"><!-- aa --></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"><!-- aa --></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"><!-- ss --></script>
+
 </body>
-
 </html>
