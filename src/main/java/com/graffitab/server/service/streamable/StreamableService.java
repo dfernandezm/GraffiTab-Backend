@@ -37,7 +37,7 @@ import com.graffitab.server.util.GPSUtils;
 @Service
 public class StreamableService {
 
-	public static final int MAX_LOCATION_RADIUS = 1000; // Max radius is 1km.
+	public static final double MAX_LOCATION_RADIUS = GPSUtils.R; // Max radius in m is the radius of Earth.
 
 	@Resource
 	private UserService userService;
@@ -349,7 +349,7 @@ public class StreamableService {
 
 	@Transactional(readOnly = true)
 	public ListItemsResult<FullStreamableDto> searchStreamablesAtLocationResult(Double latitude, Double longitude, int radius) {
-		radius = Math.min(radius, MAX_LOCATION_RADIUS);
+		radius = Math.min(radius, (int)MAX_LOCATION_RADIUS);
 
 		Pair<Double, Double> neOffset = GPSUtils.offsetCoordinates(latitude, longitude, radius);
 		Pair<Double, Double> swOffset = GPSUtils.offsetCoordinates(latitude, longitude, -radius);
