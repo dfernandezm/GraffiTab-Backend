@@ -3,9 +3,11 @@ package com.graffitab.server.service.paging;
 import java.util.List;
 
 import org.hibernate.Query;
+import org.springframework.stereotype.Service;
 
 import com.graffitab.server.persistence.model.PagedList;
 
+@Service
 public class LocationsPagingService extends PagingService {
 
 	@Override
