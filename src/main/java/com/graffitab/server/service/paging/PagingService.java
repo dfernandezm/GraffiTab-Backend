@@ -18,6 +18,7 @@ public class PagingService {
 	public static final Integer PAGE_SIZE_DEFAULT_VALUE = 10;
 	public static final Integer PAGE_SIZE_MAX_VALUE = 20;
 	public static final Integer PAGE_SIZE_MAX_VALUE_LOCATION = 50;
+	public static final Integer PAGE_SIZE_DEFAULT_VALUE_LOCATION = PAGE_SIZE_MAX_VALUE_LOCATION;
 
 	@Resource
 	protected OrikaMapper mapper;

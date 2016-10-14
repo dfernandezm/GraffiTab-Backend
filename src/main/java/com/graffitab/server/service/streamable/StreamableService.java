@@ -29,6 +29,7 @@ import com.graffitab.server.service.asset.AssetService;
 import com.graffitab.server.service.asset.TransferableStream;
 import com.graffitab.server.service.email.EmailService;
 import com.graffitab.server.service.notification.NotificationService;
+import com.graffitab.server.service.paging.LocationsPagingService;
 import com.graffitab.server.service.paging.PagingService;
 import com.graffitab.server.service.store.DatastoreService;
 import com.graffitab.server.service.user.UserService;
@@ -56,6 +57,9 @@ public class StreamableService {
 
 	@Resource
 	private PagingService pagingService;
+
+	@Resource
+	private LocationsPagingService locationsPagingService;
 
 	@Resource
 	private ActivityService activityService;
@@ -360,7 +364,7 @@ public class StreamableService {
 		query.setParameter("neLongitude", neOffset.getValue(1));
 		query.setParameter("swLongitude", swOffset.getValue(1));
 
-		return pagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE_LOCATION, query);
+		return locationsPagingService.getPagedItems(Streamable.class, FullStreamableDto.class, 0, PagingService.PAGE_SIZE_MAX_VALUE_LOCATION, query);
 	}
 
 	@Transactional(readOnly = true)
