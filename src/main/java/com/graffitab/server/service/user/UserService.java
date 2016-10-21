@@ -106,8 +106,8 @@ public class UserService {
 	public static final String RESET_PASSWORD_ACTIVATION_TOKEN = "resetPasswordToken";
 	public static final String RESET_PASSWORD_ACTIVATION_TOKEN_DATE = "resetPasswordTokenDate";
 
-	// 6 hours in milliseconds.
-	public static final Long ACTIVATION_TOKEN_EXPIRATION_MS = 6 * 60 * 60 * 1000L;
+	// 24 hours in milliseconds.
+	public static final Long ACTIVATION_TOKEN_EXPIRATION_MS = 24 * 60 * 60 * 1000L;
 	// 30 minutes
 	public static final Long RESET_PASSWORD_TOKEN_EXPIRATION_MS = 30 * 60 * 1000L;
 
