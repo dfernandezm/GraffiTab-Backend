@@ -30,13 +30,6 @@ import lombok.Setter;
 			  + "where e.externalProviderType = :externalProviderType "
 			  + "and e.externalUserId = :externalUserId "
 			  + "and e.accessToken = :accessToken"
-	),
-	@NamedQuery(
-		name = "ExternalProvider.findExternalProviderWithoutAccessToken",
-		query = "select e "
-			  + "from ExternalProvider e "
-			  + "where e.externalProviderType = :externalProviderType "
-			  + "and e.externalUserId = :externalUserId"
 	)
 })
 

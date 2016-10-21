@@ -88,13 +88,6 @@ public class ExternalProviderService {
         return (ExternalProvider) query.uniqueResult();
     }
 
-    public ExternalProvider findExternalProvider(ExternalProviderType externalProviderType, String externalUserId) {
-        Query query = externalProviderDao.createNamedQuery("ExternalProvider.findExternalProviderWithoutAccessToken");
-        query.setParameter("externalProviderType", externalProviderType);
-        query.setParameter("externalUserId", externalUserId);
-        return (ExternalProvider) query.uniqueResult();
-    }
-
     public ExternalProvider findExternalProvider(User user, ExternalProviderType externalProviderType) {
         Query query = userDao.createNamedQuery("User.findExternalProviderForUser");
         query.setParameter("externalProviderType", externalProviderType);
