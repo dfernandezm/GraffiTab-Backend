@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' monitorInterval="20" packages="com.graffitab.server">
+<log4j:configuration xmlns:log4j='https://jakarta.apache.org/log4j/' monitorInterval="20" packages="com.graffitab.server">
 
 	<appenders>
 

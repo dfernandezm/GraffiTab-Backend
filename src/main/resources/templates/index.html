@@ -83,19 +83,19 @@
 					<div class="row text-center about-box">
 						<div class="col-4 md-col-12">
 							<!-- <span class="icon-ic_flat_design ficon"></span> -->
-							<i class="icon-draw icon-about"></i>
+							<img class="icon-about" th:src="@{/public/img/icons/ic_draw.png}" src="../public/img/icons/ic_draw.png" />
 							<h6>Draw</h6>
 							<p>User your fingers to paint on the device screen.</p>
 						</div>
 						<div class="col-4 md-col-12">
 							<!-- <span class="icon-ic_market ficon"></span> -->
-							<i class="icon-connect icon-about"></i>
+							<img class="icon-about" th:src="@{/public/img/icons/ic_connect.png}" src="../public/img/icons/ic_connect.png" />
 							<h6>Connect</h6>
 							<p>Stay connected with your friends and build your network.</p>
 						</div>
 						<div class="col-4 md-col-12">
 							<!-- <span class="icon-ic_photos ficon"></span> -->
-							<i class="icon-share icon-about"></i>
+							<img class="icon-about" th:src="@{/public/img/icons/ic_share.png}" src="../public/img/icons/ic_share.png" />
 							<h6>Share</h6>
 							<p>Publish and share in a global community.</p>
 						</div>
@@ -114,7 +114,7 @@
 						<div class="features-text text-right wow fadeInLeft">
 							<div class="features-info md-col-12">
 								<!-- <span class="icon-ic_design ficon"></span> -->
-								<span class="icon-draw icon-about ficon"></span>
+								<span class="icon-about ficon"><img class="icon-about ficon" th:src="@{/public/img/icons/ic_draw.png}" src="../public/img/icons/ic_draw.png"></img></span>
 								<div class="info-text">
 									<h6>Paint</h6>
 									<p>Draw on your device with your finger. Using a stylus works well too.</p>
@@ -122,7 +122,7 @@
 							</div>
 							<div class="features-info md-col-12">
 								<!-- <span class="icon-ic_customize ficon"></span> -->
-								<span class="icon-enhance icon-about ficon"></span>
+								<span class="icon-about ficon"><img class="icon-about ficon" th:src="@{/public/img/icons/ic_enhance.png}" src="../public/img/icons/ic_enhance.png" /></span>
 								<div class="info-text">
 									<h6>Enhance</h6>
 									<p>Many filters and tools to make your drawings stand out from the crowd.</p>
@@ -130,7 +130,7 @@
 							</div>
 							<div class="features-info md-col-12">
 								<!-- <span class="icon-ic_speed ficon"></span> -->
-								<span class="icon-share icon-about ficon"></span>
+								<span class="icon-about ficon"><img class="icon-about ficon" th:src="@{/public/img/icons/ic_share.png}" src="../public/img/icons/ic_share.png" /></span>
 								<div class="info-text">
 									<h6>Share</h6>
 									<p>Publish and share your artwork in a global community.</p>
@@ -141,7 +141,7 @@
 						<div class="features-text text-left wow fadeInRight">
 							<div class="features-info md-col-12" >
 								<!-- <span class="icon-ic_flat_design ficon"></span> -->
-								<span class="icon-connect icon-about ficon"></span>
+								<span class="icon-about ficon"><img class="icon-about ficon" th:src="@{/public/img/icons/ic_connect.png}" src="../public/img/icons/ic_connect.png" /></span>
 								<div class="info-text">
 									<h6>Connect</h6>
 									<p>Stay connected with your friends and build your network.</p>
@@ -149,7 +149,7 @@
 							</div>
 							<div class="features-info md-col-12">
 								<!-- <span class="icon-ic_use ficon"></span> -->
-								<span class="icon-discover icon-about ficon"></span>
+								<span class="icon-about ficon"><img class="icon-about ficon" th:src="@{/public/img/icons/ic_discover.png}" src="../public/img/icons/ic_discover.png" /></span>
 								<div class="info-text">
 									<h6>Discover</h6>
 									<p>Discover new artists around your location and expand your network.</p>
@@ -157,7 +157,7 @@
 							</div>
 							<div class="features-info md-col-12">
 								<!-- <span class="icon-ic_support ficon"></span> -->
-								<span class="icon-profile icon-about ficon"></span>
+								<span class="icon-about ficon"><img class="icon-about ficon" th:src="@{/public/img/icons/ic_profile.png}" src="../public/img/icons/ic_profile.png" /></span>
 								<div class="info-text">
 									<h6>Build your profile</h6>
 									<p>Everything you publish is nicely stored in your creative profile.</p>
@@ -171,7 +171,7 @@
 			<div id="work" class="container work-main">
 				<!-- <video id="work-video" loop preload src="testvideo.mp4">
 						<source src="testvideo.mp4" width="100%" type="video/mp4">
-						<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+						<p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
 				</video>
 				<div class="wrapper">
 					<h2>how it works</h2>
@@ -530,22 +530,22 @@
 					</div>
 
 					<div class="contact-form-main">
-						<form class="contact-form" action="mailto:info@graffitab.com" method="get">
+						<form class="contact-form">
 							<div class="form-row">
 								<div class="col-5">
-									<input placeholder="Your Name" type="text" name="name" />
+									<input placeholder="Your Name" type="text" />
 								</div>
 								<div class="col-5">
-									<input placeholder="Email Address" type="text" name="email" />
+									<input placeholder="Email Address" type="text" />
 								</div>
 							</div>
 
 							<div class="form-row">
-								<input placeholder="Subject" type="text" name="subject" />
+								<input placeholder="Subject" type="text" />
 							</div>
 
 							<div class="form-row">
-								<textarea placeholder="Message..." name="body"></textarea>
+								<textarea placeholder="Message..." />
 							</div>
 
 							<div class="form-row no-margin">
@@ -579,6 +579,9 @@
 		<!-- footer-end -->
 
 	</div>
+
+	<script th:src="@{/public/js/contact.js}" src="../public/js/contact.js"></script>
+
 	<!-- spincrement -->
 	<script th:src="@{/public/js/jquery.min.js}" src="../public/js/jquery.min.js"></script>
 	<script th:src="@{/public/js/waypoints.min.js}" src="../public/js/waypoints.min.js"></script>

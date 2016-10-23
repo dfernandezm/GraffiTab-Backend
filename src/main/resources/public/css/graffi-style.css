@@ -259,25 +259,7 @@ ul.social-link li a:hover {
   width: 80px;
   height: 80px;
   margin-bottom: -22px;
-  margin-top: -25px;
-}
-.icon-draw {
-  content: url(../img/icons/ic_draw.png);
-}
-.icon-connect {
-  content: url(../img/icons/ic_connect.png);
-}
-.icon-share {
-  content: url(../img/icons/ic_share.png);
-}
-.icon-enhance {
-  content: url(../img/icons/ic_enhance.png);
-}
-.icon-discover {
-  content: url(../img/icons/ic_discover.png);
-}
-.icon-profile {
-  content: url(../img/icons/ic_profile.png);
+  margin-top: -12px;
 }
 
 .features-box .features-text span.ficon {
@@ -313,7 +295,7 @@ ul.social-link li a:hover {
   }
 }
 
-@media screen and (max-width: 355px) {
+@media screen and (max-width: 319px) {
   .features-box .features-text span.ficon {
     padding-top: 0px;
     margin-right: 100px;
