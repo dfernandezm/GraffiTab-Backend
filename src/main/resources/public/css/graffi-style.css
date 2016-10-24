@@ -135,6 +135,7 @@
 .work-main {
   height: 200px;
   background: url(../img/work-bg.jpg) no-repeat center;
+  background-size: 100% auto;
 }
 
 .screenshot-main {
@@ -248,7 +249,16 @@ ul.social-link li a:hover {
 }
 
 @media screen and (max-width: 1669px) {
-  .above-fold .hand_bg { right: 0%; max-width: 63%;}
+  .above-fold .hand_bg {
+    right: 0%;
+    max-width: 63%;
+  }
+}
+@media screen and (min-width: 1900px) {
+  .above-fold .hand_bg {
+    right: 0%;
+    width: 1000px;
+  }
 }
 
 .above-fold .hand_bg {
