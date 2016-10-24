@@ -134,8 +134,10 @@
 }
 .work-main {
   height: 200px;
-  background: url(../img/work-bg.jpg) no-repeat center;
-  background-size: 100% auto;
+  background: url(../img/work-bg.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .screenshot-main {
@@ -305,7 +307,7 @@ ul.social-link li a:hover {
   }
 }
 
-@media screen and (max-width: 319px) {
+@media screen and (max-width: 320px) {
   .features-box .features-text span.ficon {
     padding-top: 0px;
     margin-right: 100px;
@@ -313,6 +315,15 @@ ul.social-link li a:hover {
   .features-box .features-text.text-left span.ficon {
       margin-left: 0px;
       margin-right: 100px;
+  }
+  .work-main {
+    background-position: inherit;
+  }
+}
+
+@media screen and (min-width: 321px) {
+  .work-main {
+    background-position: center;
   }
 }
 
