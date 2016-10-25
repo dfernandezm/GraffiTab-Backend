@@ -24,25 +24,9 @@
   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
   ga('create', 'UA-79951684-2', 'auto');
-  ga('require', 'linkAbout');
-  ga('require', 'linkFeatures');
-  ga('require', 'linkScreenshots');
-  ga('require', 'linkContact');
-  ga('require', 'linkDownload');
-
-  ga('require', 'linkGetApp');
-  ga('require', 'linkKeyFeatures');
-
-  ga('require', 'linkDownloadAppStore');
-  ga('require', 'linkDownloadPlayStore');
-  ga('require', 'linkDownloadWindowsStore');
-
-  ga('require', 'linkTwitter');
-  ga('require', 'linkFacebook');
-  ga('require', 'linkGoogle');
+  ga('require', 'linkid');
   ga('send', 'pageview');
 </script>
-
 </head>
 <body>
 	<div id="site-main">
@@ -58,15 +42,15 @@
 							<div class="responsive-menu-btn"><i><b></b><b></b><b></b></i><span></span></div>
 							<nav id="main-menu">
 								<ul class="main-top-menu">
-									<li><a href="#about" id="linkAbout">About GraffiTab</a></li>
-									<li><a href="#features" id="linkFeatures">Features</a></li>
+									<li><a href="#about">About GraffiTab</a></li>
+									<li><a href="#features">Features</a></li>
 									<!-- <li><a href="#work">How it works</a></li> -->
 									<!-- <li><a href="#benefits">Benefits</a></li> -->
-									<li><a href="#screenshots" id="linkScreenshots">Screenshots</a></li>
+									<li><a href="#screenshots">Screenshots</a></li>
 									<!-- <li><a href="#our-team">Our Team</a></li> -->
 									<!-- <li><a href="#priceing">Pricing</a></li> -->
-									<li><a href="#contact" id="linkContact">Contact</a></li>
-									<li class="download"><a href="#download" id="linkDownload">Download</a></li>
+									<li><a href="#contact">Contact</a></li>
+									<li class="download"><a href="#download">Download</a></li>
 								</ul>
 							</nav>
 						</div>
@@ -88,8 +72,8 @@
 						<h1>Draw. Share. Connect.</h1>
 						<p>Available on the App Store</p>
 						<div class="btn-box">
-							<a class="red" href="#download" id="linkGetApp">GET THE APP</a>
-							<a class="blue" href="#features" id="linkKeyFeatures">KEY FEATURES<!--  <span class="icon-ic_play" />--></a>
+							<a class="red" href="#download">GET THE APP</a>
+							<a class="blue" href="#features">KEY FEATURES<!--  <span class="icon-ic_play" />--></a>
 						</div>
 					</div>
 					<a href="#about" class="go-down"></a>
@@ -522,13 +506,13 @@
 							<i class="sep-line">&nbsp;</i>
 						</div>
 						<div class="downlod-btn">
-							<a id="linkDownloadAppStore" href="https://itunes.apple.com/us/app/graffitab-artists-social-network/id1100296557" target="_blank">
+							<a href="https://itunes.apple.com/us/app/graffitab-artists-social-network/id1100296557" onclick="trackLink('https://itunes.apple.com/us/app/graffitab-artists-social-network/id1100296557', 'download_app_store', true); return false;" target="_blank">
 								<img th:src="@{/public/img/svg/ic_itunes.png}" src="../public/img/svg/ic_itunes.png" alt="ic_itunes" class="no-hover" />
 							</a>
-							<a id="linkDownloadPlayStore" href=".">
+							<a href="." onclick="trackLink('.', 'download_play_store', false); return false;">
 								<img th:src="@{/public/img/svg/ic_play_store_soon.png}" src="../public/img/svg/ic_play_store_soon.png" alt="ic_play_store" class="no-hover" />
 							</a>
-							<a id="linkDownloadWindowsStore" href=".">
+							<a href="." onclick="trackLink('.', 'download_windows_store', false); return false;">
 								<img th:src="@{/public/img/svg/ic_store_soon.png}" src="../public/img/svg/ic_store_soon.png" alt="ic_store" class="no-hover" />
 							</a>
 						</div>
@@ -592,10 +576,10 @@
 			<div class="wrapper text-center">
 				<img th:src="@{/public/img/graffi-logo2.png}" src="../public/img/graffi-logo2.png" alt="logo" />
 				<ul class="social-link">
-					<li><a id="linkTwitter" href="https://twitter.com/graffitab" target="_blank"><i class="fa fa-twitter"></i></a></li>
-					<li><a id="linkFacebook" href="https://www.facebook.com/GraffiTab" target="_blank"><i class="fa fa-facebook"></i></a></li>
+					<li><a href="https://twitter.com/graffitab" onclick="trackLink('https://twitter.com/graffitab', 'open_page_twitter', true); return false;" target="_blank"><i class="fa fa-twitter"></i></a></li>
+					<li><a href="https://www.facebook.com/GraffiTab" onclick="trackLink('https://www.facebook.com/GraffiTab', 'open_page_facebook', true); return false;" target="_blank"><i class="fa fa-facebook"></i></a></li>
 					<!-- <li><a href="#"><i class="fa fa-linkedin"></i></a></li> -->
-					<li><a id="linkGoogle" href="https://plus.google.com/118127141013160676752" target="_blank"><i class="fa fa-google-plus"></i></a></li>
+					<li><a href="https://plus.google.com/118127141013160676752" onclick="trackLink('https://plus.google.com/118127141013160676752', 'open_page_google', true); return false;" target="_blank"><i class="fa fa-google-plus"></i></a></li>
 					<!-- <li><a href="#"><i class="fa fa-youtube"></i></a></li> -->
 					<!-- <li><a href="#"><i class="fa fa-pinterest"></i></a></li> -->
 				</ul>
@@ -607,6 +591,9 @@
 	</div>
 
 	<script th:src="@{/public/js/contact.js}" src="../public/js/contact.js"></script>
+
+  <!-- Google Analytics Helper -->
+  <script type="text/javascript" th:src="@{/public/g-analytics-helper.js}" src="../public/g-analytics-helper.js"><!-- aa --></script>
 
 	<!-- spincrement -->
 	<script th:src="@{/public/js/jquery.min.js}" src="../public/js/jquery.min.js"></script>
