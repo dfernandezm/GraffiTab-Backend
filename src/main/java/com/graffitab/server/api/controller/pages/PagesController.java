@@ -28,7 +28,7 @@ public class PagesController {
 
 	@RequestMapping(value = "/getstarted", method = RequestMethod.GET)
 	public String getGetStartedPage() {
-		return "home";
+		return "index";
 	}
 
 	@RequestMapping(value = {"/activate/{token}"})
